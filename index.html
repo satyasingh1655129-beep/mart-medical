@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MART - Medical Shop</title>
+<style>
+    * { box-sizing: border-box; }
+  body { font-family: Arial; margin: 0; padding-bottom: 70px; background: #f5f5f5; }
+  .page { display: none; padding: 15px; }
+  .page.active { display: block; }
+  h2 { color: #2c3e50; margin-top: 0; }
+  input { width: 95%; padding: 10px; margin: 8px 0; border-radius: 5px; border: 1px solid #ccc; }
+  button { padding: 10px 15px; margin: 5px 0; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+  table { width: 100%; background: white; border-collapse: collapse; margin-top: 10px; }
+  td, th { padding: 8px; border: 1px solid #ddd; font-size: 14px; text-align: left; }
+  .low-stock { color: red; font-weight: bold; }
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    display: flex; background: #fff; border-top: 1px solid #ddd;
+  }
+  .nav-btn { flex: 1; text-align: center; padding: 8px 0; font-size: 11px; color: #555; cursor: pointer; }
+  .nav-btn.active { color: #007bff; font-weight: bold; }
+  .nav-btn span { font-size: 22px; display: block; }
+</style>
+</head>
+<body>
+
+<!-- 1. HOME -->
+<div id="home" class="page active">
+  <h2>?? Dashboard</h2>
+  <p><b>Aaj ki Sale:</b> ?<span id="todaySale">0</span></p>
+  <p><b>Total Bill:</b> <span id="totalBill">0</span></p>
+</div>
+
+<!-- 2. MEDICINE -->
+<div id="medicine" class="page">
+  <h2>?? Medicine</h2>
+  <input type="text" id="search" placeholder="?? Dawai search karo..." onkeyup="loadProducts()">
+  <button onclick="addProduct()">? Nayi Dawai Add</button>
+  <div id="productList">Loading...</div>
+</div>
+
+<!-- 3. MEDICAL -->
+<div id="medical" class="page">
+  <h2>?? Medical Shop - Billing</h2>
+  <input id="custName" placeholder="Customer ka naam">
+  <div id="billItems"></div>
+  <button onclick="addToBill()">? Dawai Jodo</button>
+  <button onclick="saveBill()">?? Bill Save</button>
+</div>
+
+<!-- 4. HOSPITAL -->
+<div id="hospital" class="page">
+  <h2>?? Hospital</h2>
+  <input id="hospName" placeholder="Hospital ka naam">
+  <input id="docName" placeholder="Doctor ka naam">
+  <button onclick="addHospital()">? Hospital Add</button>
+  <div id="hospitalList"></div>
+</div>
+
+<!-- 5. CART -->
+<div id="cart" class="page">
+  <h2>?? Bill History</h2>
+  <div id="billHistory"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-btn active" onclick="showPage('home')"><span>??</span>Home</div>
+  <div class="nav-btn" onclick="showPage('medicine')"><span>??</span>Medicine</div>
+  <div class="nav-btn" onclick="showPage('medical')"><span>??</span>Medical</div>
+  <div class="nav-btn" onclick="showPage('hospital')"><span>??</span>Hospital</div>
+  <div class="nav-btn" onclick="showPage('cart')"><span>??</span>Cart</div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // ???? YAHAN APNI FIREBASE KEY DALNI HAI - 1 BAAR HI DALNI HAI
+  const firebaseConfig = {
+    apiKey: "TUMHARI_API_KEY",
+    authDomain: "TUMHARA_PROJECT.firebaseapp.com",
+    projectId: "TUMHARA_PROJECT_ID",
+    storageBucket: "TUMHARA_PROJECT.appspot.com",
+    messagingSenderId: "123456",
+    appId: "1:123456:web:abc"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  let billCart = [];
+
+  window.showPage = (id) => {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.currentTarget.classList.add('active');
+    if(id=='medicine') loadProducts();
+    if(id=='hospital') loadHospitals();
+    if(id=='cart') loadBills();
+  }
+
+  // MEDICINE
+  window.addProduct = async () => {
+    let name = prompt("Dawai ka naam?");
+    let price = prompt("Price?");
+    let stock = prompt("Stock?");
+    if(name) await addDoc(collection(db, "products"), {name, price: Number(price), stock: Number(stock)});
+    loadProducts();
+  }
+  window.loadProducts = async () => {
+    let snap = await getDocs(collection(db, "products"));
+    let html = "<table><tr><th>Naam</th><th>Price</th><th>Stock</th></tr>";
+    snap.forEach(d => {
+      let p = d.data();
+      let sClass = p.stock < 10 ? "low-stock" : "";
+      html += `<tr><td>${p.name}</td><td>?${p.price}</td><td class="${sClass}">${p.stock}</td></tr>`;
+    });
+    document.getElementById("productList").innerHTML = html+"</table>";
+  }
+
+  // BILLING
+  window.addToBill = async () => {
+    let snap = await getDocs(collection(db, "products"));
+    let list = snap.docs.map(d=>d.data().name).join(", ");
+    let name = prompt("Dawai ka naam? Options: "+list);
+    let qty = prompt("Kitni?");
+    let p = snap.docs.find(d=>d.data().name==name)?.data();
+    if(p) billCart.push({name, price:p.price, qty:Number(qty)});
+    document.getElementById("billItems").innerHTML = billCart.map(b=>`${b.name} x ${b.qty} = ?${b.price*b.qty}`).join("<br>");
+  }
+  window.saveBill = async () => {
+    let total = billCart.reduce((a,b)=>a+b.price*b.qty,0);
+    await addDoc(collection(db, "bills"), {customer: custName.value, items: billCart, total, date: new Date()});
+    alert("Bill Save ?"+total);
+    billCart=[]; document.getElementById("billItems").innerHTML=""; loadBills();
+  }
+
+  // HOSPITAL
+  window.addHospital = async () => {
+    await addDoc(collection(db, "hospitals"), {name: hospName.value, doctor: docName.value});
+    hospName.value=""; docName.value=""; loadHospitals();
+  }
+  window.loadHospitals = async () => {
+    let snap = await getDocs(collection(db, "hospitals"));
+    let html = "<table><tr><th>Hospital</th><th>Doctor</th></tr>";
+    snap.forEach(d=>{ let h=d.data(); html+=`<tr><td>${h.name}</td><td>${h.doctor}</td></tr>`});
+    document.getElementById("hospitalList").innerHTML = html+"</table>";
+  }
+
+  // CART
+  window.loadBills = async () => {
+    let snap = await getDocs(query(collection(db,"bills"), orderBy("date","desc")));
+    let html = "<table><tr><th>Customer</th><th>Total</th></tr>";
+    snap.forEach(d=>{ let b=d.data(); html+=`<tr><td>${b.customer}</td><td>?${b.total}</td></tr>`});
+    document.getElementById("billHistory").innerHTML = html+"</table>";
+  }
+</script>
+</body>
+</html>

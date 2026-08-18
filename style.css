@@ -1,0 +1,124 @@
+/* ===== Home Page Style - Medical Mart ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f0f4f8;
+  color: #333;
+}
+
+/* Header */
+header {
+  background: linear-gradient(135deg, #2E86C1, #1A5276);
+  color: white;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+header h1 {
+  font-size: 28px;
+  margin-bottom: 5px;
+}
+header p {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Navigation */
+nav {
+  background: white;
+  padding: 12px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+nav a {
+  margin: 0 15px;
+  text-decoration: none;
+  color: #2E86C1;
+  font-weight: 600;
+  font-size: 15px;
+}
+nav a:hover {
+  color: #E74C3C;
+}
+
+/* Home ke 4 Box */
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 30px 20px;
+  gap: 25px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.box {
+  background: white;
+  width: 270px;
+  padding: 25px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.box:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.box h3 {
+  margin: 15px 0 10px;
+  font-size: 20px;
+  color: #222;
+}
+.box p {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 15px;
+}
+.box button {
+  background: #2E86C1;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: bold;
+}
+.box button:hover {
+  background: #1A5276;
+}
+
+/* Har box ka alag color top border */
+.box.orange { border-top: 6px solid #FF8C00; }
+.box.blue { border-top: 6px solid #3498DB; }
+.box.green { border-top: 6px solid #27AE60; }
+.box.red { border-top: 6px solid #E74C3C; }
+
+/* Footer */
+footer {
+  background: #2C3E50;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  margin-top: 40px;
+  font-size: 14px;
+}
+
+/* Mobile ke liye */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    align-items: center;
+  }
+  .box {
+    width: 90%;
+  }
+}

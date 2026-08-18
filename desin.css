@@ -1,0 +1,120 @@
+/* ===== desin.css - Home Page Design ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f2f7fb;
+  color: #333;
+}
+
+/* Header */
+header {
+  background: linear-gradient(90deg, #2E86C1, #3498DB);
+  color: white;
+  padding: 25px;
+  text-align: center;
+}
+header h1 {
+  font-size: 30px;
+  margin-bottom: 5px;
+}
+header p {
+  font-size: 15px;
+  opacity: 0.9;
+}
+
+/* Menu */
+nav {
+  background: white;
+  padding: 12px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+nav a {
+  margin: 0 20px;
+  text-decoration: none;
+  color: #2E86C1;
+  font-weight: bold;
+  font-size: 16px;
+}
+nav a:hover {
+  color: #E74C3C;
+}
+
+/* Home ke 4 Box */
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 30px;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.box {
+  background: white;
+  width: 260px;
+  padding: 30px 20px;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  transition: 0.3s;
+}
+.box:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 12px 20px rgba(0,0,0,0.2);
+}
+
+.box h3 {
+  margin: 15px 0 10px;
+  font-size: 22px;
+}
+.box p {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+.box button {
+  background: #2E86C1;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: bold;
+}
+.box button:hover {
+  background: #1A5276;
+}
+
+/* Har box ka alag rang */
+.box.orange { border-top: 6px solid #FF8C00; }
+.box.blue { border-top: 6px solid #3498DB; }
+.box.green { border-top: 6px solid #27AE60; }
+.box.red { border-top: 6px solid #E74C3C; }
+
+/* Footer */
+footer {
+  background: #2C3E50;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  margin-top: 50px;
+}
+
+/* Mobile ke liye */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    align-items: center;
+  }
+  .box {
+    width: 90%;
+  }
+}

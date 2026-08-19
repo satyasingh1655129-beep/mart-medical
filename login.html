@@ -8,18 +8,26 @@
 <input type="password" id="password" placeholder="Password"><br><br>
 <button onclick="login()">Login</button>
 <p id="error" style="color:red;"></p>
-<script src="users.js"></script>
+<script src="design.js"></script>
 <script>
 function login(){
   let gid = document.getElementById("groupid").value;
   let user = document.getElementById("username").value;
   let pass = document.getElementById("password").value;
-  let found = users.find(u => u.groupId == gid && u.name == user && u.pass == pass);
+  let found = USERS.find(u => u.groupId == gid && u.username == user && u.password == pass);
   if(found){
     localStorage.setItem("currentUser", found.name);
     localStorage.setItem("userRole", found.role);
     localStorage.setItem("groupId", found.groupId);
-    window.location.href = found.file;
+    if(found.role == "doctor") window.location.href = "doctor.html";
+    if(found.role == "pharmacist") window.location.href = "pharmacist.html";
+    if(found.role == "member") window.location.href = "member.html";
+    if(found.role == "shop") window.location.href = "shop.html";
+  } else { 
+    document.getElementById("error").innerText = "Galat ID ya Password"; 
+  }
+}
+</script>
   } else { document.getElementById("error").innerText = "Galat ID"; }
 }
 </script>

@@ -1,1 +1,6 @@
-
+<!DOCTYPE html>
+<html><head><title>Member</title><link rel="stylesheet" href="design.css"></head><body>
+<script>if(localStorage.getItem("userRole") != "member"){ window.location.href = "login.html"; }</script>
+<div id="navbar"></div><script>fetch('navbar.html').then(res => res.text()).then(data => document.getElementById('navbar').innerHTML = data);</script>
+<div style="padding:20px;"><h1>Member Dashboard</h1><p>Welcome <b id="name"></b></p><div class="box"><h3>Your Member ID: <span id="mid"></span></h3></div></div>
+<script>document.getElementById("name").innerText = localStorage.getItem("currentUser"); document.getElementById("mid").innerText = localStorage.getItem("currentUser");</script></body></html>

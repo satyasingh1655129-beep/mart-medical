@@ -1,1 +1,27 @@
-
+<!DOCTYPE html>
+<html>
+<head><title>Mart Medical - Login</title><link rel="stylesheet" href="design.css"></head>
+<body style="text-align:center; padding-top:100px;">
+<h2>Mart Medical Login</h2>
+<input type="text" id="groupid" placeholder="Group ID - MART-001"><br><br>
+<input type="text" id="username" placeholder="Username"><br><br>
+<input type="password" id="password" placeholder="Password"><br><br>
+<button onclick="login()">Login</button>
+<p id="error" style="color:red;"></p>
+<script src="users.js"></script>
+<script>
+function login(){
+  let gid = document.getElementById("groupid").value;
+  let user = document.getElementById("username").value;
+  let pass = document.getElementById("password").value;
+  let found = users.find(u => u.groupId == gid && u.name == user && u.pass == pass);
+  if(found){
+    localStorage.setItem("currentUser", found.name);
+    localStorage.setItem("userRole", found.role);
+    localStorage.setItem("groupId", found.groupId);
+    window.location.href = found.file;
+  } else { document.getElementById("error").innerText = "Galat ID"; }
+}
+</script>
+</body>
+</html>

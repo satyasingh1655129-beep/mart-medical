@@ -1,1 +1,6 @@
-
+<!DOCTYPE html>
+<html><head><title>Doctor</title><link rel="stylesheet" href="design.css"></head><body>
+<script>if(localStorage.getItem("userRole") != "doctor"){ window.location.href = "login.html"; }</script>
+<div id="navbar"></div><script>fetch('navbar.html').then(res => res.text()).then(data => document.getElementById('navbar').innerHTML = data);</script>
+<div style="padding:20px;"><h1>Doctor Dashboard</h1><p>Welcome Dr. <b id="name"></b></p><div class="box"><h3>Total Patients: 0</h3></div></div>
+<script>document.getElementById("name").innerText = localStorage.getItem("currentUser");</script></body></html>

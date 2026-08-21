@@ -5,48 +5,59 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MART Medical Login</title>
 <style>
-body{background:#f0f2f5;font-family:Arial;margin:0;padding:20px}
-.login-box{max-width:650px;margin:40px auto;padding:25px;text-align:center;background:#fff;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}
-.login-box h2{margin-bottom:15px;color:#007bff;font-size:28px}
-.role-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-bottom:20px}
-.role-card{border:2px solid #ddd;border-radius:12px;padding:20px;background:#fff;cursor:pointer;transition:0.3s}
-.role-card:hover{border-color:#007bff;transform:translateY(-5px);box-shadow:0 6px 15px rgba(0,123,255,0.2)}
-.role-card img{width:90px;height:90px;border-radius:50%;margin-bottom:10px;object-fit:cover;border:3px solid #007bff}
-.role-card p{margin:0;font-weight:bold;font-size:16px;color:#333}
-.role-card.selected{border-color:#007bff;background:#e7f1ff}
-input, button{width:100%;padding:12px;margin-top:10px;border-radius:8px;border:1px solid #ccc;font-size:16px;box-sizing:border-box}
-button{background:#007bff;color:#fff;cursor:pointer;font-weight:bold;border:none}
-button:hover{background:#0056b3}
-#msg{margin-top:10px;font-weight:bold}
+body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);font-family:Arial;margin:0;padding:20px;min-height:100vh}
+.login-box{max-width:650px;margin:40px auto;padding:30px;text-align:center;background:#fff;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.2)}
+.login-box h2{margin-bottom:10px;color:#667eea;font-size:30px}
+.role-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin:25px 0}
+.role-card{border:3px solid #eee;border-radius:15px;padding:25px;background:#fff;cursor:pointer;transition:0.3s}
+.role-card:hover{transform:translateY(-8px);box-shadow:0 8px 20px rgba(0,0,0,0.15)}
+.role-icon{font-size:55px;margin-bottom:10px}
+.role-card p{margin:0;font-weight:bold;font-size:17px;color:#333}
+.role-card.selected{transform:scale(1.05);box-shadow:0 0 0 4px #fff,0 0 0 7px currentColor}
+
+/* Har role ka alag colour */
+.member{border-color:#4CAF50;color:#4CAF50}
+.member.selected{background:#E8F5E9}
+.pharmacist{border-color:#2196F3;color:#2196F3}
+.pharmacist.selected{background:#E3F2FD}
+.doctor{border-color:#FF5722;color:#FF5722}
+.doctor.selected{background:#FBE9E7}
+.service{border-color:#9C27B0;color:#9C27B0}
+.service.selected{background:#F3E5F5}
+
+input, button{width:100%;padding:14px;margin-top:12px;border-radius:10px;border:2px solid #ddd;font-size:16px;box-sizing:border-box}
+button{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;cursor:pointer;font-weight:bold;border:none;font-size:17px}
+button:hover{opacity:0.9;transform:scale(1.02)}
+#msg{margin-top:12px;font-weight:bold}
 .hidden{display:none}
 </style>
 </head>
 <body>
 <div class="login-box">
     <h2>MART Medical Login</h2>
+    <p style="color:#666"><b>Step 1:</b> Apna Role Select karo</p>
     
-    <p><b>Step 1:</b> Apna Role Select karo</p>
     <div class="role-grid">
-        <div class="role-card" onclick="selectRole('Member')">
-            <img src="member.png" alt="Member">
+        <div class="role-card member" onclick="selectRole('Member')">
+            <div class="role-icon">👤</div>
             <p>Member</p>
         </div>
-        <div class="role-card" onclick="selectRole('Pharmacist')">
-            <img src="pharmacist.png" alt="Pharmacist">
+        <div class="role-card pharmacist" onclick="selectRole('Pharmacist')">
+            <div class="role-icon">💊</div>
             <p>Pharmacist</p>
         </div>
-        <div class="role-card" onclick="selectRole('Doctor')">
-            <img src="doctor.png" alt="Doctor">
+        <div class="role-card doctor" onclick="selectRole('Doctor')">
+            <div class="role-icon">👨‍⚕️</div>
             <p>Doctor</p>
         </div>
-        <div class="role-card" onclick="selectRole('Service Team')">
-            <img src="service.png" alt="Service Team">
+        <div class="role-card service" onclick="selectRole('Service Team')">
+            <div class="role-icon">🛠️</div>
             <p>Service Team</p>
         </div>
     </div>
     
     <div id="login-form" class="hidden">
-        <p><b>Step 2:</b> <span id="selected-role-text" style="color:#007bff;font-weight:bold"></span></p>
+        <p><b>Step 2:</b> <span id="selected-role-text" style="color:#667eea;font-weight:bold"></span></p>
         <input type="email" id="email" placeholder="Email daalo">
         <button onclick="sendOTP()">Send OTP</button>
         

@@ -3,65 +3,98 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MART - Medical Shop</title>
-   <link rel="stylesheet" href="design.css">
+<title>MART - Admin Full Control</title>
+<link rel="stylesheet" href="design.css">
 <script src="design.js"></script>
 <style>
     * { box-sizing: border-box; }
   body { font-family: Arial; margin: 0; padding-bottom: 70px; background: #f5f5f5; }
   .page { display: none; padding: 15px; }
   .page.active { display: block; } 
-   </style>
-</head>
-<body>
-<h2 style="text-align:center; color:#2c3e50; margin-top:20px;">MART Medical</h2>
-<p id="roleText" style="text-align:center; color:#2c3e50; font-weight:bold; font-size:16px;">Role: Member</p>
-
-   </style>
-    h2 { color: #2c3e50; margin-top: 0; }
+  h2 { color: #2c3e50; margin-top: 0; }
   input { width: 95%; padding: 10px; margin: 8px 0; border-radius: 5px; border: 1px solid #ccc; }
-  button { padding: 10px 15px; margin: 5px 0; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+  button { padding: 8px 12px; margin: 5px 3px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+  .btn-danger { background: #dc3545; }
+  .btn-success { background: #28a745; }
+  .btn-warning { background: #ffc107; color: #000; }
   table { width: 100%; background: white; border-collapse: collapse; margin-top: 10px; }
   td, th { padding: 8px; border: 1px solid #ddd; font-size: 14px; text-align: left; }
   .low-stock { color: red; font-weight: bold; }
   .bottom-nav {
     position: fixed; bottom: 0; left: 0; right: 0;
-    display: flex; background: #fff; border-top: 1px solid #ddd;
+    display: flex; background: #fff; border-top: 1px solid #ddd; z-index: 999;
   }
   .nav-btn { flex: 1; text-align: center; padding: 8px 0; font-size: 11px; color: #555; cursor: pointer; }
   .nav-btn.active { color: #007bff; font-weight: bold; }
   .nav-btn span { font-size: 22px; display: block; }
+  .admin-badge { background: #dc3545; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px; }
+  .card { background: white; padding: 15px; border-radius: 10px; margin: 10px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+</style>
 </head>
 <body>
 
-<!-- 1. HOME -->
+<h2 style="text-align:center; color:#2c3e50; margin-top:20px;">MART Medical</h2>
+<p style="text-align:center; color:#2c3e50; font-weight:bold; font-size:16px;">Role: Super Admin <span class="admin-badge">FULL CONTROL</span></p>
+
+<!-- 1. HOME / DASHBOARD -->
+<div id="home" class="page active">
+  <h2>📊 Dashboard</h2>
+  <div class="card">
+    <h3>Total Products: <span id="totalProducts">0</span></h3>
+    <h3>Total Bills: <span id="totalBills">0</span></h3>
+    <h3>Total Hospitals: <span id="totalHospitals">0</span></h3>
+  </div>
+  <button class="btn-success" onclick="showPage('medicine')">+ Add Medicine</button>
+  <button class="btn-warning" onclick="showPage('hospital')">+ Add Hospital</button>
+</div>
 
 <!-- 2. MEDICINE -->
+<div id="medicine" class="page">
+  <h2>💊 Medicine Stock - Full Control</h2>
+  <button class="btn-success" onclick="addProduct()">+ Add New Product</button>
+  <div id="productList"></div>
+</div>
 
-<!-- 3. MEDICAL -->
+<!-- 3. MEDICAL / BILLING -->
+<div id="medical" class="page">
+  <h2>🧾 Billing - Admin</h2>
+  <input id="custName" placeholder="Customer Name">
+  <button class="btn-success" onclick="addToBill()">+ Add Item</button>
+  <div id="billItems" style="margin:10px 0;"></div>
+  <h3>Total: ₹<span id="billTotal">0</span></h3>
+  <button class="btn-success" onclick="saveBill()">Save & Print Bill</button>
+</div>
 
 <!-- 4. HOSPITAL -->
+<div id="hospital" class="page">
+  <h2>🏥 Hospital & Doctor List</h2>
+  <input id="hospName" placeholder="Hospital Name">
+  <input id="docName" placeholder="Doctor Name">
+  <button class="btn-success" onclick="addHospital()">+ Add Hospital</button>
+  <div id="hospitalList"></div>
+</div>
 
-<!-- 5. CART -->
+<!-- 5. CART / BILL HISTORY -->
 <div id="cart" class="page">
-  <h2> Bill History</h2>
+  <h2>📜 Bill History - Full Access</h2>
+  <button class="btn-danger" onclick="clearAllBills()">Clear All Bills</button>
   <div id="billHistory"></div>
 </div>
 
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
-  <div class="nav-btn active" onclick="showPage('home')"><span></span>Home</div>
-  <div class="nav-btn" onclick="showPage('medicine')"><span></span>Medicine</div>
-  <div class="nav-btn" onclick="showPage('medical')"><span></span>Medical</div>
-  <div class="nav-btn" onclick="showPage('hospital')"><span></span>Hospital</div>
-  <div class="nav-btn" onclick="showPage('cart')"><span></span>Cart</div>
+  <div class="nav-btn active" onclick="showPage('home')"><span>🏠</span>Home</div>
+  <div class="nav-btn" onclick="showPage('medicine')"><span>💊</span>Medicine</div>
+  <div class="nav-btn" onclick="showPage('medical')"><span>🧾</span>Billing</div>
+  <div class="nav-btn" onclick="showPage('hospital')"><span>🏥</span>Hospital</div>
+  <div class="nav-btn" onclick="showPage('cart')"><span>📜</span>History</div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // ???? YAHAN APNI FIREBASE KEY DALNI HAI - 1 BAAR HI DALNI HAI
+  // ???? APNI FIREBASE KEY YAHAN DALO
   const firebaseConfig = {
     apiKey: "TUMHARI_API_KEY",
     authDomain: "TUMHARA_PROJECT.firebaseapp.com",
@@ -83,9 +116,20 @@
     if(id=='medicine') loadProducts();
     if(id=='hospital') loadHospitals();
     if(id=='cart') loadBills();
+    if(id=='home') loadDashboard();
   }
 
-  // MEDICINE
+  // DASHBOARD
+  async function loadDashboard(){
+    let p = await getDocs(collection(db, "products"));
+    let b = await getDocs(collection(db, "bills"));
+    let h = await getDocs(collection(db, "hospitals"));
+    document.getElementById("totalProducts").innerText = p.size;
+    document.getElementById("totalBills").innerText = b.size;
+    document.getElementById("totalHospitals").innerText = h.size;
+  }
+
+  // MEDICINE - ADD, EDIT, DELETE
   window.addProduct = async () => {
     let name = prompt("Dawai ka naam?");
     let price = prompt("Price?");
@@ -93,13 +137,26 @@
     if(name) await addDoc(collection(db, "products"), {name, price: Number(price), stock: Number(stock)});
     loadProducts();
   }
+  window.editProduct = async (id, name, price, stock) => {
+    let n = prompt("Naya naam:", name);
+    let p = prompt("Naya price:", price);
+    let s = prompt("Naya stock:", stock);
+    if(n) await updateDoc(doc(db, "products", id), {name:n, price:Number(p), stock:Number(s)});
+    loadProducts();
+  }
+  window.deleteProduct = async (id) => {
+    if(confirm("Pakka delete karna hai?")) await deleteDoc(doc(db, "products", id));
+    loadProducts();
+  }
   window.loadProducts = async () => {
     let snap = await getDocs(collection(db, "products"));
-    let html = "<table><tr><th>Naam</th><th>Price</th><th>Stock</th></tr>";
+    let html = "<table><tr><th>Naam</th><th>Price</th><th>Stock</th><th>Action</th></tr>";
     snap.forEach(d => {
       let p = d.data();
       let sClass = p.stock < 10 ? "low-stock" : "";
-      html += `<tr><td>${p.name}</td><td>?${p.price}</td><td class="${sClass}">${p.stock}</td></tr>`;
+      html += `<tr><td>${p.name}</td><td>₹${p.price}</td><td class="${sClass}">${p.stock}</td>
+      <td><button class="btn-warning" onclick="editProduct('${d.id}','${p.name}',${p.price},${p.stock})">Edit</button>
+      <button class="btn-danger" onclick="deleteProduct('${d.id}')">Delete</button></td></tr>`;
     });
     document.getElementById("productList").innerHTML = html+"</table>";
   }
@@ -112,36 +169,68 @@
     let qty = prompt("Kitni?");
     let p = snap.docs.find(d=>d.data().name==name)?.data();
     if(p) billCart.push({name, price:p.price, qty:Number(qty)});
-    document.getElementById("billItems").innerHTML = billCart.map(b=>`${b.name} x ${b.qty} = ?${b.price*b.qty}`).join("<br>");
+    updateBillUI();
+  }
+  function updateBillUI(){
+    document.getElementById("billItems").innerHTML = billCart.map(b=>`${b.name} x ${b.qty} = ₹${b.price*b.qty}`).join("<br>");
+    let total = billCart.reduce((a,b)=>a+b.price*b.qty,0);
+    document.getElementById("billTotal").innerText = total;
   }
   window.saveBill = async () => {
     let total = billCart.reduce((a,b)=>a+b.price*b.qty,0);
+    if(!custName.value){ alert("Customer naam dalo"); return; }
     await addDoc(collection(db, "bills"), {customer: custName.value, items: billCart, total, date: new Date()});
-    alert("Bill Save ?"+total);
-    billCart=[]; document.getElementById("billItems").innerHTML=""; loadBills();
+    alert("Bill Save ₹"+total);
+    billCart=[]; custName.value=""; updateBillUI(); loadBills();
   }
 
-  // HOSPITAL
+  // HOSPITAL - ADD, DELETE
   window.addHospital = async () => {
+    if(!hospName.value){ alert("Hospital naam dalo"); return; }
     await addDoc(collection(db, "hospitals"), {name: hospName.value, doctor: docName.value});
     hospName.value=""; docName.value=""; loadHospitals();
   }
+  window.deleteHospital = async (id) => {
+    if(confirm("Hospital delete kare?")) await deleteDoc(doc(db, "hospitals", id));
+    loadHospitals();
+  }
   window.loadHospitals = async () => {
     let snap = await getDocs(collection(db, "hospitals"));
-    let html = "<table><tr><th>Hospital</th><th>Doctor</th></tr>";
-    snap.forEach(d=>{ let h=d.data(); html+=`<tr><td>${h.name}</td><td>${h.doctor}</td></tr>`});
+    let html = "<table><tr><th>Hospital</th><th>Doctor</th><th>Action</th></tr>";
+    snap.forEach(d=>{ 
+      let h=d.data(); 
+      html+=`<tr><td>${h.name}</td><td>${h.doctor}</td>
+      <td><button class="btn-danger" onclick="deleteHospital('${d.id}')">Delete</button></td></tr>`
+    });
     document.getElementById("hospitalList").innerHTML = html+"</table>";
   }
 
-  // CART
+  // CART / BILL HISTORY - DELETE
+  window.deleteBill = async (id) => {
+    if(confirm("Bill delete kare?")) await deleteDoc(doc(db, "bills", id));
+    loadBills();
+  }
+  window.clearAllBills = async () => {
+    if(confirm("Sabhi bill delete ho jayenge. Pakka?")){
+      let snap = await getDocs(collection(db,"bills"));
+      snap.forEach(d=> deleteDoc(doc(db, "bills", d.id)));
+      loadBills();
+    }
+  }
   window.loadBills = async () => {
     let snap = await getDocs(query(collection(db,"bills"), orderBy("date","desc")));
-    let html = "<table><tr><th>Customer</th><th>Total</th></tr>";
-    snap.forEach(d=>{ let b=d.data(); html+=`<tr><td>${b.customer}</td><td>?${b.total}</td></tr>`});
+    let html = "<table><tr><th>Customer</th><th>Total</th><th>Date</th><th>Action</th></tr>";
+    snap.forEach(d=>{ 
+      let b=d.data(); 
+      let date = b.date.toDate().toLocaleDateString('hi-IN');
+      html+=`<tr><td>${b.customer}</td><td>₹${b.total}</td><td>${date}</td>
+      <td><button class="btn-danger" onclick="deleteBill('${d.id}')">Delete</button></td></tr>`
+    });
     document.getElementById("billHistory").innerHTML = html+"</table>";
   }
 </script>
-   <!-- Order Button -->
+
+<!-- Order Button -->
 <div style="text-align: center; margin: 40px 0;">
   <button style="background: linear-gradient(90deg, #4CAF50, #2196F3); 
                  color: white; 
@@ -154,17 +243,5 @@
   </button>
 </div>
 
-<!-- 2 Colour Box -->
-<div style="display: flex; gap: 20px; justify-content: center; margin: 40px 20px; flex-wrap: wrap;">
-   
-</div>
-   <a href="test.html">Test Page Dekho</a>
-   <script>
-const params = new URLSearchParams(window.location.search);
-const role = params.get('role'); 
-if(role){ 
-  document.getElementById('roleText').innerText = "Role: " + role; 
-}
-</script>
 </body>
 </html>

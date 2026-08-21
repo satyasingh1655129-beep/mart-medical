@@ -5,18 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MART Medical Login</title>
 <style>
-body{background:#f0f2f5;font-family:Arial}
-.login-box{max-width:600px;margin:40px auto;padding:20px;text-align:center}
-.login-box h2{margin-bottom:20px;color:#007bff}
-.role-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
-.role-card{border:2px solid #ccc;border-radius:10px;padding:15px;background:#fff;cursor:pointer;transition:0.3s}
-.role-card:hover{border-color:#007bff;transform:scale(1.05)}
-.role-card img{width:80px;height:80px;border-radius:50%;margin-bottom:10px}
+body{background:#f0f2f5;font-family:Arial;margin:0;padding:20px}
+.login-box{max-width:650px;margin:40px auto;padding:25px;text-align:center;background:#fff;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}
+.login-box h2{margin-bottom:15px;color:#007bff;font-size:28px}
+.role-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-bottom:20px}
+.role-card{border:2px solid #ddd;border-radius:12px;padding:20px;background:#fff;cursor:pointer;transition:0.3s}
+.role-card:hover{border-color:#007bff;transform:translateY(-5px);box-shadow:0 6px 15px rgba(0,123,255,0.2)}
+.role-card img{width:90px;height:90px;border-radius:50%;margin-bottom:10px;object-fit:cover;border:3px solid #007bff}
+.role-card p{margin:0;font-weight:bold;font-size:16px;color:#333}
 .role-card.selected{border-color:#007bff;background:#e7f1ff}
-input, button{width:100%;padding:10px;margin-top:10px;border-radius:5px;border:1px solid #ccc}
-button{background:#007bff;color:#fff;cursor:pointer;font-weight:bold}
+input, button{width:100%;padding:12px;margin-top:10px;border-radius:8px;border:1px solid #ccc;font-size:16px;box-sizing:border-box}
+button{background:#007bff;color:#fff;cursor:pointer;font-weight:bold;border:none}
 button:hover{background:#0056b3}
-#msg{margin-top:10px;color:green;font-weight:bold}
+#msg{margin-top:10px;font-weight:bold}
 .hidden{display:none}
 </style>
 </head>
@@ -26,26 +27,26 @@ button:hover{background:#0056b3}
     
     <p><b>Step 1:</b> Apna Role Select karo</p>
     <div class="role-grid">
+        <div class="role-card" onclick="selectRole('Member')">
+            <img src="member.png" alt="Member">
+            <p>Member</p>
+        </div>
         <div class="role-card" onclick="selectRole('Pharmacist')">
-            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Pharmacist">
+            <img src="pharmacist.png" alt="Pharmacist">
             <p>Pharmacist</p>
         </div>
         <div class="role-card" onclick="selectRole('Doctor')">
-            <img src="https://cdn-icons-png.flaticon.com/512/3774/3774299.png" alt="Doctor">
+            <img src="doctor.png" alt="Doctor">
             <p>Doctor</p>
         </div>
-        <div class="role-card" onclick="selectRole('Member')">
-            <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Member">
-            <p>Member</p>
-        </div>
         <div class="role-card" onclick="selectRole('Service Team')">
-            <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="Service Team">
+            <img src="service.png" alt="Service Team">
             <p>Service Team</p>
         </div>
     </div>
     
     <div id="login-form" class="hidden">
-        <p><b>Step 2:</b> <span id="selected-role-text"></span></p>
+        <p><b>Step 2:</b> <span id="selected-role-text" style="color:#007bff;font-weight:bold"></span></p>
         <input type="email" id="email" placeholder="Email daalo">
         <button onclick="sendOTP()">Send OTP</button>
         
@@ -63,7 +64,6 @@ function selectRole(role){
     selectedRole = role;
     document.querySelectorAll('.role-card').forEach(card => card.classList.remove('selected'));
     event.currentTarget.classList.add('selected');
-    
     document.getElementById('login-form').classList.remove('hidden');
     document.getElementById('selected-role-text').innerText = "Login as: " + role;
 }
@@ -71,7 +71,7 @@ function selectRole(role){
 function sendOTP(){
     let email = document.getElementById("email").value;
     if(email === ""){
-        document.getElementById("msg").innerText = "Email dalo";
+        document.getElementById("msg").innerText = "Pehle Email dalo";
         document.getElementById("msg").style.color = "red";
         return;
     }
@@ -87,7 +87,7 @@ function verifyOTP(){
         document.getElementById("msg").innerText = "Login Success! Redirect ho rahe...";
         setTimeout(()=>{ window.location.href = "index.html" }, 1500);
     } else {
-        document.getElementById("msg").innerText = "Galat OTP";
+        document.getElementById("msg").innerText = "Galat OTP. Fir se try karo";
         document.getElementById("msg").style.color = "red";
     }
 }

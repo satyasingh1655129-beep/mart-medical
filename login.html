@@ -129,7 +129,16 @@
       document.getElementById('msg').className = "text-center text-red-600 mt-4 font-medium";
     }
   }
+if(enteredOtp === generatedOtp){
+    document.getElementById('msg').innerHTML = "✅ Login Successful! 2 sec me khul rahi hai";
+    document.getElementById('msg').className = "text-center text-green-600 mt-4 font-medium";
+    
+    // 1.5 sec baad original site kholega
+    setTimeout(()=>{ 
+        window.location.href = "index.html"  
+    }, 1500);
 
+} else {
   // OTP box auto next
   document.querySelectorAll('.otp-box').forEach((box, i, arr) => {
     box.oninput = () => { 

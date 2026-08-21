@@ -4,76 +4,90 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MART Medical Login</title>
-<link rel="stylesheet" href="design.css">
 <style>
-.login-box{max-width:400px;margin:50px auto;padding:20px;border:1px solid #ccc;border-radius:10px;background:#fff}
-.login-box h2{text-align:center}
-.login-box label{display:block;margin-top:10px;font-weight:bold}
-.login-box input, .login-box select, .login-box button{width:100%;padding:10px;margin-top:5px;border-radius:5px;border:1px solid #ccc}
-.login-box button{background:#007bff;color:#fff;cursor:pointer;margin-top:15px}
-.login-box button:hover{background:#0056b3}
-#msg{text-align:center;margin-top:10px;color:green}
+body{background:#f0f2f5;font-family:Arial}
+.login-box{max-width:600px;margin:40px auto;padding:20px;text-align:center}
+.login-box h2{margin-bottom:20px;color:#007bff}
+.role-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+.role-card{border:2px solid #ccc;border-radius:10px;padding:15px;background:#fff;cursor:pointer;transition:0.3s}
+.role-card:hover{border-color:#007bff;transform:scale(1.05)}
+.role-card img{width:80px;height:80px;border-radius:50%;margin-bottom:10px}
+.role-card.selected{border-color:#007bff;background:#e7f1ff}
+input, button{width:100%;padding:10px;margin-top:10px;border-radius:5px;border:1px solid #ccc}
+button{background:#007bff;color:#fff;cursor:pointer;font-weight:bold}
+button:hover{background:#0056b3}
+#msg{margin-top:10px;color:green;font-weight:bold}
+.hidden{display:none}
 </style>
 </head>
 <body>
 <div class="login-box">
     <h2>MART Medical Login</h2>
-
-    <label>Role Select karo:</label>
-    <select id="role">
-        <option value="">-- Role Chuno --</option>
-        <option value="Pharmacist">Pharmacist</option>
-        <option value="Doctor">Doctor</option>
-        <option value="Member">Member</option>
-    </select>
-
-    <label>Email:</label>
-    <input type="email" id="email" placeholder="test@gmail.com">
-
-    <button onclick="sendOTP()">Send OTP</button>
-
-    <label>OTP Enter karo:</label>
-    <input type="text" id="otp" placeholder="Yaha OTP dalo">
-
-    <button onclick="verifyOTP()">Verify & Login</button>
-    <p id="msg"></p>
+    
+    <p><b>Step 1:</b> Apna Role Select karo</p>
+    <div class="role-grid">
+        <div class="role-card" onclick="selectRole('Pharmacist')">
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Pharmacist">
+            <p>Pharmacist</p>
+        </div>
+        <div class="role-card" onclick="selectRole('Doctor')">
+            <img src="https://cdn-icons-png.flaticon.com/512/3774/3774299.png" alt="Doctor">
+            <p>Doctor</p>
+        </div>
+        <div class="role-card" onclick="selectRole('Member')">
+            <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Member">
+            <p>Member</p>
+        </div>
+        <div class="role-card" onclick="selectRole('Service Team')">
+            <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="Service Team">
+            <p>Service Team</p>
+        </div>
+    </div>
+    
+    <div id="login-form" class="hidden">
+        <p><b>Step 2:</b> <span id="selected-role-text"></span></p>
+        <input type="email" id="email" placeholder="Email daalo">
+        <button onclick="sendOTP()">Send OTP</button>
+        
+        <input type="text" id="otp" placeholder="OTP yaha dalo">
+        <button onclick="verifyOTP()">Verify & Login</button>
+        <p id="msg"></p>
+    </div>
 </div>
 
 <script>
 let generatedOtp = "";
+let selectedRole = "";
+
+function selectRole(role){
+    selectedRole = role;
+    document.querySelectorAll('.role-card').forEach(card => card.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+    
+    document.getElementById('login-form').classList.remove('hidden');
+    document.getElementById('selected-role-text').innerText = "Login as: " + role;
+}
 
 function sendOTP(){
     let email = document.getElementById("email").value;
-    let role = document.getElementById("role").value;
-    
-    if(role === "" || email === ""){
-        document.getElementById("msg").innerText = "Pehle Role aur Email dalo";
+    if(email === ""){
+        document.getElementById("msg").innerText = "Email dalo";
         document.getElementById("msg").style.color = "red";
         return;
     }
-    
     generatedOtp = Math.floor(100000 + Math.random() * 900000);
-    alert("Aapka OTP: " + generatedOtp); // Yaha OTP dikhega
+    alert("Aapka OTP: " + generatedOtp + "\nRole: " + selectedRole);
     document.getElementById("msg").innerText = "OTP bhej diya gaya. Check alert";
     document.getElementById("msg").style.color = "green";
 }
 
 function verifyOTP(){
     let enteredOtp = document.getElementById("otp").value;
-    
-    if(enteredOtp === ""){
-        document.getElementById("msg").innerText = "OTP dalo";
-        document.getElementById("msg").style.color = "red";
-        return;
-    }
-
     if(enteredOtp == generatedOtp){
         document.getElementById("msg").innerText = "Login Success! Redirect ho rahe...";
-        setTimeout(()=>{
-            window.location.href = "index.html"
-        }, 1500);
+        setTimeout(()=>{ window.location.href = "index.html" }, 1500);
     } else {
-        document.getElementById("msg").innerText = "Galat OTP. Fir se try karo";
+        document.getElementById("msg").innerText = "Galat OTP";
         document.getElementById("msg").style.color = "red";
     }
 }

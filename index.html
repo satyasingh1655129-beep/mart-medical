@@ -3,244 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MART - Admin Full Control</title>
-<link rel="stylesheet" href="design.css">
-<script src="design.js"></script>
+<title>NG Care - Best Medical Store in Lucknow</title>
 <style>
-    * { box-sizing: border-box; }
-  body { font-family: Arial; margin: 0; padding-bottom: 70px; background: #f5f5f5; }
-  .page { display: none; padding: 15px; }
-  .page.active { display: block; } 
-  h2 { color: #2c3e50; margin-top: 0; }
-  input { width: 95%; padding: 10px; margin: 8px 0; border-radius: 5px; border: 1px solid #ccc; }
-  button { padding: 8px 12px; margin: 5px 3px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-  .btn-danger { background: #dc3545; }
-  .btn-success { background: #28a745; }
-  .btn-warning { background: #ffc107; color: #000; }
-  table { width: 100%; background: white; border-collapse: collapse; margin-top: 10px; }
-  td, th { padding: 8px; border: 1px solid #ddd; font-size: 14px; text-align: left; }
-  .low-stock { color: red; font-weight: bold; }
-  .bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    display: flex; background: #fff; border-top: 1px solid #ddd; z-index: 999;
-  }
-  .nav-btn { flex: 1; text-align: center; padding: 8px 0; font-size: 11px; color: #555; cursor: pointer; }
-  .nav-btn.active { color: #007bff; font-weight: bold; }
-  .nav-btn span { font-size: 22px; display: block; }
-  .admin-badge { background: #dc3545; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px; }
-  .card { background: white; padding: 15px; border-radius: 10px; margin: 10px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
+body{background:#f8f9fa}
+.header{background:#0d47a1;color:white;padding:15px;text-align:center;position:sticky;top:0;z-index:100}
+.logo{font-size:32px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:2px}
+.logo .plus{color:#e53935;font-size:38px;margin-right:4px}
+.logo .n{color:#fff}
+.logo .g{color:#ffca28}
+.logo .care{color:#a5d6a7;font-weight:600;font-size:26px;margin-left:3px}
+.hero{background:white;margin:15px;padding:25px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.08);text-align:center}
+.hero h1{color:#0d47a1;font-size:24px;margin-bottom:10px}
+.hero p{color:#555;line-height:1.5}
+.btn-order{display:inline-block;margin-top:20px;padding:16px 45px;background:linear-gradient(90deg,#2e7d32,#2196F3);color:white;border:none;border-radius:30px;font-size:19px;font-weight:bold;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+.features{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:15px}
+.feat{background:white;padding:15px;border-radius:12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.feat span{font-size:28px;display:block;margin-bottom:5px}
+.feat h3{font-size:14px;color:#333}
+.footer{text-align:center;padding:20px;color:#888;font-size:12px}
 </style>
 </head>
 <body>
 
-<h2 style="text-align:center; color:#2c3e50; margin-top:20px;">MART Medical</h2>
-<p style="text-align:center; color:#2c3e50; font-weight:bold; font-size:16px;">Role: Super Admin <span class="admin-badge">FULL CONTROL</span></p>
-
-<!-- 1. HOME / DASHBOARD -->
-<div id="home" class="page active">
-  <h2>📊 Dashboard</h2>
-  <div class="card">
-    <h3>Total Products: <span id="totalProducts">0</span></h3>
-    <h3>Total Bills: <span id="totalBills">0</span></h3>
-    <h3>Total Hospitals: <span id="totalHospitals">0</span></h3>
-  </div>
-  <button class="btn-success" onclick="showPage('medicine')">+ Add Medicine</button>
-  <button class="btn-warning" onclick="showPage('hospital')">+ Add Hospital</button>
+<div class="header">
+  <div class="logo"><span class="plus">+</span><span class="n">N</span><span class="g">G</span><span class="care">care</span></div>
 </div>
 
-<!-- 2. MEDICINE -->
-<div id="medicine" class="page">
-  <h2>💊 Medicine Stock - Full Control</h2>
-  <button class="btn-success" onclick="addProduct()">+ Add New Product</button>
-  <div id="productList"></div>
+<div class="hero">
+  <h1>Welcome to NG Care Medical</h1>
+  <p>24x7 Online Medicine Delivery<br>Lucknow me sabse tez dawa service</p>
+  <a class="btn-order" href="https://wa.me/919999999999?text=Hi%20NG%20Care%20Medicine%20Chahiye">Order Now</a>
+  <p style="margin-top:12px;font-size:12px;color:#888;">WhatsApp par dawai ka naam bhejo</p>
 </div>
 
-<!-- 3. MEDICAL / BILLING -->
-<div id="medical" class="page">
-  <h2>🧾 Billing - Admin</h2>
-  <input id="custName" placeholder="Customer Name">
-  <button class="btn-success" onclick="addToBill()">+ Add Item</button>
-  <div id="billItems" style="margin:10px 0;"></div>
-  <h3>Total: ₹<span id="billTotal">0</span></h3>
-  <button class="btn-success" onclick="saveBill()">Save & Print Bill</button>
+<div class="features">
+  <div class="feat"><span>💊</span><h3>All Medicines</h3></div>
+  <div class="feat"><span>🚚</span><h3>Fast Delivery</h3></div>
+  <div class="feat"><span>🏥</span><h3>Hospital Support</h3></div>
+  <div class="feat"><span>📞</span><h3>24x7 Help</h3></div>
 </div>
 
-<!-- 4. HOSPITAL -->
-<div id="hospital" class="page">
-  <h2>🏥 Hospital & Doctor List</h2>
-  <input id="hospName" placeholder="Hospital Name">
-  <input id="docName" placeholder="Doctor Name">
-  <button class="btn-success" onclick="addHospital()">+ Add Hospital</button>
-  <div id="hospitalList"></div>
-</div>
-
-<!-- 5. CART / BILL HISTORY -->
-<div id="cart" class="page">
-  <h2>📜 Bill History - Full Access</h2>
-  <button class="btn-danger" onclick="clearAllBills()">Clear All Bills</button>
-  <div id="billHistory"></div>
-</div>
-
-<!-- BOTTOM NAV -->
-<div class="bottom-nav">
-  <div class="nav-btn active" onclick="showPage('home')"><span>🏠</span>Home</div>
-  <div class="nav-btn" onclick="showPage('medicine')"><span>💊</span>Medicine</div>
-  <div class="nav-btn" onclick="showPage('medical')"><span>🧾</span>Billing</div>
-  <div class="nav-btn" onclick="showPage('hospital')"><span>🏥</span>Hospital</div>
-  <div class="nav-btn" onclick="showPage('cart')"><span>📜</span>History</div>
-</div>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-  // ???? APNI FIREBASE KEY YAHAN DALO
-  const firebaseConfig = {
-    apiKey: "TUMHARI_API_KEY",
-    authDomain: "TUMHARA_PROJECT.firebaseapp.com",
-    projectId: "TUMHARA_PROJECT_ID",
-    storageBucket: "TUMHARA_PROJECT.appspot.com",
-    messagingSenderId: "123456",
-    appId: "1:123456:web:abc"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  let billCart = [];
-
-  window.showPage = (id) => {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    event.currentTarget.classList.add('active');
-    if(id=='medicine') loadProducts();
-    if(id=='hospital') loadHospitals();
-    if(id=='cart') loadBills();
-    if(id=='home') loadDashboard();
-  }
-
-  // DASHBOARD
-  async function loadDashboard(){
-    let p = await getDocs(collection(db, "products"));
-    let b = await getDocs(collection(db, "bills"));
-    let h = await getDocs(collection(db, "hospitals"));
-    document.getElementById("totalProducts").innerText = p.size;
-    document.getElementById("totalBills").innerText = b.size;
-    document.getElementById("totalHospitals").innerText = h.size;
-  }
-
-  // MEDICINE - ADD, EDIT, DELETE
-  window.addProduct = async () => {
-    let name = prompt("Dawai ka naam?");
-    let price = prompt("Price?");
-    let stock = prompt("Stock?");
-    if(name) await addDoc(collection(db, "products"), {name, price: Number(price), stock: Number(stock)});
-    loadProducts();
-  }
-  window.editProduct = async (id, name, price, stock) => {
-    let n = prompt("Naya naam:", name);
-    let p = prompt("Naya price:", price);
-    let s = prompt("Naya stock:", stock);
-    if(n) await updateDoc(doc(db, "products", id), {name:n, price:Number(p), stock:Number(s)});
-    loadProducts();
-  }
-  window.deleteProduct = async (id) => {
-    if(confirm("Pakka delete karna hai?")) await deleteDoc(doc(db, "products", id));
-    loadProducts();
-  }
-  window.loadProducts = async () => {
-    let snap = await getDocs(collection(db, "products"));
-    let html = "<table><tr><th>Naam</th><th>Price</th><th>Stock</th><th>Action</th></tr>";
-    snap.forEach(d => {
-      let p = d.data();
-      let sClass = p.stock < 10 ? "low-stock" : "";
-      html += `<tr><td>${p.name}</td><td>₹${p.price}</td><td class="${sClass}">${p.stock}</td>
-      <td><button class="btn-warning" onclick="editProduct('${d.id}','${p.name}',${p.price},${p.stock})">Edit</button>
-      <button class="btn-danger" onclick="deleteProduct('${d.id}')">Delete</button></td></tr>`;
-    });
-    document.getElementById("productList").innerHTML = html+"</table>";
-  }
-
-  // BILLING
-  window.addToBill = async () => {
-    let snap = await getDocs(collection(db, "products"));
-    let list = snap.docs.map(d=>d.data().name).join(", ");
-    let name = prompt("Dawai ka naam? Options: "+list);
-    let qty = prompt("Kitni?");
-    let p = snap.docs.find(d=>d.data().name==name)?.data();
-    if(p) billCart.push({name, price:p.price, qty:Number(qty)});
-    updateBillUI();
-  }
-  function updateBillUI(){
-    document.getElementById("billItems").innerHTML = billCart.map(b=>`${b.name} x ${b.qty} = ₹${b.price*b.qty}`).join("<br>");
-    let total = billCart.reduce((a,b)=>a+b.price*b.qty,0);
-    document.getElementById("billTotal").innerText = total;
-  }
-  window.saveBill = async () => {
-    let total = billCart.reduce((a,b)=>a+b.price*b.qty,0);
-    if(!custName.value){ alert("Customer naam dalo"); return; }
-    await addDoc(collection(db, "bills"), {customer: custName.value, items: billCart, total, date: new Date()});
-    alert("Bill Save ₹"+total);
-    billCart=[]; custName.value=""; updateBillUI(); loadBills();
-  }
-
-  // HOSPITAL - ADD, DELETE
-  window.addHospital = async () => {
-    if(!hospName.value){ alert("Hospital naam dalo"); return; }
-    await addDoc(collection(db, "hospitals"), {name: hospName.value, doctor: docName.value});
-    hospName.value=""; docName.value=""; loadHospitals();
-  }
-  window.deleteHospital = async (id) => {
-    if(confirm("Hospital delete kare?")) await deleteDoc(doc(db, "hospitals", id));
-    loadHospitals();
-  }
-  window.loadHospitals = async () => {
-    let snap = await getDocs(collection(db, "hospitals"));
-    let html = "<table><tr><th>Hospital</th><th>Doctor</th><th>Action</th></tr>";
-    snap.forEach(d=>{ 
-      let h=d.data(); 
-      html+=`<tr><td>${h.name}</td><td>${h.doctor}</td>
-      <td><button class="btn-danger" onclick="deleteHospital('${d.id}')">Delete</button></td></tr>`
-    });
-    document.getElementById("hospitalList").innerHTML = html+"</table>";
-  }
-
-  // CART / BILL HISTORY - DELETE
-  window.deleteBill = async (id) => {
-    if(confirm("Bill delete kare?")) await deleteDoc(doc(db, "bills", id));
-    loadBills();
-  }
-  window.clearAllBills = async () => {
-    if(confirm("Sabhi bill delete ho jayenge. Pakka?")){
-      let snap = await getDocs(collection(db,"bills"));
-      snap.forEach(d=> deleteDoc(doc(db, "bills", d.id)));
-      loadBills();
-    }
-  }
-  window.loadBills = async () => {
-    let snap = await getDocs(query(collection(db,"bills"), orderBy("date","desc")));
-    let html = "<table><tr><th>Customer</th><th>Total</th><th>Date</th><th>Action</th></tr>";
-    snap.forEach(d=>{ 
-      let b=d.data(); 
-      let date = b.date.toDate().toLocaleDateString('hi-IN');
-      html+=`<tr><td>${b.customer}</td><td>₹${b.total}</td><td>${date}</td>
-      <td><button class="btn-danger" onclick="deleteBill('${d.id}')">Delete</button></td></tr>`
-    });
-    document.getElementById("billHistory").innerHTML = html+"</table>";
-  }
-</script>
-
-<!-- Order Button -->
-<div style="text-align: center; margin: 40px 0;">
-  <button style="background: linear-gradient(90deg, #4CAF50, #2196F3); 
-                 color: white; 
-                 padding: 15px 40px; 
-                 border: none; 
-                 border-radius: 12px; 
-                 font-size: 20px; 
-                 font-weight: bold;">
-    Order Now
-  </button>
+<div class="footer">
+  <p>📍 Lucknow, Uttar Pradesh</p>
+  <p style="margin-top:5px;">© 2026 NG Care - Safe Version</p>
+  <p style="margin-top:8px;"><a href="admin.html" style="color:#ccc;text-decoration:none;font-size:10px;">Admin Login</a></p>
 </div>
 
 </body>

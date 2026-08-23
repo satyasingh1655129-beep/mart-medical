@@ -5,194 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NGcare Login</title>
 <style>
-* { box-sizing: border-box; }
-body {
-    margin: 0;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(135deg, #1e88e5 0%, #a5d6a7 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 15px;
-}
-.main-card {
-    background: #ffffff;
-    width: 100%;
-    max-width: 420px;
-    border-radius: 22px;
-    padding: 25px 20px 18px 20px;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.18);
-    text-align: center;
-}
-.main-card h1 {
-    margin: 0;
-    font-size: 34px;
-    font-weight: 900;
-    letter-spacing: -0.5px;
-    color: #0d47a1;
-}
-.main-card h1 .plus {
-    color: #ff0000 !important;
-    font-weight: 900;
-}
-.step-text {
-    margin: 8px 0 22px 0;
-    color: #212121;
-    font-weight: 600;
-    font-size: 17px;
-}
-.role-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-.role-box {
-    border: 2.5px solid;
-    border-radius: 18px;
-    padding: 20px 10px 16px 10px;
-    background: #fff;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-.role-box:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-}
-.icon-circle {
-    width: 78px;
-    height: 78px;
-    border-radius: 50%;
-    margin: 0 auto 14px auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 38px;
-}
-.role-box p {
-    margin: 0;
-    font-weight: 700;
-    font-size: 16px;
-    color: #212121;
-}
-
-/* 4 Colours - Exact photo jaise */
-.member { border-color: #00b761; }
-.member .icon-circle { background: #c8e6c9; }
-
-.pharmacist { border-color: #1976d2; }
-.pharmacist .icon-circle { background: #bbdefb; }
-
-.doctor { border-color: #ff8f00; }
-.doctor .icon-circle { background: #ffe0b2; }
-
-.service { border-color: #7c4dff; }
-.service .icon-circle { background: #e1bee7; }
-
-.footer-text {
-    margin-top: 20px;
-    font-size: 12px;
-    color: #757575;
-}
-.role-box.selected {
-    transform: scale(1.04);
-    box-shadow: 0 0 0 4px #fff, 0 0 0 7px currentColor;
-}
-
-/* OTP Form */
-#loginForm { margin-top: 20px; text-align: left; }
-#loginForm input, #loginForm button {
-    width: 100%;
-    padding: 13px;
-    margin-top: 10px;
-    border-radius: 10px;
-    border: 2px solid #ddd;
-    font-size: 15px;
-}
-#loginForm button {
-    background: #0d47a1;
-    color: #fff;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-}
-.hidden { display: none; }
+body{margin:0;font-family:Arial;background:linear-gradient(135deg,#6aa8ff 0%,#8ad4a0 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:15px}
+.card{background:#fff;width:100%;max-width:380px;border-radius:22px;padding:22px 18px 14px 18px;box-shadow:0 15px 35px rgba(0,0,0,0.2);text-align:center}
+.head{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px}
+.icon-plus{width:38px;height:38px;background:#ff2b2b;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-weight:900}
+h1{margin:0;font-size:34px;font-weight:900;color:#0d2a7a}
+.step{margin:10px 0 18px 0;font-weight:600;color:#444}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.box{border:2.5px solid;border-radius:18px;padding:16px 8px;background:#fff;cursor:pointer}
+.circle{width:75px;height:75px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center}
+.box p{margin:0;font-weight:700;color:#333}
+.member{border-color:#0bb365} .member .circle{background:#c8ecd0}
+.pharma{border-color:#1a66d1} .pharma .circle{background:#d0e2ff}
+.doctor{border-color:#ff8c00} .doctor .circle{background:#ffe0b2}
+.service{border-color:#6a32d1} .service .circle{background:#ddd0f5}
+.footer{margin-top:16px;font-size:11px;color:#888}
 </style>
 </head>
 <body>
-
-<div class="main-card">
-    <h1><span class="plus">+</span>NGcare Login</h1>
-    <div class="step-text">Step 1: Apna Role Select karo</div>
-
-    <div class="role-grid">
-        <div class="role-box member" onclick="selectRole('Member', this)">
-            <div class="icon-circle">👤</div>
-            <p>Member</p>
-        </div>
-        <div class="role-box pharmacist" onclick="selectRole('Pharmacist', this)">
-            <div class="icon-circle">💊</div>
-            <p>Pharmacist</p>
-        </div>
-        <div class="role-box doctor" onclick="selectRole('Doctor', this)">
-            <div class="icon-circle">👨‍⚕️</div>
-            <p>Doctor</p>
-        </div>
-        <div class="role-box service" onclick="selectRole('Service Team', this)">
-            <div class="icon-circle">🔧</div>
-            <p>Service Team</p>
-        </div>
-    </div>
-
-    <div id="loginForm" class="hidden">
-        <p id="roleText" style="text-align:center; font-weight:bold; color:#0d47a1;"></p>
-        <input type="email" id="email" placeholder="Email daalo">
-        <button onclick="sendOTP()">Send OTP</button>
-        <input type="text" id="otpInput" placeholder="OTP daalo">
-        <button onclick="verifyOTP()">Verify & Login</button>
-        <p id="msg" style="text-align:center;"></p>
-    </div>
-
-    <div class="footer-text">You can change this later • Need help? Contact Support</div>
+<div class="card">
+<div class="head"><div class="icon-plus">+</div><h1>NGcare Login</h1></div>
+<div class="step">Step 1: Apna Role Select karo</div>
+<div class="grid">
+<div class="box member" onclick="location.href='index.html'"><div class="circle"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#0bb365" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></div><p>Member</p></div>
+<div class="box pharma" onclick="location.href='index.html'"><div class="circle"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#1a66d1" stroke-width="1.8"><path d="M14.5 6.5a5 5 0 0 1 0 7l-7 7a5 5 0 0 1-7-7l7-7a5 5 0 0 1 7 0z"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><p>Pharmacist</p></div>
+<div class="box doctor" onclick="location.href='index.html'"><div class="circle"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#e86a00" stroke-width="1.6"><path d="M12 4a2 2 0 1 0 4 2 2 0 0 0 0-4z"/><path d="M8 10h8v3c0 1.5-.5 2.5-2 3v3H10v-3c-1.5-.5-2-1.5-2-3v-3z"/></svg></div><p>Doctor</p></div>
+<div class="box service" onclick="location.href='index.html'"><div class="circle"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#6a32d1" stroke-width="1.8"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a1 1 0 0 0 0-1.4l-1.6-1.6a1 1 0 0 0-1.4 0l-3.8 3.8z"/><path d="M3 21l3-3 2.5 2.5-3 3L3 21z"/></svg></div><p>Service Team</p></div>
 </div>
-
-<script>
-let generatedOtp = "";
-let selectedRole = "";
-
-function selectRole(role, element) {
-    selectedRole = role;
-    document.querySelectorAll('.role-box').forEach(box => box.classList.remove('selected'));
-    element.classList.add('selected');
-    document.getElementById('loginForm').classList.remove('hidden');
-    document.getElementById('roleText').innerText = "Login as: " + role;
-}
-
-function sendOTP() {
-    const email = document.getElementById('email').value;
-    if (!email) {
-        document.getElementById('msg').innerText = "Pehle Email daalo";
-        document.getElementById('msg').style.color = "red";
-        return;
-    }
-    generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    alert("Demo OTP: " + generatedOtp + " | Role: " + selectedRole);
-    document.getElementById('msg').innerText = "OTP bhej diya hai";
-    document.getElementById('msg').style.color = "green";
-}
-
-function verifyOTP() {
-    const entered = document.getElementById('otpInput').value;
-    if (entered === generatedOtp) {
-        document.getElementById('msg').innerText = "Login Success!";
-        document.getElementById('msg').style.color = "green";
-        setTimeout(() => { window.location.href = "index.html"; }, 1000);
-    } else {
-        document.getElementById('msg').innerText = "Galat OTP hai";
-        document.getElementById('msg').style.color = "red";
-    }
-}
-</script>
-
+<div class="footer">You can change this later • Need help? Contact Support</div>
+</div>
 </body>
 </html>

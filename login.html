@@ -21,10 +21,13 @@ h1{margin:0;font-size:34px;font-weight:900;color:#0d2a7a}
 .service{border-color:#6a32d1} .service .circle{background:#ddd0f5}
 .footer{margin-top:16px;font-size:11px;color:#888}
 </style>
+  <script src="ngcare-config.js"></script>
+</head>
 </head>
 <body>
 <div class="card">
-<div class="head"><div class="icon-plus">+</div><h1>NGcare Login</h1></div>
+<div id="mainLogo"></div>
+<script>loadLogo('mainLogo')</script>
 <div class="step">Step 1: Apna Role Select karo</div>
 <div class="grid">
 <div class="box member" onclick="location.href='index.html'"><div class="circle"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#0bb365" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></div><p>Member</p></div>

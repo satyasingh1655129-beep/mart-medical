@@ -1,29 +1,100 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Verify OTP</title>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify OTP</title>
 <script src="ngcare-config.js"></script>
-<style>body{margin:0;font-family:Arial;background:#e8ecf2;display:flex;justify-content:center;padding:20px}.card{background:#fff;width:100%;max-width:400px;border-radius:20px;padding:24px;margin-top:30px;text-align:center}.otp-inputs{display:flex;gap:8px;justify-content:center;margin:20px 0}.otp-inputs input{width:42px;height:48px;text-align:center;font-size:20px;font-weight:700;border:1.5px solid #bbb;border-radius:10px}.btn{width:100%;padding:14px;background:#0d2a7a;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:800;margin-top:10px}
-.input-box{width:100%;padding:13px;border:1.5px solid #bbb;border-radius:12px;font-size:15px;margin-bottom:15px;box-sizing:border-box}
+<style>
+body{margin:0;font-family:Arial;background:#e8ecf2;display:flex;justify-content:center;padding:20px}
+.card{background:#fff;width:100%;max-width:400px;border-radius:20px;padding:24px;margin-top:30px;text-align:center;box-shadow:0 5px 20px rgba(0,0,0,0.1)}
+.input-box{width:100%;padding:13px;border:1.5px solid #bbb;border-radius:12px;font-size:15px;margin-bottom:15px;box-sizing:border-box;outline:none}
+.input-box:focus{border-color:#0d2a7a}
+.otp-inputs{display:flex;gap:8px;justify-content:center;margin:20px 0}
+.otp-inputs input{width:42px;height:48px;text-align:center;font-size:20px;font-weight:700;border:1.5px solid #bbb;border-radius:10px;outline:none}
+.otp-inputs input:focus{border-color:#0d2a7a}
+.btn{width:100%;padding:14px;background:#0d2a7a;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:800;margin-top:10px;cursor:pointer}
+.btn:active{transform:scale(0.98)}
+small{color:#666}
+a{color:#0d2a7a;text-decoration:none;font-weight:600}
 </style>
-</head><body><div class="card">
-<div id="mainLogo"></div><script>loadLogo('mainLogo')</script>
+</head>
+<body>
+<div class="card">
+
+<!-- LOGO - Admin se change hoga -->
+<div id="mainLogo"></div>
+<script>
+// Logo Load Logic - Admin se changeable
+function loadLogo(id){
+  let logo = localStorage.getItem('NGCARE_LOGO');
+  let box = document.getElementById(id);
+  if(!box) return;
+  if(logo){
+    box.innerHTML = `<img src="${logo}" style="max-width:150px;max-height:70px;object-fit:contain">`;
+  } else {
+    // Default Logo agar admin ne kuch nahi lagaya
+    box.innerHTML = `<div style="font-size:32px;font-weight:900;color:#0d2a7a;letter-spacing:1px">NG<span style="color:#28a745">care</span> <span style="font-size:22px">💊</span></div>`;
+  }
+}
+loadLogo('mainLogo');
+</script>
+
 <h3 style="margin:15px 0 15px">OTP Verification</h3>
 
-<!-- SIRF YE BOX RAHEGA -->
+<!-- Email / Phone Box -->
 <input type="text" id="emailPhone" class="input-box" placeholder="Email / Phone Number">
 
-<div class="otp-inputs"><input maxlength="1" id="o1" oninput="moveNext(this,'o2')"><input maxlength="1" id="o2" oninput="moveNext(this,'o3')"><input maxlength="1" id="o3" oninput="moveNext(this,'o4')"><input maxlength="1" id="o4" oninput="moveNext(this,'o5')"><input maxlength="1" id="o5" oninput="moveNext(this,'o6')"><input maxlength="1" id="o6"></div>
+<!-- 6 OTP Box -->
+<div class="otp-inputs">
+<input maxlength="1" id="o1" oninput="moveNext(this,'o2')">
+<input maxlength="1" id="o2" oninput="moveNext(this,'o3')">
+<input maxlength="1" id="o3" oninput="moveNext(this,'o4')">
+<input maxlength="1" id="o4" oninput="moveNext(this,'o5')">
+<input maxlength="1" id="o5" oninput="moveNext(this,'o6')">
+<input maxlength="1" id="o6">
+</div>
+
 <p><b>OFFLINE OTP: <span id="showOtp" style="color:red"></span></b><br><small>(Test ke liye dikh raha hai)</small></p>
+
 <button class="btn" onclick="verifyOtp()">VERIFY OTP</button>
 <p style="margin-top:15px"><a href="#" onclick="generateOtp()">Resend OTP</a></p>
+
 </div>
+
 <script>
-function generateOtp(){let otp=Math.floor(100000+Math.random()*900000);localStorage.setItem('NGCARE_OTP',otp);document.getElementById('showOtp').innerText=otp;}
-function moveNext(c,n){if(c.value.length==1){let nx=document.getElementById(n);if(nx)nx.focus();}}
-function verifyOtp(){
- let contact=document.getElementById('emailPhone').value;
- if(contact.trim()===""){alert('Email / Phone dalo');return;}
- let entered=document.getElementById('o1').value+document.getElementById('o2').value+document.getElementById('o3').value+document.getElementById('o4').value+document.getElementById('o5').value+document.getElementById('o6').value;
- let real=localStorage.getItem('NGCARE_OTP');
- if(entered==real){window.location.href='index.html';}else{alert('Galat OTP! Sahi: '+real);}
+function generateOtp(){
+  let otp=Math.floor(100000+Math.random()*900000);
+  localStorage.setItem('NGCARE_OTP',otp);
+  document.getElementById('showOtp').innerText=otp;
 }
+
+function moveNext(c,n){
+  if(c.value.length==1){
+    let nx=document.getElementById(n);
+    if(nx) nx.focus();
+  }
+}
+
+function verifyOtp(){
+  let contact=document.getElementById('emailPhone').value;
+  if(contact.trim()===""){alert('Pehle Email / Phone Number dalo');return;}
+
+  let entered=document.getElementById('o1').value+document.getElementById('o2').value+document.getElementById('o3').value+document.getElementById('o4').value+document.getElementById('o5').value+document.getElementById('o6').value;
+  let real=localStorage.getItem('NGCARE_OTP');
+
+  if(entered.length < 6){alert('Pura 6 digit OTP dalo');return;}
+
+  if(entered==real){
+    localStorage.setItem('NGCARE_MOB',contact);
+    alert('OTP sahi hai!');
+    window.location.href='index.html';
+  }else{
+    alert('Galat OTP! Sahi OTP hai: '+real);
+  }
+}
+
 generateOtp();
-</script></body></html>
+</script>
+</body>
+</html>

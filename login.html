@@ -4,14 +4,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body{background:#eef0f4;font-family:Arial;margin:0;padding:15px;display:flex;justify-content:center}
-.card{background:#fff;width:100%;max-width:380px;padding:20px;border-radius:20px}
+.card{background:#fff;width:360px;padding:20px;border-radius:20px}
 h2{text-align:center;color:#0f1f4a;margin:0}
 .sub{text-align:center;color:#888;margin:5px 0 20px}
-.row{display:flex;align-items:center;background:#dbeaff;border-radius:16px;margin-bottom:12px;padding:10px;border:4px solid;cursor:pointer}
-.row img{width:60px;height:60px;animation: float 2s infinite}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-.row div{margin-left:10px}
-.cont{width:100%;padding:15px;background:#0f1f4a;color:#fff;border:none;border-radius:12px;font-size:18px;font-weight:bold}
+.box{display:flex;align-items:center;background:#dbeaff;border-radius:15px;margin-bottom:12px;padding:12px;border:3px solid;cursor:pointer}
+.ico{width:50px;height:50px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:28px;margin-right:12px}
+.btn{width:100%;padding:14px;background:#0f1f4a;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:bold;cursor:pointer}
 </style>
 </head>
 <body>
@@ -19,23 +17,12 @@ h2{text-align:center;color:#0f1f4a;margin:0}
 <h2>NG CARE Login</h2>
 <div class="sub">Select an option to continue</div>
 
-<div class="row" style="border-color:#ff8c00" onclick="location.href='otp.html'">
-<img src="https://cdn3d.iconscout.com/3d/free/thumb/free-user-3d-icon-download-in-png-blend-fbx-gltf-file-formats--profile-avatar-account-pack-avatars-icons-4782014.png">
-<div><b style="font-size:20px">Member</b><br>Access your member profile</div></div>
+<div class="box" style="border-color:#ff8c00" onclick="window.location.href='otp.html'"><div class="ico">🧑</div><b>Member</b></div>
+<div class="box" style="border-color:#00b050" onclick="window.location.href='otp.html'"><div class="ico">💊</div><b>Pharmacist</b></div>
+<div class="box" style="border-color:#0b62d6" onclick="window.location.href='otp.html'"><div class="ico">🩺</div><b>Doctor</b></div>
+<div class="box" style="border-color:#6a11f5" onclick="window.location.href='otp.html'"><div class="ico">🤝</div><b>Help Team</b></div>
 
-<div class="row" style="border-color:#00b050" onclick="location.href='otp.html'">
-<img src="https://cdn3d.iconscout.com/3d/premium/thumb/pill-3d-icon-download-in-png-blend-fbx-gltf-file-formats--medicine-drug-logo-healthcare-pack-medical-icons-5186825.png">
-<div><b style="font-size:20px">Pharmacist</b><br>Order medicines</div></div>
-
-<div class="row" style="border-color:#0b62d6" onclick="location.href='otp.html'">
-<img src="https://cdn3d.iconscout.com/3d/premium/thumb/stethoscope-3d-icon-download-in-png-blend-fbx-gltf-file-formats--medicine-doctor-hospital-pack-medical-icons-5193556.png">
-<div><b style="font-size:20px">Doctor</b><br>Talk to a doctor</div></div>
-
-<div class="row" style="border-color:#6a11f5" onclick="location.href='otp.html'">
-<img src="https://cdn3d.iconscout.com/3d/premium/thumb/handshake-3d-icon-download-in-png-blend-fbx-gltf-file-formats--partnership-deal-agreement-business-pack-icons-5186860.png">
-<div><b style="font-size:20px">Help Team</b><br>Contact support & get assistance</div></div>
-
-<button class="cont" onclick="location.href='otp.html'">Continue</button>
+<button class="btn" onclick="window.location.href='otp.html'">Continue</button>
 </div>
 </body>
 </html>

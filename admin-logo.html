@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Logo Change</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#e8ecf2;min-height:100vh;padding:20px;display:flex;justify-content:center}
+.card{background:#fff;width:100%;max-width:400px;border-radius:20px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,0.15)}
+h2{margin:0;color:#1e2a8a;font-size:28px;line-height:1.1}
+.sub{color:#666;font-size:13px;margin:6px 0 18px 0;border-bottom:1px solid #ddd;padding-bottom:12px}
+label{font-weight:bold;color:#334;display:block;margin:14px 0 6px 0}
+.input{width:100%;padding:13px;border:1.5px solid #bbb;border-radius:12px;font-size:16px;display:flex;align-items:center;justify-content:space-between}
+.input input{border:none;outline:none;width:70%;font-size:16px}
+.color-dot{width:32px;height:32px;border-radius:50%;background:#ef4444}
+.btn{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-size:18px;font-weight:800;margin-top:18px;cursor:pointer;box-shadow:0 6px 15px rgba(37,99,235,0.3)}
+.preview-title{font-weight:bold;color:#334;margin:22px 0 8px 0;font-size:20px}
+.preview{border:1.5px solid #bbb;border-radius:12px;padding:18px;background:#f3f4f6;min-height:80px;display:flex;align-items:center}
+.note{font-size:11px;color:#888;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="card">
+<h2>NGcare Logo<br>Change - Admin</h2>
+<div class="sub">Yahan se badloge to sab pages pe badlega</div>
+
+<label>Logo Text</label>
+<div class="input">
+<input type="text" id="logoText" value="NGcare" oninput="updatePreview()">
+<span>👆</span>
+</div>
+
+<label>Plus Ka Color</label>
+<div class="input">
+<input type="text" id="logoColorCode" value="#EF4444" oninput="syncColor()">
+<div style="display:flex;align-items:center;gap:8px">
+<div id="colorDot" class="color-dot"></div>
+<input type="color" id="logoColor" value="#EF4444" oninput="syncColor()" style="width:24px;height:24px;border:none;background:transparent">
+</div>
+</div>
+
+<button class="btn" onclick="saveLogo()">SAVE</button>
+
+<div class="preview-title">Preview</div>
+<div class="preview" id="previewBox"></div>
+<div class="note">Preview updates in real-time ⓘ</div>
+</div>
+
+<script>
+function getConfig(){
+  return JSON.parse(localStorage.getItem('NGCARE_LOGO_CONFIG') || '{"text":"NGcare Login","color":"#EF4444"}');
+}
+function updatePreview(){
+  let text = document.getElementById('logoText').value || 'NGcare';
+  let color = document.getElementById('logoColor').value;
+  document.getElementById('previewBox').innerHTML = `<div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;background:${color};border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:20px;position:relative">+<span style="position:absolute;width:8px;height:8px;background:${color};border-radius:50%;right:-2px;bottom:5px"></span></div><span style="font-size:26px;font-weight:700;color:#222">${text} Login</span></div>`;
+}
+function syncColor(){
+  let c = document.getElementById('logoColor').value;
+  document.getElementById('logoColorCode').value = c.toUpperCase();
+  document.getElementById('colorDot').style.background = c;
+  updatePreview();
+}
+function saveLogo(){
+  let data = {text: document.getElementById('logoText').value, color: document.getElementById('logoColor').value};
+  localStorage.setItem('NGCARE_LOGO_CONFIG', JSON.stringify(data));
+  alert('SAVE ho gaya! ✅ Ab login.html, otp.html, index.html sab pe yehi logo dikhega!');
+}
+
+let cfg = getConfig();
+document.getElementById('logoText').value = cfg.text.replace(' Login','');
+document.getElementById('logoColor').value = cfg.color;
+document.getElementById('logoColorCode').value = cfg.color.toUpperCase();
+syncColor();
+</script>
+</body>
+</html>

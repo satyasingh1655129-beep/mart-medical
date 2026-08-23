@@ -30,10 +30,10 @@ h1{margin:0;font-size:34px;font-weight:900;color:#0d2a7a}
 <script>loadLogo('mainLogo')</script>
 <div class="step">Step 1: Apna Role Select karo</div>
 <div class="grid">
-<div class="box member" onclick="location.href='index.html'"><div class="circle"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#0bb365" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></div><p>Member</p></div>
-<div class="box pharma" onclick="location.href='index.html'"><div class="circle"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#1a66d1" stroke-width="1.8"><path d="M14.5 6.5a5 5 0 0 1 0 7l-7 7a5 5 0 0 1-7-7l7-7a5 5 0 0 1 7 0z"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><p>Pharmacist</p></div>
-<div class="box doctor" onclick="location.href='index.html'"><div class="circle"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#e86a00" stroke-width="1.6"><path d="M12 4a2 2 0 1 0 4 2 2 0 0 0 0-4z"/><path d="M8 10h8v3c0 1.5-.5 2.5-2 3v3H10v-3c-1.5-.5-2-1.5-2-3v-3z"/></svg></div><p>Doctor</p></div>
-<div class="box service" onclick="location.href='index.html'"><div class="circle"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#6a32d1" stroke-width="1.8"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a1 1 0 0 0 0-1.4l-1.6-1.6a1 1 0 0 0-1.4 0l-3.8 3.8z"/><path d="M3 21l3-3 2.5 2.5-3 3L3 21z"/></svg></div><p>Service Team</p></div>
+<div class="box member" onclick="goOtpWithRole('Member',this)"><div class="circle"></div>Member</div>
+<div class="box pharma" onclick="goOtpWithRole('Pharmacist',this)"><div class="circle"></div>Pharmacist</div>
+<div class="box doctor" onclick="goOtpWithRole('Doctor',this)"><div class="circle"></div>Doctor</div>
+<div class="box service" onclick="goOtpWithRole('Help Team',this)"><div class="circle"></div>Help Team</div>
 </div>
 <div class="footer">You can change this later • Need help? Contact Support</div>
 </div>

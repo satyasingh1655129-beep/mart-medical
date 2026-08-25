@@ -4,114 +4,88 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NG Care</title>
-<link rel="stylesheet" href="design.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
 body{background:#f5f5f5;padding-bottom:85px}
-.header{background:#0d47a1;color:white;padding:14px;text-align:center;font-weight:bold}
-#banner{width:100%;height:150px;background:#ddd;display:flex;align-items:center;justify-content:center;overflow:hidden}
-#banner img{width:100%;height:100%;object-fit:cover}
-.search-bar{padding:12px;background:white;display:flex;gap:8px;margin-top:8px}
+.header{background:#0d47a1;color:white;padding:14px;text-align:center;font-weight:bold;font-size:18px}
+#banner{width:100%;height:150px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:20px}
+.search-bar{padding:12px;background:white;display:flex;gap:8px;margin:10px 0}
 .search-bar input{flex:1;padding:12px 16px;border-radius:25px;border:1px solid #0d47a1;outline:none}
-.search-bar button{padding:12px 20px;border-radius:25px;border:none;background:#0d47a1;color:white;font-weight:bold}
-.cat-bar{display:flex;gap:10px;padding:12px;background:white;overflow-x:auto;position:sticky;top:0;z-index:20}
-.cat-bar a{text-decoration:none}
-.cat-bar button{padding:9px 20px;border-radius:20px;border:1px solid #0d47a1;background:white;color:#0d47a1;font-weight:bold;flex-shrink:0}
+.search-bar button{padding:12px 20px;border-radius:25px;border:none;background:#0d47a1;color:white}
 .box{margin:12px;background:white;padding:14px;border-radius:12px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.product{border:1px solid #eee;padding:10px;border-radius:10px;text-align:center;background:white}
-.product img{width:100%;height:70px;object-fit:contain}
+.product{border:1px solid #eee;padding:10px;border-radius:10px;text-align:center}
 .bottom{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:12px 0;border-top:1px solid #ccc;z-index:999}
-.bottom button{border:none;background:#0d47a1;color:white;padding:10px 14px;border-radius:20px;font-size:12px;font-weight:bold}
-#backArrow{position:fixed;top:12px;left:12px;background:white;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3);z-index:1000;font-size:22px}
+.bottom button{border:none;background:#0d47a1;color:white;padding:10px 14px;border-radius:20px;font-size:13px;font-weight:bold}
 </style>
 </head>
 <body>
 
-<div id="backArrow" onclick="goHome()">←</div>
 <div class="header">NG Care</div>
 <div id="banner">Banner</div>
 
-<div class="search-bar">
-  <input id="searchInput" placeholder="Search Tablet, Syrup..." onkeyup="searchProduct()">
+<div class="search-bar" id="homeTop">
+  <input id="searchInput" placeholder="Search product..." onkeyup="searchProduct()">
   <button onclick="searchProduct()">🔍</button>
 </div>
 
-<div class="cat-bar" id="pharmacySection">
-  <a href="#tablet" onclick="openCat('tablet')"><button>Tablet</button></a>
-  <a href="#capsule" onclick="openCat('capsule')"><button>Capsule</button></a>
-  <a href="#syrup" onclick="openCat('syrup')"><button>Syrup</button></a>
-  <a href="#ointment" onclick="openCat('ointment')"><button>Ointment</button></a>
-</div>
-
-<div id="catPage" class="box" style="display:none">
-  <button onclick="goHome()" style="padding:8px 20px;border-radius:20px;border:none;background:#0d47a1;color:white">← Back</button>
-  <h3 id="catTitle" style="margin:12px 0;color:#0d47a1"></h3>
-  <div id="catList" class="grid"></div>
-</div>
-
 <div id="homeSections">
-  <div class="box" id="newSection"><h3>📦 New Product</h3><div id="newList" class="grid"><p>Admin se add karo</p></div></div>
-  <div class="box" id="hospitalSection"><h3>🏥 Hospital Products</h3><div id="hospitalList" class="grid"><p>Hospital items yaha ayenge</p></div></div>
-  <div class="box" id="trendSection"><h3>🔥 Trending</h3><div id="trendList" class="grid"><p>Khali</p></div></div>
-  <div class="box" id="cartSection"><h3>🛒 Cart</h3><div id="cartList"><p>Cart khali hai</p></div></div>
+  <div class="box" id="pharmacySection">
+    <h3>💊 Pharmacy - New Product</h3>
+    <div id="newList" class="grid"><p>Admin se product add karo</p></div>
+  </div>
+
+  <div class="box" id="hospitalSection">
+    <h3>🏥 Hospital</h3>
+    <div id="hospitalList" class="grid"><p>Hospital products</p></div>
+  </div>
+
+  <div class="box" id="trendSection">
+    <h3>🔥 Trending Product</h3>
+    <div id="trendList" class="grid"><p>Khali</p></div>
+  </div>
+
+  <div class="box" id="cartSection">
+    <h3>🛒 Cart</h3>
+    <div id="cartList"><p>Cart khali hai</p></div>
+  </div>
 </div>
 
-<!-- 4 FIX BUTTON - HOME, PHARMACY, HOSPITAL, CART -->
+<!-- 4 FIX BUTTON -->
 <div class="bottom">
-  <button onclick="goFix('banner')">🏠 HOME</button>
+  <button onclick="goFix('homeTop')">🏠 HOME</button>
   <button onclick="goFix('pharmacySection')">💊 PHARMACY</button>
   <button onclick="goFix('hospitalSection')">🏥 HOSPITAL</button>
   <button onclick="goFix('cartSection')">🛒 CART</button>
 </div>
 
-<script src="design.js"></script>
 <script>
 let products = JSON.parse(localStorage.getItem('ng_products') || '[]');
-let bannerImg = localStorage.getItem('ng_banner') || '';
-if(bannerImg) document.getElementById('banner').innerHTML=`<img src="${bannerImg}">`;
 
 function loadProducts(){
-  let n=document.getElementById('newList'), t=document.getElementById('trendList'), h=document.getElementById('hospitalList');
+  let n=document.getElementById('newList');
+  let t=document.getElementById('trendList');
   if(products.length===0) return;
-  n.innerHTML=''; t.innerHTML=''; h.innerHTML='';
+  n.innerHTML=''; t.innerHTML='';
   products.forEach(p=>{
-    let html=`<div class="product"><img src="${p.img||'logo.png'}"><p style="font-weight:bold">${p.name}</p><small>${p.cat}</small><br><b>₹${p.price}</b></div>`;
-    if(p.trending) t.innerHTML+=html;
-    else if(p.cat==='hospital') h.innerHTML+=html;
-    else n.innerHTML+=html;
+    let html=`<div class="product"><p style="font-weight:bold">${p.name}</p><small>${p.cat}</small><br><b>₹${p.price}</b></div>`;
+    if(p.trending) t.innerHTML+=html; else n.innerHTML+=html;
   });
 }
 loadProducts();
 
 function goFix(id){
-  goHome();
-  setTimeout(()=>{ document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'}); },100);
+  document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});
 }
-function openCat(cat){
-  document.getElementById('homeSections').style.display='none';
-  document.getElementById('catPage').style.display='block';
-  document.getElementById('catTitle').innerText=cat.toUpperCase()+' LIST';
-  let list=document.getElementById('catList'); list.innerHTML='';
-  let f=products.filter(p=>p.cat===cat);
-  if(f.length===0) list.innerHTML=`<p>${cat} khali hai</p>`;
-  else f.forEach(p=>{ list.innerHTML+=`<div class="product"><p>${p.name}</p><b>₹${p.price}</b></div>`; });
-}
-function goHome(){
-  document.getElementById('catPage').style.display='none';
-  document.getElementById('homeSections').style.display='block';
-  history.pushState("", document.title, window.location.pathname);
-  window.scrollTo({top:0,behavior:'smooth'});
-}
+
 function searchProduct(){
   let q=document.getElementById('searchInput').value.toLowerCase().trim();
-  if(!q){goHome();return;}
-  document.getElementById('homeSections').style.display='none';
-  document.getElementById('catPage').style.display='block';
-  document.getElementById('catTitle').innerText='Search: '+q;
-  let list=document.getElementById('catList'); list.innerHTML='';
-  let f=products.filter(p=>p.name.toLowerCase().includes(q)||p.cat.toLowerCase().includes(q));
-  list.innerHTML=f.length? f.map(p=>`<div class="product">${p.name}</div>`).join(''):'<p>Nahi mila</p>';
+  let n=document.getElementById('newList');
+  if(!q){ loadProducts(); return; }
+  let f=products.filter(p=>p.name.toLowerCase().includes(q));
+  n.innerHTML='';
+  if(f.length===0) n.innerHTML='<p>Nahi mila</p>';
+  else f.forEach(p=>{ n.innerHTML+=`<div class="product"><p>${p.name}</p><b>₹${p.price}</b></div>`; });
 }
 </script>
 </body>

@@ -1,132 +1,36 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NG Care</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{background:#f5f5f5;padding-bottom:80px;padding-top:10px}
-.header{background:#0d47a1;color:white;padding:14px;text-align:center}
-#banner{width:100%;height:140px;background:#ddd;overflow:hidden;display:flex;align-items:center;justify-content:center}
-#banner img{width:100%;height:100%;object-fit:cover}
-.search-bar{padding:12px;background:white;display:flex;gap:8px;margin-top:10px}
-.search-bar input{flex:1;padding:11px 15px;border-radius:25px;border:1px solid #0d47a1;outline:none}
-.search-bar button{padding:11px 18px;border-radius:25px;border:none;background:#0d47a1;color:white;font-weight:bold}
-.cat-bar{display:flex;gap:10px;padding:12px;background:white;overflow-x:auto}
-.cat-bar a{text-decoration:none}
-.cat-bar button{padding:8px 18px;border-radius:20px;border:1px solid #0d47a1;background:white;color:#0d47a1;font-weight:bold;flex-shrink:0}
-.member-box{margin:12px;background:white;padding:12px;border-radius:10px}
-.member-box input{flex:1;padding:10px 15px;border-radius:20px;border:1px solid #0d47a1}
-.section{margin:12px;background:white;padding:12px;border-radius:10px}
-.product-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.product{border:1px solid #eee;padding:10px;border-radius:8px;text-align:center;background:white}
-.product img{width:100%;height:65px;object-fit:contain}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #ccc;z-index:9999}
-.bottom-nav button{border:none;background:#0d47a1;color:white;padding:8px 12px;border-radius:20px;font-size:12px;font-weight:bold}
-#backArrow{position:fixed;top:12px;left:12px;background:white;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3);z-index:10000;font-size:20px}
-</style>
+<link rel="stylesheet" href="design.css">
 </head>
 <body>
+<h2 style="text-align:center;background:#0d47a1;color:white;padding:12px">NG Care - North Medical</h2>
 
-<div id="backArrow" onclick="goBack()">←</div>
-<div class="header"><h2>NG Care</h2></div>
-<div id="banner">Banner</div>
-
-<!-- SEARCH = FILTER BAR -->
-<div class="search-bar">
-  <input type="text" id="searchInput" placeholder="Search - Tablet, Syrup..." onkeyup="searchProduct()">
-  <button onclick="searchProduct()">🔍</button>
+<div style="padding:12px">
+  <input id="searchInput" placeholder="Search..." style="width:80%;padding:10px;border-radius:20px;border:1px solid #0d47a1">
+  <button onclick="searchData()" style="padding:10px 15px;border-radius:20px;background:#0d47a1;color:white;border:none">🔍</button>
 </div>
 
-<!-- 4 CATEGORY HREF WALE BUTTON - ISI FILE ME LIST KHULEGA -->
-<div class="cat-bar">
-  <a href="#tablet" onclick="openHref('tablet')"><button>Tablet</button></a>
-  <a href="#capsule" onclick="openHref('capsule')"><button>Capsule</button></a>
-  <a href="#syrup" onclick="openHref('syrup')"><button>Syrup</button></a>
-  <a href="#ointment" onclick="openHref('ointment')"><button>Ointment</button></a>
-</div>
+<div id="main" style="padding:12px"></div>
 
-<!-- ID SE MEMBER -->
-<div class="member-box">
-  <h4 style="color:#0d47a1">ID se Member Data</h4>
-  <div style="display:flex;gap:8px;margin-top:8px">
-    <input type="text" id="memberId" placeholder="ID ex: 101">
-    <button onclick="getMember()" style="padding:10px 18px;border-radius:20px;border:none;background:#0d47a1;color:white;font-weight:bold">Find</button>
-  </div>
-  <div id="memberResult"></div>
-</div>
-
-<!-- LIST PAGE (HREF TARGET) -->
-<div id="hrefPage" style="display:none;margin:12px;background:white;padding:15px;border-radius:10px">
-  <button onclick="goBack()" style="padding:8px 20px;background:#0d47a1;color:white;border:none;border-radius:20px;font-weight:bold">← Back</button>
-  <h3 id="hrefTitle" style="margin-top:10px;color:#0d47a1"></h3>
-  <div id="hrefList" class="product-grid"></div>
-</div>
-
-<div id="homeSections">
-  <div class="section"><h3>New Product</h3><div id="newProductList" class="product-grid"></div></div>
-  <div class="section"><h3>🔥 Trending Product</h3><div id="trendingList" class="product-grid"></div></div>
-</div>
-
-<div class="bottom-nav">
-  <button onclick="goBack()">🏠 HOME</button>
-  <button onclick="document.querySelector('.cat-bar').scrollIntoView({behavior:'smooth'})">📦 CAT</button>
-  <button onclick="document.getElementById('newProductList').scrollIntoView({behavior:'smooth'})">🆕 NEW</button>
-  <button onclick="document.getElementById('trendingList').scrollIntoView({behavior:'smooth'})">🔥 TREND</button>
-</div>
-
+<script src="design.js"></script>
 <script>
 let products = JSON.parse(localStorage.getItem('ng_products') || '[]');
-let banner = localStorage.getItem('ng_banner') || '';
-if(banner) document.getElementById('banner').innerHTML=`<img src="${banner}">`;
-
-function loadProducts(){
-  let n=document.getElementById('newProductList'), t=document.getElementById('trendingList');
-  n.innerHTML=''; t.innerHTML='';
-  if(products.length==0){ n.innerHTML='<p>Admin se add karo</p>'; t.innerHTML='<p>Khali</p>'; return; }
+let mainDiv = document.getElementById('main');
+if(products.length==0){
+  mainDiv.innerHTML = '<p>Admin se product add karo</p>';
+} else {
   products.forEach(p=>{
-    let h=`<div class="product"><img src="${p.img}"><p>${p.name}</p><small>${p.cat}</small><br><b>₹${p.price}</b></div>`;
-    if(p.trending) t.innerHTML+=h; else n.innerHTML+=h;
+    mainDiv.innerHTML += `<div style="border:1px solid #ddd;padding:10px;margin:5px;border-radius:8px"><b>${p.name}</b><br>${p.cat} - ₹${p.price}</div>`;
   });
 }
-loadProducts();
-
-// HREF TABLET LIST JAISE
-function openHref(cat){
-  document.getElementById('homeSections').style.display='none';
-  document.getElementById('hrefPage').style.display='block';
-  document.getElementById('hrefTitle').innerText = cat.toUpperCase() + ' LIST';
-  let list=document.getElementById('hrefList'); list.innerHTML='';
-  let f=products.filter(p=>p.cat==cat);
-  if(f.length==0) list.innerHTML=`<p>${cat} me product nahi hai</p>`;
-  else f.forEach(p=>{ list.innerHTML+=`<div class="product"><img src="${p.img}"><p>${p.name}</p><b>₹${p.price}</b></div>`; });
-  location.hash = cat;
-}
-function goBack(){
-  document.getElementById('hrefPage').style.display='none';
-  document.getElementById('homeSections').style.display='block';
-  history.pushState("", document.title, window.location.pathname);
-  window.scrollTo(0,0);
-}
-function searchProduct(){
-  let q=document.getElementById('searchInput').value.toLowerCase().trim();
-  if(q==""){ goBack(); loadProducts(); return; }
-  document.getElementById('homeSections').style.display='none';
-  document.getElementById('hrefPage').style.display='block';
-  document.getElementById('hrefTitle').innerText='Search: '+q;
-  let list=document.getElementById('hrefList'); list.innerHTML='';
-  let f=products.filter(p=> p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q));
-  if(f.length==0) list.innerHTML=`<p>${q} nahi mila</p>`;
-  else f.forEach(p=>{ list.innerHTML+=`<div class="product"><img src="${p.img}"><p>${p.name}</p><small>${p.cat}</small><br><b>₹${p.price}</b></div>`; });
-}
-function getMember(){
-  let id=document.getElementById('memberId').value.trim();
-  let members=JSON.parse(localStorage.getItem('ng_members') || '[]');
-  let r=document.getElementById('memberResult');
-  if(!id){ r.innerHTML="<p style='color:red'>ID dalo</p>"; return; }
-  let m=members.find(x=> x.id==id);
-  if(!m) r.innerHTML=`<p style='color:red'>ID ${id} nahi mila</p>`;
-  else r.innerHTML=`<div style="border:1px solid #ddd;padding:10px;border-radius:8px;background:#f9f9f9;margin-top:8px"><b>ID:</b> ${m.id}<br><b>Name:</b> ${m.name}<br><b>Mobile:</b> ${m.mobile}<br><b>Plan:</b> ${m.plan||m.cat||'-'}</div>`;
+function searchData(){
+  let q = document.getElementById('searchInput').value.toLowerCase();
+  let f = products.filter(p=>p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q));
+  mainDiv.innerHTML = f.map(p=>`<div style="border:1px solid #ddd;padding:10px;margin:5px;border-radius:8px">${p.name}</div>`).join('') || '<p>Nahi mila</p>';
 }
 </script>
 </body>

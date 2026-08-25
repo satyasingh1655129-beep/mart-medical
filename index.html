@@ -11,12 +11,21 @@ body{background:#f5f5f5;padding-bottom:85px}
 #banner{width:100%;height:160px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:18px}
 #banner img{width:100%;height:100%;object-fit:cover}
 
-/* CATEGORY DROPDOWN */
-.cat-wrap{padding:10px;background:white;position:relative}
-#catBtn{width:100%;padding:12px;background:white;border:1px solid #0d47a1;border-radius:10px;font-weight:bold;color:#0d47a1;text-align:left}
-#catDrop{display:none;position:absolute;left:10px;right:10px;top:50px;background:white;border:1px solid #ddd;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:50;overflow:hidden}
-#catDrop button{width:100%;padding:12px;border:none;border-bottom:1px solid #eee;background:white;text-align:left;font-weight:bold}
-#catDrop button:last-child{border:none}
+.cat-wrap{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:10px;
+  padding:10px;
+}
+.cat-wrap button{
+  background:#0d47a1;
+  color:white;
+  border:none;
+  padding:10px;
+  border-radius:10px;
+  font-weight:bold;
+  font-size:13px;
+}
 html, body { height:auto !important; overflow-y:auto !important; }
 .main, #homeContent { padding-bottom: 110px !important; }
 
@@ -47,13 +56,18 @@ html, body { height:auto !important; overflow-y:auto !important; }
 <div id="banner">Banner (Admin se lagega)</div>
 
 <div class="cat-wrap">
-  <button id="catBtn" onclick="toggleCat()">📂 Category ▼</button>
-  <div id="catDrop">
-    <button onclick="openCat('tablet')">💊 Tablet</button>
-    <button onclick="openCat('syrup')">🧴 Syrup</button>
-    <button onclick="openCat('capsule')">💊 Capsule</button>
-    <button onclick="openCat('ointment')">� ointment</button>
-  </div>
+  <button onclick="openCat('tablet')">💊 Tablet</button>
+  <button onclick="openCat('syrup')">🍶 Syrup</button>
+  <button onclick="openCat('capsule')">💊 Capsule</button>
+  <button onclick="openCat('ointment')">🧴 Ointment</button>
+  <button onclick="openCat('tube')"> Tube</button>
+  <button onclick="openCat('lotion')"> Lotion</button>
+  <button onclick="openCat('eyedrop')">👁️ Eye/Ear Drop</button>
+  <button onclick="openCat('family')">👨‍👩‍👧 Family</button>
+  <button onclick="openCat('surgical')">🩺 Surgical</button>
+  <button onclick="openCat('injection')">💉 Injection</button>
+  <button onclick="openCat('drip')">💧 Drip Set</button>
+  <button onclick="openCat('other')">📦 Other</button>
 </div>
 
 <!-- HOME CONTENT -->

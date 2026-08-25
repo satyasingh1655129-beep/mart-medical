@@ -14,6 +14,7 @@ body{background:#f5f5f5;padding-bottom:85px}
 .cat-wrap{
   display:grid;
   grid-template-columns:auto auto auto;
+  justify-content:start;
   gap:5px;
   padding:5px;
 }
@@ -25,6 +26,7 @@ body{background:#f5f5f5;padding-bottom:85px}
   border-radius:10px;
   font-weight:bold;
   font-size:15px;
+  width:fit-content;
 }
 html, body { height:auto !important; overflow-y:auto !important; }
 .main, #homeContent { padding-bottom: 110px !important; }
@@ -105,11 +107,6 @@ let products = JSON.parse(localStorage.getItem('ng_products')||'[]');
 let bannerImg = localStorage.getItem('ng_banner')||'';
 if(bannerImg) document.getElementById('banner').innerHTML=`<img src="${bannerImg}">`;
 
-function toggleCat(){
-  let d=document.getElementById('catDrop');
-  d.style.display = d.style.display==='block' ? 'none' : 'block';
-}
-
 function loadProducts(){
   let n=document.getElementById('newList'), t=document.getElementById('trendList');
   if(products.length==0) return;
@@ -119,7 +116,6 @@ function loadProducts(){
     if(p.trending) t.innerHTML+=html;
     else n.innerHTML+=html;
   });
-  // Trending me 4 box dikhe isliye duplicate agar kam hai
   if(products.length<4){
     for(let i=0;i<4-products.length;i++){
       t.innerHTML+=`<div class="product-card">Medicine ${i+1}<br><b>₹99</b></div>`;
@@ -129,7 +125,6 @@ function loadProducts(){
 loadProducts();
 
 function openCat(cat){
-  document.getElementById('catDrop').style.display='none';
   document.getElementById('homeContent').style.display='none';
   document.getElementById('catPage').style.display='block';
   document.getElementById('catTitle').innerText=cat.toUpperCase();
@@ -147,21 +142,10 @@ function goHome(){
 function goTo(type){
   alert(type+' page khulega - bottom button se navigate');
 }
-function searchProduct(){
-  let q=document.getElementById('searchInput').value.toLowerCase();
-  if(!q) { loadProducts(); return; }
-  let n=document.getElementById('newList'); n.innerHTML='';
-  let f=products.filter(p=>p.name.toLowerCase().includes(q));
-  f.forEach(p=>{ n.innerHTML+=`<div class="product-card">${p.name}</div>`; });
-}
  function goBack(){
  document.getElementById('catPage').style.display='none';
  document.getElementById('homeContent').style.display='block';
- document.getElementById('backBtn').style.display='none';
 } 
-document.addEventListener('click', function(e){
-  if(!e.target.closest('.cat-wrap')) document.getElementById('catDrop').style.display='none';
-});
 </script>
   <button id="backBtn" onclick="goBack()" style="display:none;position:fixed;top:12px;left:10px;z-index:9999;background:white;padding:8px 14px;border-radius:20px;border:1px solid #0d47a1;font-weight:bold;">← Back</button>
 </body>

@@ -7,86 +7,149 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
 body{background:#f5f5f5;padding-bottom:85px}
-.header{background:#0d47a1;color:white;padding:14px;text-align:center;font-weight:bold;font-size:18px}
-#banner{width:100%;height:150px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:20px}
-.search-bar{padding:12px;background:white;display:flex;gap:8px;margin:10px 0}
-.search-bar input{flex:1;padding:12px 16px;border-radius:25px;border:1px solid #0d47a1;outline:none}
-.search-bar button{padding:12px 20px;border-radius:25px;border:none;background:#0d47a1;color:white}
-.box{margin:12px;background:white;padding:14px;border-radius:12px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.product{border:1px solid #eee;padding:10px;border-radius:10px;text-align:center}
-.bottom{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:12px 0;border-top:1px solid #ccc;z-index:999}
-.bottom button{border:none;background:#0d47a1;color:white;padding:10px 14px;border-radius:20px;font-size:13px;font-weight:bold}
+.header{background:#0d47a1;color:white;padding:14px;text-align:center;font-weight:bold}
+#banner{width:100%;height:160px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:18px}
+#banner img{width:100%;height:100%;object-fit:cover}
+
+/* CATEGORY DROPDOWN */
+.cat-wrap{padding:10px;background:white;position:relative}
+#catBtn{width:100%;padding:12px;background:white;border:1px solid #0d47a1;border-radius:10px;font-weight:bold;color:#0d47a1;text-align:left}
+#catDrop{display:none;position:absolute;left:10px;right:10px;top:50px;background:white;border:1px solid #ddd;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:50;overflow:hidden}
+#catDrop button{width:100%;padding:12px;border:none;border-bottom:1px solid #eee;background:white;text-align:left;font-weight:bold}
+#catDrop button:last-child{border:none}
+
+.search-bar{padding:10px;background:white;display:flex;gap:8px;margin-top:8px}
+.search-bar input{flex:1;padding:12px;border-radius:25px;border:1px solid #0d47a1;outline:none}
+.search-bar button{padding:12px 18px;border-radius:25px;border:none;background:#0d47a1;color:white}
+
+.box{margin:12px 0;background:white;padding:12px}
+.box h3{color:#0d47a1;margin-bottom:8px}
+
+/* HORIZONTAL SCROLL */
+.h-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px}
+.h-scroll::-webkit-scrollbar{display:none}
+.product-card{min-width:140px;max-width:140px;border:1px solid #eee;border-radius:10px;padding:8px;text-align:center;background:white;flex-shrink:0}
+.product-card img{width:100%;height:60px;object-fit:contain}
+.product-card b{font-size:13px}
+.new-scroll .product-card{min-width:160px;max-width:160px}
+
+.bottom{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:8px 0;border-top:1px solid #ddd;z-index:999}
+.bottom button{border:none;background:none;display:flex;flex-direction:column;align-items:center;font-size:11px;font-weight:bold}
+.bottom button .icon{font-size:22px}
+#btn-home .icon{color:#0d47a1}
+#btn-pharma .icon{color:#2e7d32}
+#btn-hos .icon{color:#c62828}
+#btn-cart .icon{color:#ef6c00}
+.bottom button.active{color:#0d47a1}
 </style>
 </head>
 <body>
 
 <div class="header">NG Care</div>
-<div id="banner">Banner</div>
+<div id="banner">Banner (Admin se lagega)</div>
 
-<div class="search-bar" id="homeTop">
-  <input id="searchInput" placeholder="Search product..." onkeyup="searchProduct()">
+<div class="cat-wrap">
+  <button id="catBtn" onclick="toggleCat()">📂 Category ▼</button>
+  <div id="catDrop">
+    <button onclick="openCat('tablet')">💊 Tablet</button>
+    <button onclick="openCat('syrup')">🧴 Syrup</button>
+    <button onclick="openCat('capsule')">💊 Capsule</button>
+    <button onclick="openCat('ointment')">� ointment</button>
+  </div>
+</div>
+
+<div class="search-bar">
+  <input id="searchInput" placeholder="Search medicine..." onkeyup="searchProduct()">
   <button onclick="searchProduct()">🔍</button>
 </div>
 
-<div id="homeSections">
-  <div class="box" id="pharmacySection">
-    <h3>💊 Pharmacy - New Product</h3>
-    <div id="newList" class="grid"><p>Admin se product add karo</p></div>
+<!-- HOME CONTENT -->
+<div id="homeContent">
+  <div class="box">
+    <h3>📦 New Product</h3>
+    <div id="newList" class="h-scroll new-scroll">
+      <div class="product-card"><p>Admin se add karo</p></div>
+    </div>
   </div>
 
-  <div class="box" id="hospitalSection">
-    <h3>🏥 Hospital</h3>
-    <div id="hospitalList" class="grid"><p>Hospital products</p></div>
-  </div>
-
-  <div class="box" id="trendSection">
+  <div class="box">
     <h3>🔥 Trending Product</h3>
-    <div id="trendList" class="grid"><p>Khali</p></div>
-  </div>
-
-  <div class="box" id="cartSection">
-    <h3>🛒 Cart</h3>
-    <div id="cartList"><p>Cart khali hai</p></div>
+    <div id="trendList" class="h-scroll">
+      <div class="product-card"><p>Khali</p></div>
+    </div>
   </div>
 </div>
 
-<!-- 4 FIX BUTTON -->
+<div id="catPage" class="box" style="display:none">
+  <button onclick="goHome()" style="padding:8px 15px;border-radius:20px;border:none;background:#0d47a1;color:white">← Back</button>
+  <h3 id="catTitle" style="margin-top:10px"></h3>
+  <div id="catList" class="h-scroll" style="margin-top:10px;flex-wrap:wrap"></div>
+</div>
+
 <div class="bottom">
-  <button onclick="goFix('homeTop')">🏠 HOME</button>
-  <button onclick="goFix('pharmacySection')">💊 PHARMACY</button>
-  <button onclick="goFix('hospitalSection')">🏥 HOSPITAL</button>
-  <button onclick="goFix('cartSection')">🛒 CART</button>
+  <button id="btn-home" class="active" onclick="goHome()"><span class="icon">🏠</span>HOME</button>
+  <button onclick="goTo('pharmacy')"><span class="icon">💊</span>PHARMACY</button>
+  <button onclick="goTo('hospital')"><span class="icon">🏥</span>HOSPITAL</button>
+  <button onclick="goTo('cart')"><span class="icon">🛒</span>CART</button>
 </div>
 
 <script>
-let products = JSON.parse(localStorage.getItem('ng_products') || '[]');
+let products = JSON.parse(localStorage.getItem('ng_products')||'[]');
+let bannerImg = localStorage.getItem('ng_banner')||'';
+if(bannerImg) document.getElementById('banner').innerHTML=`<img src="${bannerImg}">`;
+
+function toggleCat(){
+  let d=document.getElementById('catDrop');
+  d.style.display = d.style.display==='block' ? 'none' : 'block';
+}
 
 function loadProducts(){
-  let n=document.getElementById('newList');
-  let t=document.getElementById('trendList');
-  if(products.length===0) return;
+  let n=document.getElementById('newList'), t=document.getElementById('trendList');
+  if(products.length==0) return;
   n.innerHTML=''; t.innerHTML='';
   products.forEach(p=>{
-    let html=`<div class="product"><p style="font-weight:bold">${p.name}</p><small>${p.cat}</small><br><b>₹${p.price}</b></div>`;
-    if(p.trending) t.innerHTML+=html; else n.innerHTML+=html;
+    let html=`<div class="product-card"><img src="${p.img||''}"><p style="font-weight:bold;font-size:13px">${p.name}</p><small>${p.cat}</small><br><b>₹${p.price}</b><br><button style="margin-top:4px;padding:4px 10px;border-radius:15px;border:none;background:#0d47a1;color:white;font-size:11px">Add</button></div>`;
+    if(p.trending) t.innerHTML+=html;
+    else n.innerHTML+=html;
   });
+  // Trending me 4 box dikhe isliye duplicate agar kam hai
+  if(products.length<4){
+    for(let i=0;i<4-products.length;i++){
+      t.innerHTML+=`<div class="product-card">Medicine ${i+1}<br><b>₹99</b></div>`;
+    }
+  }
 }
 loadProducts();
 
-function goFix(id){
-  document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});
+function openCat(cat){
+  document.getElementById('catDrop').style.display='none';
+  document.getElementById('homeContent').style.display='none';
+  document.getElementById('catPage').style.display='block';
+  document.getElementById('catTitle').innerText=cat.toUpperCase();
+  let list=document.getElementById('catList'); list.innerHTML='';
+  let f=products.filter(p=>p.cat===cat);
+  if(f.length==0) list.innerHTML=`<p>${cat} khali hai</p>`;
+  else f.forEach(p=>{ list.innerHTML+=`<div class="product-card">${p.name}<br>₹${p.price}</div>`; });
 }
-
+function goHome(){
+  document.getElementById('homeContent').style.display='block';
+  document.getElementById('catPage').style.display='none';
+  document.querySelectorAll('.bottom button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('btn-home').classList.add('active');
+}
+function goTo(type){
+  alert(type+' page khulega - bottom button se navigate');
+}
 function searchProduct(){
-  let q=document.getElementById('searchInput').value.toLowerCase().trim();
-  let n=document.getElementById('newList');
-  if(!q){ loadProducts(); return; }
+  let q=document.getElementById('searchInput').value.toLowerCase();
+  if(!q) { loadProducts(); return; }
+  let n=document.getElementById('newList'); n.innerHTML='';
   let f=products.filter(p=>p.name.toLowerCase().includes(q));
-  n.innerHTML='';
-  if(f.length===0) n.innerHTML='<p>Nahi mila</p>';
-  else f.forEach(p=>{ n.innerHTML+=`<div class="product"><p>${p.name}</p><b>₹${p.price}</b></div>`; });
+  f.forEach(p=>{ n.innerHTML+=`<div class="product-card">${p.name}</div>`; });
 }
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.cat-wrap')) document.getElementById('catDrop').style.display='none';
+});
 </script>
 </body>
 </html>

@@ -2,15 +2,15 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cart 3 Buttons Left Fix</title>
+<title>Cart Final With Back System</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{background:#f5f5f5;padding-bottom:80px;padding-top:60px}
-.top-bar{padding:10px 15px;background:white;position:fixed;top:0;left:0;right:0;z-index:9999;box-shadow:0 2px 5px rgba(0,0,0,0.1);text-align:right}
-.left-fix{position:fixed;left:10px;top:55px;z-index:10002;display:flex;flex-direction:column;gap:8px}
-.left-fix button{padding:10px 16px;border:none;border-radius:20px;font-weight:bold;color:white;box-shadow:0 3px 8px rgba(0,0,0,0.2)}
-.btn-bag{background:#ef6c00} .btn-med{background:#2e7d32} .btn-hosp{background:#0d47a1} .btn-all{background:#444}
-.cart-grid{padding:12px;margin-left:95px}
+body{background:#f5f5f5;padding-bottom:80px;padding-top:105px}
+.top-bar{padding:10px 15px;background:white;position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
+.hori-fix{position:fixed;left:0;right:0;top:50px;z-index:9998;background:white;display:flex;gap:8px;padding:10px;overflow-x:auto;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
+.hori-fix button{padding:8px 16px;border:none;border-radius:20px;font-weight:bold;color:white;flex-shrink:0}
+.btn-bag{background:#ef6c00} .btn-med{background:#2e7d32} .btn-pres{background:#6a1b9a} .btn-all{background:#444}
+.cart-grid{padding:12px}
 .item{background:white;padding:12px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between}
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:12px 0;border-top:2px solid #0d47a1}
 .bottom-nav a{text-decoration:none;color:#0d47a1;font-weight:bold} .bottom-nav a.active{color:#ff0080}
@@ -21,18 +21,21 @@ body{background:#f5f5f5;padding-bottom:80px;padding-top:60px}
 </head>
 <body>
 
-<div class="top-bar"><h3 style="color:#0d47a1">My Cart</h3></div>
+<div class="top-bar">
+  <h3 style="color:#0d47a1">My Cart</h3>
+  <a href="profile.html" style="width:38px;height:38px;background:#0d47a1;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:20px">👤</a>
+</div>
 
-<div class="left-fix">
+<div class="hori-fix">
   <button class="btn-bag" onclick="filterCart('bag')">👜 Bag</button>
   <button class="btn-med" onclick="filterCart('medical')">💊 Medical</button>
-  <button class="btn-hosp" onclick="filterCart('hospital')">🏥 Hospital</button>
+  <button class="btn-pres" onclick="filterCart('prescribed')">📋 Prescribed</button>
   <button class="btn-all" onclick="filterCart('all')">🔄 All</button>
 </div>
 
 <div class="overlay" id="overlay" onclick="closeBio()"></div>
 <div id="bioPanel">
-  <div style="display:flex;justify-content:space-between;border-bottom:2px solid #0d47a1;padding-bottom:10px"><h3 id="bioTitle">Bio</h3><button onclick="closeBio()" style="background:#c62828;color:white;border:none;padding:6px 12px;border-radius:15px">✕</button></div>
+  <div style="display:flex;justify-content:space-between;border-bottom:2px solid #0d47a1;padding-bottom:10px"><h3 id="bioTitle">Bio Data</h3><button onclick="closeBio()" style="background:#c62828;color:white;border:none;padding:6px 12px;border-radius:15px">✕ Close</button></div>
   <div id="bioContent"></div>
 </div>
 
@@ -43,39 +46,72 @@ body{background:#f5f5f5;padding-bottom:80px;padding-top:60px}
   <a href="pharmacy.html">💊 PHARMACY</a>
   <a href="hospital.html">🏥 HOSPITAL</a>
   <a href="cart.html" class="active">🛒 CART</a>
-  <a href="profile.html">👤 PROFILE</a>
 </div>
 
 <script>
 let isPopping=false;
+
 function loadCart(type='all'){
   let all=JSON.parse(localStorage.getItem('ng_cart')||'[]');
-  let filtered = type==='all'?all:all.filter(p=>(p.category||'').toLowerCase()===type);
-  let div=document.getElementById('cartArea');
-  div.innerHTML='';
+  let filtered = type==='all' ? all : all.filter(p=>{
+    let c=(p.category||'').toLowerCase();
+    if(type==='prescribed') return c==='prescribed' || c==='hospital';
+    return c===type;
+  });
+  let div=document.getElementById('cartArea'); div.innerHTML='';
   if(filtered.length==0){div.innerHTML=`<p style="text-align:center;padding:20px;color:#888">${type} empty</p>`;return;}
   filtered.forEach((p,i)=>{div.innerHTML+=`<div class="item" onclick="openBio(${i})"><div><b>${p.name}</b><br><small>${p.category} | ₹${p.rate||p.mrp}</small></div><span>▶</span></div>`;});
 }
+
 function filterCart(type){
-  if(!isPopping) history.pushState({type:'filter',filter:type},'',location.href);
+  if(!isPopping){
+    history.pushState({type:'filter',filter:type},'',location.href);
+  }
   loadCart(type);
 }
+
 function openBio(idx){
   let all=JSON.parse(localStorage.getItem('ng_cart')||'[]'); let p=all[idx]; if(!p) return;
   document.getElementById('bioTitle').innerText=p.name;
-  document.getElementById('bioContent').innerHTML=`<div class="bio-row"><b>Name:</b> ${p.name}</div><div class="bio-row"><b>Category:</b> ${p.category}</div><div class="bio-row"><b>Details:</b><br>${p.desc||'Full bio data yahan scroll hoga'}<br><br>Test scroll<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div style="height:80px"></div>`;
+  document.getElementById('bioContent').innerHTML=`<div class="bio-row"><b>Category:</b> ${p.category}</div><div class="bio-row"><b>Details:</b><br>${p.desc||'Pura bio data scroll hoga'}<br><br>1<br>2<br>3<br>4<br>5<br>6</div><div style="height:80px"></div>`;
   document.getElementById('bioPanel').classList.add('open'); document.getElementById('overlay').classList.add('show');
-  if(!isPopping) history.pushState({type:'bio',idx:idx},'',location.href);
+  if(!isPopping){
+    history.pushState({type:'bio',idx:idx},'',location.href);
+  }
 }
-function closeBio(){document.getElementById('bioPanel').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
-loadCart();
-let base={type:'base'}; history.replaceState(base,'',location.href); history.pushState(base,'',location.href);
-window.addEventListener('popstate',e=>{
-  isPopping=true; let s=e.state;
-  if(s&&s.type==='bio') openBio(s.idx);
-  else if(s&&s.type==='filter'){closeBio(); loadCart(s.filter);}
-  else{closeBio(); loadCart('all'); history.pushState(base,'',location.href);}
-  setTimeout(()=>{isPopping=false},100);
+
+function closeBio(){
+  document.getElementById('bioPanel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+loadCart('all');
+
+// =========================
+// BACK BUTTON SYSTEM - WAHI JO SABHI ME JODA HAI
+// =========================
+let baseState={type:'base'};
+history.replaceState(baseState,'',location.href);
+history.pushState(baseState,'',location.href);
+
+window.addEventListener('popstate',function(e){
+  isPopping=true;
+  let s=e.state;
+
+  if(s && s.type==='bio'){
+    // bio khula tha -> wapas bio kholo
+    openBio(s.idx);
+  }else if(s && s.type==='filter'){
+    // filter laga tha -> wapas filter pe jao
+    closeBio();
+    loadCart(s.filter);
+  }else{
+    // base pe -> sab band, All dikhao, aur wapas base push karo taki bahar na jaye
+    closeBio();
+    loadCart('all');
+    history.pushState(baseState,'',location.href);
+  }
+  setTimeout(()=>{isPopping=false;},100);
 });
 </script>
 </body>

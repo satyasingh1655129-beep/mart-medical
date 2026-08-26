@@ -1,1 +1,69 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hospitals</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#f5f5f5;padding-bottom:80px}
+.top-row{display:flex;gap:8px;padding:10px;background:white;align-items:center;position:sticky;top:0;z-index:9998;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
+.top-row input{flex:1;padding:12px;border-radius:25px;border:2px solid #0d47a1;outline:none}
+.top-row button{padding:12px 14px;border-radius:25px;border:none;background:#0d47a1;color:white;font-weight:bold;cursor:pointer}
+.hospital-grid{display:grid;grid-template-columns:1fr;gap:10px;padding:12px}
+.hospital-card{background:white;padding:15px;border-radius:10px;border:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
+</style>
+</head>
+<body>
 
+<div class="top-row">
+  <input id="searchBox" type="text" placeholder="Hospital Name / ID search..." oninput="doSearch()">
+  <button onclick="nearHospital()">📍 Near</button>
+</div>
+<p id="msg" style="text-align:center;font-size:12px;color:green;padding:6px"></p>
+
+<div id="hospitalArea" class="hospital-grid"></div>
+
+<script>
+let hospitals = JSON.parse(localStorage.getItem('ng_hospitals')||'null') || [
+  {id:'H101', name:'City Care Hospital', km:2.5, address:'Hazratganj, Lucknow'},
+  {id:'H102', name:'Sharma Hospital', km:1.2, address:'Alambagh, Lucknow'},
+  {id:'H103', name:'NG Hospital', km:3.8, address:'Gomti Nagar, Lucknow'},
+  {id:'H104', name:'Apollo Hospital', km:5.1, address:'Kanpur Road'},
+  {id:'H105', name:'Mayo Hospital', km:0.9, address:'Charbagh'}
+];
+
+function doSearch(){
+  let q=document.getElementById('searchBox').value.toLowerCase().trim();
+  let filtered = hospitals.filter(h=> h.name.toLowerCase().includes(q) || h.id.toLowerCase().includes(q));
+  show(filtered);
+}
+
+function show(list){
+  let div=document.getElementById('hospitalArea');
+  div.innerHTML='';
+  if(list.length==0){div.innerHTML='<p style="padding:20px;text-align:center">Hospital nahi mila</p>';return;}
+  list.forEach(h=>{
+    div.innerHTML+=`<div class="hospital-card">
+      <div><small style="color:#888">ID: ${h.id}</small><br><b style="font-size:17px">${h.name}</b><br><small style="color:#666">${h.address}</small></div>
+      <div style="text-align:right"><b style="color:green">📍 ${h.km} KM</b></div>
+    </div>`;
+  });
+}
+
+function nearHospital(){
+  let m=document.getElementById('msg');
+  m.innerText='Location le raha hai...';
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(()=>{
+      hospitals.sort((a,b)=>a.km-b.km);
+      m.innerText='KM ke hisab se sabse paas wale upar';
+      show(hospitals);
+    },()=>{m.innerText='Location Allow karo';});
+  }
+}
+
+doSearch();
+</script>
+<script src="nav.js"></script>
+</body>
+</html>

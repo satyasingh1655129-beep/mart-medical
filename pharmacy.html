@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pharmacy Final</title>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{background:#f5f5f5;padding-bottom:80px}
-@keyframes colorMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-#topShopBar{display:none;position:sticky;top:0;z-index:9999;background:linear-gradient(90deg,#ff0080,#ff8c00,#40e0d0,#0d47a1);background-size:300% 300%;animation:colorMove 4s infinite;color:white;padding:15px;text-align:center;font-weight:900;font-size:20px}
-.top-row{display:flex;gap:8px;padding:10px;background:white;align-items:center;position:sticky;top:0;z-index:9998}
+body{background:#f5f5f5;padding-bottom:80px;padding-top:50px}
+.top-row{display:flex;gap:8px;padding:10px;background:white;align-items:center;position:sticky;top:0;z-index:9998;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
 .top-row input{flex:1;padding:12px;border-radius:25px;border:2px solid #0d47a1;outline:none}
-.top-row button{padding:12px;border-radius:25px;border:none;background:#0d47a1;color:white;font-weight:bold;white-space:nowrap}
+.top-row button{padding:12px 14px;border-radius:25px;border:none;background:#0d47a1;color:white;font-weight:bold;cursor:pointer;white-space:nowrap}
+#reader{width:100%;display:none}
 .shop-row{display:flex;gap:8px;padding:8px;background:white;overflow-x:auto}
 .shop-row button{padding:8px 14px;border-radius:20px;border:1px solid #0d47a1;background:white;color:#0d47a1;font-weight:bold;flex-shrink:0}
 .product-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px}
@@ -18,23 +18,19 @@ body{background:#f5f5f5;padding-bottom:80px}
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:12px 0;border-top:2px solid #0d47a1}
 .bottom-nav a{text-decoration:none;color:#0d47a1;font-weight:bold}
 .bottom-nav a.active{color:#ff0080}
-#scanner{display:none;padding:10px;background:black;color:white;text-align:center}
 </style>
 </head>
 <body>
 
-<div id="topShopBar">🏪 <span id="shopNameTop"></span></div>
-
-<!-- SEARCH + SCAN + SHOP NAME -->
 <div class="top-row">
-  <input id="searchBox" type="text" placeholder="Name / ID se search karo..." oninput="doSearch()">
+  <input id="searchBox" type="text" placeholder="Dukan / ID / Name search..." oninput="handleSearch()">
   <button onclick="startScan()">📷 Scan</button>
-  <button onclick="nearShop()">📍 Near Shop</button>
+  <button onclick="nearShop()">📍 Near</button>
 </div>
-<div id="scanner">📷 Camera On - Bar Code Scan karo...</div>
-<p id="locationMsg" style="text-align:center;font-size:12px;color:green;padding:4px"></p>
 
+<p id="locationMsg" style="text-align:center;font-size:12px;color:green;padding:5px"></p>
 <div class="shop-row" id="shopList"></div>
+<div id="reader"></div>
 <div id="productArea" class="product-grid"></div>
 
 <div class="bottom-nav">
@@ -45,67 +41,128 @@ body{background:#f5f5f5;padding-bottom:80px}
 </div>
 
 <script>
-let shops=["Sharma Medical","NG Care Lucknow","City Pharma"];
-let shopDiv=document.getElementById('shopList');
-shops.forEach(name=>{
-  let b=document.createElement('button'); b.innerText=name;
-  b.onclick=()=>selectShop(name);
-  shopDiv.appendChild(b);
-});
-function selectShop(name){
-  sessionStorage.setItem('currentShop',name);
-  document.getElementById('topShopBar').style.display='block';
-  document.getElementById('shopNameTop').innerText=name;
-}
-let saved=sessionStorage.getItem('currentShop');
-if(saved){document.getElementById('topShopBar').style.display='block';document.getElementById('shopNameTop').innerText=saved;}
+let html5QrCode;
+let isPushed=false;
 
-// SEARCH BY NAME + ID
-function doSearch(){
-  let q=document.getElementById('searchBox').value.toLowerCase();
+// DYNAMIC SHOP LIST - Baad me jo shop add karoge wahi yahan ayega
+function loadShops(){
   let all=JSON.parse(localStorage.getItem('ng_products')||'[]');
-  let filtered=all.filter(p=> (p.name||'').toLowerCase().includes(q) || (p.id||'').toLowerCase().includes(q));
-  show(filtered);
-}
-function show(list){
-  let div=document.getElementById('productArea'); div.innerHTML='';
-  if(list.length==0){div.innerHTML='<p style="padding:20px">Product nahi mila</p>';return;}
-  list.forEach(p=>{
-    let profit=(p.mrp-p.kharida);
-    let chhut=Math.round(profit*p.discount/100);
-    let rate=Math.round(p.mrp-chhut);
-    div.innerHTML+=`<div class="product"><small>ID: ${p.id||'--'}</small><br><b>${p.name}</b><br>MRP ₹${p.mrp}<br><b style="color:green">₹${rate}</b></div>`;
+  let shops=[...new Set(all.map(p=>p.shop).filter(Boolean))];
+  // Agar admin ne alag se shop list banayi hai to wo bhi lo
+  let extraShops=JSON.parse(localStorage.getItem('ng_shops')||'[]');
+  let allShops=[...new Set([...shops,...extraShops])];
+
+  let div=document.getElementById('shopList');
+  div.innerHTML='';
+  if(allShops.length==0){
+    div.innerHTML='<small style="color:#888;padding:8px">Abhi koi shop add nahi hai, Admin se shop add karo</small>';
+    return;
+  }
+  allShops.forEach(name=>{
+    let b=document.createElement('button');
+    b.innerText=name;
+    b.onclick=()=>{
+      history.pushState({page:'shop'},'','');
+      document.getElementById('searchBox').value=name;
+      doSearch();
+    };
+    div.appendChild(b);
   });
 }
 
-// SCAN BAR CODE - SHOP NAME
-function startScan(){
-  let s=document.getElementById('scanner');
-  s.style.display='block';
-  s.innerHTML='📷 Scan ho raha hai... (Demo: 12345)';
-  // Demo ke liye 2 sec baad ID search
-  setTimeout(()=>{
-    document.getElementById('searchBox').value='12345';
-    doSearch();
-    s.style.display='none';
-    alert('Scan Success: ID 12345 - Shop: '+ (sessionStorage.getItem('currentShop')||'All Shop'));
-  },2000);
+function handleSearch(){
+  if(!isPushed && document.getElementById('searchBox').value.length===1){
+    history.pushState({page:'search'},'','');
+    isPushed=true;
+  }
+  if(document.getElementById('searchBox').value==="") isPushed=false;
+  doSearch();
 }
 
-// NEAR SHOP LOCATION
+function doSearch(){
+  let q=document.getElementById('searchBox').value.toLowerCase().trim();
+  let all=JSON.parse(localStorage.getItem('ng_products')||'[]');
+  let filtered=all.filter(p=>{
+    if(q==="") return true;
+    return (p.name||'').toLowerCase().includes(q) || (p.id||'').toString().toLowerCase().includes(q) || (p.shop||'').toLowerCase().includes(q);
+  });
+  show(filtered);
+}
+
+function show(list){
+  let div=document.getElementById('productArea'); div.innerHTML='';
+  if(list.length==0){div.innerHTML='<p style="padding:20px;text-align:center;grid-column:1/3">Product nahi mila</p>';return;}
+  list.forEach(p=>{
+    let profit=(p.mrp-p.kharida);
+    let chhut=Math.round(profit*(p.discount||0)/100);
+    let rate=Math.round(p.mrp-chhut);
+    div.innerHTML+=`<div class="product"><small>ID: ${p.id||'--'}</small><br><b>${p.name}</b><br><small style="color:#0d47a1;font-weight:bold">${p.shop||''}</small><br><small style="text-decoration:line-through">₹${p.mrp}</small> <b style="color:green">₹${rate}</b></div>`;
+  });
+}
+
+function startScan(){
+  history.pushState({page:'qr'},'','');
+  document.getElementById('reader').style.display='block';
+  html5QrCode = new Html5Qrcode("reader");
+  html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: {width:250, height:250} },
+    (decodedText) => {
+      document.getElementById('searchBox').value = decodedText;
+      doSearch();
+      stopScan();
+    }, ()=>{}
+  ).catch(()=>{ alert('Camera Allow karo'); document.getElementById('reader').style.display='none'; });
+}
+
+function stopScan(){
+  if(html5QrCode){ html5QrCode.stop().then(()=>{ document.getElementById('reader').style.display='none'; }).catch(()=>{ document.getElementById('reader').style.display='none'; }); }
+}
+
 function nearShop(){
+  history.pushState({page:'near'},'','');
   let msg=document.getElementById('locationMsg');
-  msg.innerText='Location le raha hai...';
+  msg.innerText='📍 Location le raha hai...';
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(()=>{
-      msg.innerText='Aapke sabse paas Sharma Medical hai';
-      selectShop('Sharma Medical');
-    },()=>{msg.innerText='Location Allow karo';});
-  } else {msg.innerText='Location support nahi hai';}
+      let all=JSON.parse(localStorage.getItem('ng_products')||'[]');
+      let shops=[...new Set(all.map(p=>p.shop).filter(Boolean))];
+      let nearest = shops[Math.floor(Math.random()*shops.length)] || shops[0];
+      if(nearest){
+        msg.innerText='✅ Sabse paas '+nearest+' hai';
+        document.getElementById('searchBox').value=nearest;
+        doSearch();
+      } else {
+        msg.innerText='Koi shop add nahi hai';
+      }
+    },()=>{ msg.innerText='❌ Location Allow karo'; });
+  }
 }
 
-// Start
+history.pushState({page:'main'},'','');
+window.addEventListener('popstate', function(){
+  let reader=document.getElementById('reader');
+  if(reader && reader.style.display!=='none'){ stopScan(); return; }
+  let s=document.getElementById('searchBox');
+  let m=document.getElementById('locationMsg');
+  if(s && s.value!==''){ s.value=''; m.innerText=''; isPushed=false; doSearch(); history.pushState({page:'main'},'',''); return; }
+  if(m && m.innerText!==''){ m.innerText=''; doSearch(); history.pushState({page:'main'},'',''); return; }
+  history.pushState({page:'main'},'','');
+});
+
+loadShops();
 doSearch();
+</script>
+
+<script>
+(function(){
+  if(!document.getElementById('appBackBtn')){
+    let b=document.createElement('div');
+    b.id='appBackBtn';
+    b.innerHTML='← BACK';
+    b.style.cssText='position:fixed;top:8px;left:8px;z-index:10000;background:#0d47a1;color:white;padding:8px 14px;border-radius:20px;font-weight:bold;cursor:pointer;box-shadow:0 2px 5px rgba(0,0,0,0.3)';
+    b.onclick=()=>{ history.back(); };
+    document.body.prepend(b);
+  }
+})();
 </script>
 </body>
 </html>

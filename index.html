@@ -50,7 +50,7 @@ html, body { height:auto !important; overflow-y:auto !important; }
 #btn-hos .icon{color:#c62828}
 #btn-cart .icon{color:#ef6c00}
 .bottom button.active{color:#0d47a1}
-  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:12px 0;border-top:2px solid #0d47a1;z-index:9999}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:12px 0;border-top:2px solid #0d47a1;z-index:9999}
 .bottom-nav button{background:none;border:none;font-weight:bold;color:#0d47a1;font-size:14px}
 .bottom-nav button.active{color:#ff0080}
 </style>
@@ -96,7 +96,7 @@ html, body { height:auto !important; overflow-y:auto !important; }
  <button onclick="goHome()" style="position:fixed;top:10px;left:10px;z-index:99999;padding:8px 18px;border-radius:20px;border:none;background:#0d47a1;color:white;font-weight:bold">← Back</button>
  <h3 id="catTitle" style="margin-top:10px"></h3>
   <div id="catList" class="h-scroll" style="margin-top:10px;flex-wrap:wrap"></div>
-</div.
+</div>
   
 <div class="bottom-nav">
   <button onclick="location.href='index.html'" class="active">🏠 HOME</button>
@@ -107,8 +107,7 @@ html, body { height:auto !important; overflow-y:auto !important; }
   
 <script>
 let products = JSON.parse(localStorage.getItem('ng_products')||'[]');
-let bannerImg = localStorage.getIte<div class="bottom-nav">
- m('ng_banner')||'';
+let bannerImg = localStorage.getItem('ng_banner')||'';
 if(bannerImg) document.getElementById('banner').innerHTML=`<img src="${bannerImg}">`;
 
 function loadProducts(){

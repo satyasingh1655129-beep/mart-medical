@@ -42,6 +42,8 @@ body{background:#f5f5f5;padding-bottom:80px;padding-top:50px}
 
 <script>
 let html5QrCode;
+let isPopping=false;
+
 function loadShops(){
   let all=JSON.parse(localStorage.getItem('ng_products')||'[]');
   let shops=[...new Set(all.map(p=>p.shop).filter(Boolean))];
@@ -49,89 +51,64 @@ function loadShops(){
   let allShops=[...new Set([...shops,...extraShops])];
   let div=document.getElementById('shopList');
   div.innerHTML='';
-  if(allShops.length==0){
-    div.innerHTML='<small style="color:#888;padding:8px">Abhi koi shop add nahi hai</small>';
-    return;
-  }
+  if(allShops.length==0){div.innerHTML='<small style="color:#888;padding:8px">Abhi koi shop add nahi hai</small>';return;}
   allShops.forEach(name=>{
     let b=document.createElement('button');
     b.innerText=name;
-    b.onclick=()=>{ document.getElementById('searchBox').value=name; doSearch(); };
+    b.onclick=()=>{ document.getElementById('searchBox').value=name; doSearch(); if(!isPopping) history.pushState({type:'search',q:name},'',location.href); };
     div.appendChild(b);
   });
 }
-function handleSearch(){ doSearch(); }
+function handleSearch(){ let q=document.getElementById('searchBox').value.trim(); doSearch(); if(!isPopping && q!==""){ history.pushState({type:'search',q:q},'',location.href);} }
 function doSearch(){
   let q=document.getElementById('searchBox').value.toLowerCase().trim();
   let all=JSON.parse(localStorage.getItem('ng_products')||'[]');
-  let filtered=all.filter(p=>{
-    if(q==="") return true;
-    return (p.name||'').toLowerCase().includes(q) || (p.id||'').toString().toLowerCase().includes(q) || (p.shop||'').toLowerCase().includes(q);
-  });
+  let filtered=all.filter(p=>{ if(q==="") return true; return (p.name||'').toLowerCase().includes(q) || (p.id||'').toString().toLowerCase().includes(q) || (p.shop||'').toLowerCase().includes(q); });
   show(filtered);
 }
 function show(list){
   let div=document.getElementById('productArea'); div.innerHTML='';
   if(list.length==0){div.innerHTML='<p style="padding:20px;text-align:center;grid-column:1/3">Product nahi mila</p>';return;}
   list.forEach(p=>{
-    let profit=(p.mrp-p.kharida);
-    let chhut=Math.round(profit*(p.discount||0)/100);
-    let rate=Math.round(p.mrp-chhut);
+    let profit=(p.mrp-p.kharida); let chhut=Math.round(profit*(p.discount||0)/100); let rate=Math.round(p.mrp-chhut);
     div.innerHTML+=`<div class="product"><small>ID: ${p.id||'--'}</small><br><b>${p.name}</b><br><small style="color:#0d47a1;font-weight:bold">${p.shop||''}</small><br><small style="text-decoration:line-through">₹${p.mrp}</small> <b style="color:green">₹${rate}</b></div>`;
   });
 }
 function startScan(){
   document.getElementById('reader').style.display='block';
-  html5QrCode = new Html5Qrcode("reader");
-  html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: {width:250, height:250} },
-    (decodedText) => { document.getElementById('searchBox').value = decodedText; doSearch(); stopScan(); }, ()=>{}
-  ).catch(()=>{ alert('Camera Allow karo'); document.getElementById('reader').style.display='none'; });
+  if(!isPopping) history.pushState({type:'scan'},'',location.href);
+  html5QrCode=new Html5Qrcode("reader");
+  html5QrCode.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:250}},(decodedText)=>{document.getElementById('searchBox').value=decodedText; doSearch(); stopScan(true);},()=>{}).catch(()=>{alert('Camera Allow karo'); document.getElementById('reader').style.display='none';});
 }
-function stopScan(){ if(html5QrCode){ html5QrCode.stop().then(()=>{ document.getElementById('reader').style.display='none'; }).catch(()=>{ document.getElementById('reader').style.display='none'; }); } }
+function stopScan(fromScan=false){
+  if(html5QrCode){ html5QrCode.stop().then(()=>{document.getElementById('reader').style.display='none'; if(fromScan){history.pushState({type:'search',q:document.getElementById('searchBox').value},'',location.href);} }).catch(()=>{document.getElementById('reader').style.display='none';}); }
+  else{ document.getElementById('reader').style.display='none'; }
+}
 function nearShop(){
-  let msg=document.getElementById('locationMsg');
-  msg.innerText='📍 Location le raha hai...';
+  let msg=document.getElementById('locationMsg'); msg.innerText='📍 Location le raha hai...';
   if(navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(()=>{
-      let all=JSON.parse(localStorage.getItem('ng_products')||'[]');
-      let shops=[...new Set(all.map(p=>p.shop).filter(Boolean))];
-      let nearest = shops[Math.floor(Math.random()*shops.length)] || shops[0];
-      if(nearest){ msg.innerText='✅ Sabse paas '+nearest+' hai'; document.getElementById('searchBox').value=nearest; doSearch(); }
-      else { msg.innerText='Koi shop add nahi hai'; }
-    },()=>{ msg.innerText='❌ Location Allow karo'; });
+    navigator.geolocation.getCurrentPosition(()=>{ let all=JSON.parse(localStorage.getItem('ng_products')||'[]'); let shops=[...new Set(all.map(p=>p.shop).filter(Boolean))]; let nearest=shops[Math.floor(Math.random()*shops.length)]||shops[0]; if(nearest){ msg.innerText='✅ Sabse paas '+nearest+' hai'; document.getElementById('searchBox').value=nearest; doSearch(); if(!isPopping) history.pushState({type:'near',q:nearest,msg:msg.innerText},'',location.href);}else{msg.innerText='Koi shop add nahi hai';} },()=>{msg.innerText='❌ Location Allow karo';});
   }
 }
-loadShops();
-doSearch();
-</script>
+loadShops(); doSearch();
 
-<script>
-// ===== BACK LOCK - YAHI FINAL HAI =====
-(function(){
-  history.replaceState({locked:true}, '', location.href);
-  history.pushState({locked:true}, '', location.href);
-  window.goBackInside = function(){
-    let reader=document.getElementById('reader');
-    if(reader && reader.style.display!=='none'){ stopScan(); return true; }
-    let s=document.getElementById('searchBox');
-    let m=document.getElementById('locationMsg');
-    if(s && s.value!==''){ s.value=''; m.innerText=''; doSearch(); return true; }
-    if(m && m.innerText!==''){ m.innerText=''; doSearch(); return true; }
-    return false;
-  };
-  window.addEventListener('popstate', function(){
-    goBackInside();
-    history.pushState({locked:true}, '', location.href);
-  });
-  if(!document.getElementById('appBackBtn')){
-    let b=document.createElement('div');
-    b.id='appBackBtn';
-    b.innerHTML='← BACK';
-    b.style.cssText='position:fixed;top:8px;left:8px;z-index:10000;background:#0d47a1;color:white;padding:8px 14px;border-radius:20px;font-weight:bold;cursor:pointer;box-shadow:0 2px 5px rgba(0,0,0,0.3)';
-    b.onclick=()=>{ goBackInside(); };
-    document.body.prepend(b);
-  }
-})();
+// ===== STEP BY STEP BACK - ISI BUTTON ME RAHEGA =====
+let baseState={type:'base'};
+history.replaceState(baseState,'',location.href);
+history.pushState(baseState,'',location.href);
+
+window.addEventListener('popstate',function(e){
+  isPopping=true;
+  let s=e.state;
+  let reader=document.getElementById('reader');
+  let sBox=document.getElementById('searchBox');
+  let msg=document.getElementById('locationMsg');
+  if(s && s.type==='scan'){ reader.style.display='block'; }
+  else if(s && s.type==='search'){ reader.style.display='none'; if(html5QrCode){try{html5QrCode.stop();}catch(err){}} sBox.value=s.q; msg.innerText=''; doSearch(); }
+  else if(s && s.type==='near'){ reader.style.display='none'; sBox.value=s.q; msg.innerText=s.msg; doSearch(); }
+  else{ reader.style.display='none'; if(html5QrCode){try{html5QrCode.stop();}catch(err){}} sBox.value=''; msg.innerText=''; doSearch(); history.pushState(baseState,'',location.href); }
+  setTimeout(()=>{isPopping=false;},100);
+});
 </script>
 </body>
 </html>

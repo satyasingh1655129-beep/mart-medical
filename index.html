@@ -93,18 +93,19 @@ html, body { height:auto !important; overflow-y:auto !important; }
  <button onclick="goHome()" style="position:fixed;top:10px;left:10px;z-index:99999;padding:8px 18px;border-radius:20px;border:none;background:#0d47a1;color:white;font-weight:bold">← Back</button>
  <h3 id="catTitle" style="margin-top:10px"></h3>
   <div id="catList" class="h-scroll" style="margin-top:10px;flex-wrap:wrap"></div>
+</div.
+  
+<div class="bottom-nav">
+  <button onclick="location.href='index.html'" class="active">🏠 HOME</button>
+  <button onclick="location.href='pharmacy.html'">💊 PHARMACY</button>
+  <button onclick="location.href='hospital.html'">🏥 HOSPITAL</button>
+  <button onclick="location.href='cart.html'">🛒 CART</button>
 </div>
-
-<div class="bottom">
-  <button id="btn-home" class="active" onclick="goHome()"><span class="icon">🏠</span>HOME</button>
-  <button onclick="goTo('pharmacy')"><span class="icon">💊</span>PHARMACY</button>
-  <button onclick="goTo('hospital')"><span class="icon">🏥</span>HOSPITAL</button>
-  <button onclick="goTo('cart')"><span class="icon">🛒</span>CART</button>
-</div>
-
+  
 <script>
 let products = JSON.parse(localStorage.getItem('ng_products')||'[]');
-let bannerImg = localStorage.getItem('ng_banner')||'';
+let bannerImg = localStorage.getIte<div class="bottom-nav">
+ m('ng_banner')||'';
 if(bannerImg) document.getElementById('banner').innerHTML=`<img src="${bannerImg}">`;
 
 function loadProducts(){

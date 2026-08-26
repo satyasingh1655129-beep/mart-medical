@@ -136,20 +136,7 @@ function openCat(cat){
   if(f.length==0) list.innerHTML=`<p>${cat} khali hai</p>`;
   else f.forEach(p=>{ list.innerHTML+=`<div class="product-card">${p.name}<br>₹${p.price}</div>`; });
 }
-function goHome(){
-  document.getElementById('homeContent').style.display='block';
-  document.getElementById('catPage').style.display='none';
-  document.querySelectorAll('.bottom button').forEach(b=>b.classList.remove('active'));
-  document.getElementById('btn-home').classList.add('active');
-}
-function goTo(type){
-  alert(type+' page khulega - bottom button se navigate');
-}
- function goBack(){
- document.getElementById('catPage').style.display='none';
- document.getElementById('homeContent').style.display='block';
-} 
 </script>
-  <button id="backBtn" onclick="goBack()" style="display:none;position:fixed;top:12px;left:10px;z-index:9999;background:white;padding:8px 14px;border-radius:20px;border:1px solid #0d47a1;font-weight:bold;">← Back</button>
+<script src="nav.js"></script>
 </body>
 </html>

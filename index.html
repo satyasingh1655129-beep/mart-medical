@@ -127,15 +127,61 @@ function loadProducts(){
 }
 loadProducts();
 
+// ===== FINAL STEP BY STEP BACK - FIX BUTTON ME HI RAHEGA =====
+let base = {type:'base'};
+history.replaceState(base, '', location.href);
+history.pushState(base, '', location.href);
+
 function openCat(cat){
+  history.pushState({type:'cat', name:cat}, '', location.href);
   document.getElementById('homeContent').style.display='none';
-  document.getElementById('catPage').style.display='block';
+  let catPage=document.getElementById('catPage');
+  catPage.style.display='block';
   document.getElementById('catTitle').innerText=cat.toUpperCase();
   let list=document.getElementById('catList'); list.innerHTML='';
   let f=products.filter(p=>p.cat===cat);
   if(f.length==0) list.innerHTML=`<p>${cat} khali hai</p>`;
   else f.forEach(p=>{ list.innerHTML+=`<div class="product-card">${p.name}<br>₹${p.price}</div>`; });
 }
+
+function goHome(){
+  // button se click karne par history sahi karne ke liye
+  let catPage=document.getElementById('catPage');
+  if(catPage.style.display!=='none'){
+    history.back();
+  }else{
+    document.getElementById('catPage').style.display='none';
+    document.getElementById('homeContent').style.display='block';
+  }
+}
+
+function showCatFromState(cat){
+  document.getElementById('homeContent').style.display='none';
+  let catPage=document.getElementById('catPage');
+  catPage.style.display='block';
+  document.getElementById('catTitle').innerText=cat.toUpperCase();
+  let list=document.getElementById('catList'); list.innerHTML='';
+  let f=products.filter(p=>p.cat===cat);
+  if(f.length==0) list.innerHTML=`<p>${cat} khali hai</p>`;
+  else f.forEach(p=>{ list.innerHTML+=`<div class="product-card">${p.name}<br>₹${p.price}</div>`; });
+}
+
+function hideToHome(){
+  document.getElementById('catPage').style.display='none';
+  document.getElementById('homeContent').style.display='block';
+}
+
+window.addEventListener('popstate', function(e){
+  let s=e.state;
+  if(s && s.type==='cat'){
+    showCatFromState(s.name);
+  }else{
+    hideToHome();
+    if(!s || s.type==='base'){
+       history.pushState(base, '', location.href);
+    }
+  }
+});
 </script>
 <script src="nav.js"></script>
 </body>

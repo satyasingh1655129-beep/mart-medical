@@ -1,49 +1,25 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body{margin:0;font-family:Arial;background:linear-gradient(135deg,#2a8ab5,#7fcf9e);display:flex;justify-content:center;padding:20px}
-.card{background:#fff;width:360px;border-radius:28px;padding:20px 18px}
-h1{text-align:center;color:#15195a;margin:0;font-size:34px}
-p.title{text-align:center;font-weight:bold;margin:10px 0 18px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.box{border:2.5px solid;border-radius:18px;padding:14px 8px;text-align:center;cursor:pointer;background:#fff}
-.box.active{border-width:3.5px;background:#f0f8ff;transform:scale(1.03)}
-.circle{width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
-.circle svg{width:46px;height:46px}
-.btn{width:100%;padding:14px;background:#15195a;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:bold;margin-top:15px;opacity:0.4}
-.btn.ok{opacity:1}
-</style>
-</head>
-<body>
-<div class="card">
- <img src="logo.png" style="width:80px; height:80px; margin:0 auto 10px; display:block; object-fit:contain;">
-<h1>NGcare Login</h1>
-<p class="title">Step 1: Apna Role Select karo</p>
-
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Roll Select</title>
+<style>*{box-sizing:border-box;font-family:Arial}body{background:#eef5ff;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;padding:12px}
+.box{background:#fff;width:100%;max-width:360px;padding:18px;border-radius:20px;box-shadow:0 5px 20px #0002}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.role{border:2px solid #ddd;border-radius:14px;padding:14px;text-align:center;cursor:pointer;background:#fafafa}
+.role.active{border-color:#0d47a1;background:#e3f2fd}
+button{width:100%;padding:12px;background:#0d47a1;color:#fff;border:none;border-radius:10px;font-weight:bold}</style>
+</head><body>
+<div class="box">
+<h3 style="text-align:center;color:#0d47a1">MART MEDICAL - Roll Chuno</h3>
 <div class="grid">
-<div class="box" style="border-color:#1a9a5a" onclick="selectRole(this)"><div class="circle" style="background:#b8e6c8"><svg viewBox="0 0 24 24" fill="none" stroke="#1a9a5a" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg></div><b>Member</b></div>
-<div class="box" style="border-color:#1558c0" onclick="selectRole(this)"><div class="circle" style="background:#c2d8f0"><svg viewBox="0 0 24 24" fill="none" stroke="#1558c0" stroke-width="1.8"><rect x="5" y="5" width="14" height="14" rx="7"/><path d="M9 12h6"/></svg></div><b>Pharmacist</b></div>
-<div class="box" style="border-color:#ff8c00" onclick="selectRole(this)"><div class="circle" style="background:#ffd2a1"><svg viewBox="0 0 24 24" fill="none" stroke="#e65c00" stroke-width="1.6"><path d="M12 3a4 4 0 0 0-4 4v2h8V7a4 4 0 0 0-4-4z"/><path d="M8 10c-2 1-3 3-3 5v3h12v-3c0-2-1-4-3-5"/></svg></div><b>Doctor</b></div>
-<div class="box" style="border-color:#6a11cb" onclick="selectRole(this)"><div class="circle" style="background:#d8b9ff"><svg viewBox="0 0 24 24" fill="none" stroke="#6a11cb" stroke-width="1.8"><path d="M14.7 6.3a4 4 0 0 1 0 5.6l-7 7a2 2 0 0 1-2.8-2.8l7-7a4 4 0 0 1 5.6 0z"/></svg></div><b>Help Team</b></div>
+<div class="role" onclick="sel(this,'member')">👤<br><b>Member</b></div>
+<div class="role" onclick="sel(this,'pharmacist')">💊<br><b>Pharmacist</b></div>
+<div class="role" onclick="sel(this,'doctor')">🩺<br><b>Doctor</b></div>
+<div class="role" onclick="sel(this,'helpteam')">🤝<br><b>Help Team</b></div>
 </div>
-
-<button class="btn" id="contBtn" onclick="goOTP()">Continue</button>
+<button onclick="next()">Next</button>
 </div>
-
 <script>
-let selected=false;
-function selectRole(el){
- document.querySelectorAll('.box').forEach(b=>b.classList.remove('active'));
- el.classList.add('active');
- selected=true;
- document.getElementById('contBtn').classList.add('ok');
-}
-function goOTP(){
- if(!selected){ alert('Pehle Role select karo'); return; }
- window.location.href='otp.html'; // aapki bani hui file khulegi
-}
-</script>
-</body>
-</html>
+let role="";
+function sel(el,r){document.querySelectorAll('.role').forEach(x=>x.classList.remove('active'));el.classList.add('active');role=r;}
+function next(){if(!role){alert("Roll chuno");return;}localStorage.setItem("role",role);location.href="otp.html";}
+</script></body></html>

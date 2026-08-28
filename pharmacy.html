@@ -1,80 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pharmacy Near Me</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pharmacy</title>
 <style>
-body{font-family:Arial;margin:0;padding:12px;background:#f5f5f5;padding-bottom:80px}
-.box{width:100%;padding:12px;margin:6px 0;border:1px solid #ccc;border-radius:8px;font-size:16px;box-sizing:border-box}
-.list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-.card{background:#fff;padding:12px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.1);cursor:pointer}
-.card h3{margin:0;font-size:16px}
-.card p{margin:4px 0;font-size:13px;color:#555}
-.km{color:#0a9e00;font-weight:bold;font-size:13px}
-
-/* Home wala same colour bottom nav */
-.bottom-nav{
-  position:fixed;bottom:0;left:0;width:100%;
-  background:#ffffff;display:flex;justify-content:space-around;
-  padding:12px 0;border-top:1px solid #ddd;z-index:999;
-}
-.bottom-nav a{
-  text-decoration:none;color:#0a7e00;
-  font-weight:bold;font-size:14px;
-}
-.bottom-nav a.active{color:#000;border-bottom:2px solid #0a7e00;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#f5f5f5;padding-bottom:85px}
+.header{background:#0d47a1;color:white;padding:14px;text-align:center;font-weight:bold}
+.back-btn{position:fixed;top:10px;left:10px;z-index:99999;padding:8px 18px;border-radius:20px;border:none;background:#0d47a1;color:white;font-weight:bold}
+.search-wrap{margin:50px 12px 0 12px;background:white;padding:8px 12px;border-radius:10px;display:flex;gap:8px;border:1px solid #ddd}
+.search-wrap input{flex:1;border:none;outline:none;font-size:13px;height:28px}
+.search-wrap label{font-size:13px;font-weight:bold;color:#0d47a1}
+.list{padding:10px;display:flex;flex-direction:column;gap:10px}
+.card{background:white;padding:12px;border-radius:10px;border:1px solid #eee}
+.km{color:#0a9e00;font-weight:bold;font-size:12px}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:12px 0;border-top:2px solid #0d47a1;z-index:9999}
+.bottom-nav button{background:none;border:none;font-weight:bold;color:#0d47a1;font-size:14px}
+.bottom-nav button.active{color:#ff0080}
 </style>
 </head>
 <body>
-
-<h2>Pharmacy Near You</h2>
-
-<input type="text" id="searchName" class="box" placeholder="🔍 Search Medical Name...">
-<input type="text" id="searchId" class="box" placeholder="🔍 Search by ID e.g. MED001">
-
+<button class="back-btn" onclick="location.href='index.html'">← Back</button>
+<div class="header">Pharmacy Near You</div>
+<div class="search-wrap"><label>🔍 Scan:</label><input id="searchAll" placeholder="Name / ID / Near Shop..."></div>
 <div id="medicalList" class="list"></div>
-
 <div class="bottom-nav">
-  <a href="index.html">Home</a>
-  <a href="pharmacy.html" class="active">Pharmacy</a>
-  <a href="lab.html">Lab</a>
-  <a href="profile.html">Profile</a>
+  <button onclick="location.href='index.html'">🏠 HOME</button>
+  <button onclick="location.href='pharmacy.html'" class="active">💊 PHARMACY</button>
+  <button onclick="location.href='hospital.html'">🏥 HOSPITAL</button>
+  <button onclick="location.href='cart.html'">🛒 CART</button>
 </div>
-
 <script>
-let medicals = JSON.parse(localStorage.getItem('medicals')) || [
-  {id:"MED001", name:"NG Medical Store", km:0.3, address:"Main Road, Ghazipur"},
-  {id:"MED002", name:"Sharma Medical", km:1.2, address:"Lanka Road, Ghazipur"},
-  {id:"MED003", name:"City Care Medical", km:0.8, address:"Station Road, Ghazipur"}
-];
-
-function render(list){
-  list.sort((a,b)=>a.km-b.km);
-  let html="";
-  list.forEach(m=>{
-    html+=`<div class="card" onclick="openMedical('${m.id}')">
-      <h3>${m.name} <span style="font-size:12px;color:#888;">[${m.id}]</span></h3>
-      <p><span class="km">📍 ${m.km} KM away</span> - ${m.address}</p>
-    </div>`;
-  });
-  document.getElementById('medicalList').innerHTML=html || "<p>No Medical Found</p>";
-}
-
-function filterData(){
-  let nameVal = document.getElementById('searchName').value.toLowerCase();
-  let idVal = document.getElementById('searchId').value.toLowerCase();
-  let filtered = medicals.filter(m=> m.name.toLowerCase().includes(nameVal) && m.id.toLowerCase().includes(idVal));
-  render(filtered);
-}
-
-function openMedical(id){
-  window.location.href = `medical-detail.html?id=${id}`;
-}
-
-document.getElementById('searchName').addEventListener('input', filterData);
-document.getElementById('searchId').addEventListener('input', filterData);
-render(medicals);
+let medicals=JSON.parse(localStorage.getItem('medicals'))||[];
+function render(list){list.sort((a,b)=>a.km-b.km);document.getElementById('medicalList').innerHTML=list.length==0?"<p style='text-align:center;color:#888;margin-top:20px;font-size:13px'>No Medical Found<br>Admin ke baad ayega</p>":list.map(m=>`<div class="card" onclick="location.href='medical-detail.html?id=${m.id}'"><b>${m.name} [${m.id}]</b><br><span class="km">📍 ${m.km} KM Near</span> - ${m.address}</div>`).join('')}
+document.getElementById('searchAll').addEventListener('input',function(){let v=this.value.toLowerCase();render(medicals.filter(m=>m.name.toLowerCase().includes(v)||m.id.toLowerCase().includes(v)))});render(medicals);
 </script>
 </body>
 </html>

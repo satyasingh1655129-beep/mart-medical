@@ -5,10 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NG Care</title>
 
-<!-- ★ 1. YAHAN GUARD CODE DALA HAI - LINE 7 SE 13 TAK -->
+<!-- ★ OTP LOCK - Bina login ke khulega hi nahi -->
 <script>
-// Agar bina login ke direct khola to wapas login pe bhej do
-if(!localStorage.getItem("role")){
+if(localStorage.getItem("isLoggedIn") !== "true"){
   window.location.href="login.html";
 }
 </script>
@@ -19,23 +18,8 @@ body{background:#f5f5f5;padding-bottom:85px}
 .header{background:#0d47a1;color:white;padding:14px;text-align:center;font-weight:bold}
 #banner{width:100%;height:160px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:18px}
 #banner img{width:100%;height:100%;object-fit:cover}
-.cat-wrap{
-  display:grid;
-  grid-template-columns:auto auto auto;
-  justify-content:start;
-  gap:5px;
-  padding:5px;
-}
-.cat-wrap button{
-  background:#0d47a1;
-  color:white;
-  border:none;
-  padding:10px;
-  border-radius:10px;
-  font-weight:bold;
-  font-size:15px;
-  width:fit-content;
-}
+.cat-wrap{display:grid;grid-template-columns:auto auto auto;justify-content:start;gap:5px;padding:5px}
+.cat-wrap button{background:#0d47a1;color:white;border:none;padding:10px;border-radius:10px;font-weight:bold;font-size:15px;width:fit-content}
 html, body { height:auto !important; overflow-y:auto !important; }
 .main, #homeContent { padding-bottom: 110px !important; }
 .box{margin:12px 0;background:white;padding:12px}
@@ -46,14 +30,6 @@ html, body { height:auto !important; overflow-y:auto !important; }
 .product-card img{width:100%;height:60px;object-fit:contain}
 .product-card b{font-size:13px}
 .new-scroll .product-card{min-width:160px;max-width:160px}
-.bottom{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:8px 0;border-top:1px solid #ddd;z-index:999}
-.bottom button{border:none;background:none;display:flex;flex-direction:column;align-items:center;font-size:11px;font-weight:bold}
-.bottom button .icon{font-size:22px}
-#btn-home .icon{color:#0d47a1}
-#btn-pharma .icon{color:#2e7d32}
-#btn-hos .icon{color:#c62828}
-#btn-cart .icon{color:#ef6c00}
-.bottom button.active{color:#0d47a1}
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:12px 0;border-top:2px solid #0d47a1;z-index:9999}
 .bottom-nav button{background:none;border:none;font-weight:bold;color:#0d47a1;font-size:14px}
 .bottom-nav button.active{color:#ff0080}
@@ -61,7 +37,6 @@ html, body { height:auto !important; overflow-y:auto !important; }
 </head>
 <body>
 
-<!-- ★ 2. HEADER ME ROLE DIKHEGA - YAHAN BADLA HAI -->
 <div class="header">
   NG Care 
   <div style="font-size:11px;font-weight:normal;margin-top:2px" id="userInfo"></div>
@@ -87,26 +62,18 @@ html, body { height:auto !important; overflow-y:auto !important; }
 <div id="homeContent">
   <div class="box">
     <h3>📦 New Product</h3>
-    <div id="newList" class="h-scroll new-scroll">
-      <div class="product-card"><p>Admin se add karo</p></div>
-    </div>
+    <div id="newList" class="h-scroll new-scroll"><div class="product-card"><p>Admin se add karo</p></div></div>
   </div>
   <div class="box">
     <h3>🔥 Trending Product</h3>
-    <div id="trendList" class="h-scroll">
-      <div class="product-card"><p>Khali</p></div>
-    </div>
-  </div>
-  <!-- ★ 3. LOGOUT BUTTON ADDED -->
-  <div style="text-align:center;margin:15px">
-    <button onclick="logout()" style="padding:8px 20px;background:#c62828;color:#fff;border:none;border-radius:20px">Logout</button>
+    <div id="trendList" class="h-scroll"><div class="product-card"><p>Khali</p></div></div>
   </div>
 </div>
 
 <div id="catPage" class="box" style="display:none;padding-top:50px">
  <button onclick="goHome()" style="position:fixed;top:10px;left:10px;z-index:99999;padding:8px 18px;border-radius:20px;border:none;background:#0d47a1;color:white;font-weight:bold">← Back</button>
  <h3 id="catTitle" style="margin-top:10px"></h3>
-  <div id="catList" class="h-scroll" style="margin-top:10px;flex-wrap:wrap"></div>
+ <div id="catList" class="h-scroll" style="margin-top:10px;flex-wrap:wrap"></div>
 </div>
   
 <div class="bottom-nav">
@@ -117,13 +84,7 @@ html, body { height:auto !important; overflow-y:auto !important; }
 </div>
   
 <script>
-// ★ ROLE AUR CONTACT SHOW KARO
-document.getElementById("userInfo").innerText = (localStorage.getItem("role")||"") + " | " + (localStorage.getItem("contact")||"");
-
-function logout(){
-  localStorage.clear();
-  location.href="login.html";
-}
+document.getElementById("userInfo").innerText = (localStorage.getItem("role")||"") + " | " + (localStorage.getItem("userContact")||"");
 
 let products = JSON.parse(localStorage.getItem('ng_products')||'[]');
 let bannerImg = localStorage.getItem('ng_banner')||'';
@@ -135,70 +96,48 @@ function loadProducts(){
   n.innerHTML=''; t.innerHTML='';
   products.forEach(p=>{
     let html=`<div class="product-card"><img src="${p.img||''}"><p style="font-weight:bold;font-size:13px">${p.name}</p><small>${p.cat}</small><br><b>₹${p.price}</b><br><button style="margin-top:4px;padding:4px 10px;border-radius:15px;border:none;background:#0d47a1;color:white;font-size:11px">Add</button></div>`;
-    if(p.trending) t.innerHTML+=html;
-    else n.innerHTML+=html;
+    if(p.trending) t.innerHTML+=html; else n.innerHTML+=html;
   });
-  if(products.length<4){
-    for(let i=0;i<4-products.length;i++){
-      t.innerHTML+=`<div class="product-card">Medicine ${i+1}<br><b>₹99</b></div>`;
-    }
-  }
 }
 loadProducts();
 
-let base = {type:'base'};
-history.replaceState(base, '', location.href);
-history.pushState(base, '', location.href);
+// ★ BACK FIX - Page by Page, same button me rahega
+let homeContent = document.getElementById('homeContent');
+let catPage = document.getElementById('catPage');
+let catTitle = document.getElementById('catTitle');
+let catList = document.getElementById('catList');
+let currentPage = "home";
 
 function openCat(cat){
-  history.pushState({type:'cat', name:cat}, '', location.href);
-  document.getElementById('homeContent').style.display='none';
-  let catPage=document.getElementById('catPage');
-  catPage.style.display='block';
-  document.getElementById('catTitle').innerText=cat.toUpperCase();
-  let list=document.getElementById('catList'); list.innerHTML='';
-  let f=products.filter(p=>p.cat===cat);
-  if(f.length==0) list.innerHTML=`<p>${cat} khali hai</p>`;
-  else f.forEach(p=>{ list.innerHTML+=`<div class="product-card">${p.name}<br>₹${p.price}</div>`; });
+  currentPage = "cat";
+  homeContent.style.display = 'none';
+  catPage.style.display = 'block';
+  catTitle.innerText = cat.toUpperCase();
+  let f = products.filter(p=>p.cat===cat);
+  catList.innerHTML = f.length==0 ? `<p>${cat} khali hai</p>` : f.map(p=>`<div class="product-card">${p.name}<br>₹${p.price}</div>`).join('');
+  history.pushState({page:"cat", cat:cat}, "", "");
 }
 
 function goHome(){
-  let catPage=document.getElementById('catPage');
-  if(catPage.style.display!=='none'){
+  if(currentPage === "cat"){
     history.back();
-  }else{
-    document.getElementById('catPage').style.display='none';
-    document.getElementById('homeContent').style.display='block';
+  } else {
+    homeContent.style.display='block';
+    catPage.style.display='none';
   }
-}
-
-function showCatFromState(cat){
-  document.getElementById('homeContent').style.display='none';
-  let catPage=document.getElementById('catPage');
-  catPage.style.display='block';
-  document.getElementById('catTitle').innerText=cat.toUpperCase();
-  let list=document.getElementById('catList'); list.innerHTML='';
-  let f=products.filter(p=>p.cat===cat);
-  if(f.length==0) list.innerHTML=`<p>${cat} khali hai</p>`;
-  else f.forEach(p=>{ list.innerHTML+=`<div class="product-card">${p.name}<br>₹${p.price}</div>`; });
-}
-
-function hideToHome(){
-  document.getElementById('catPage').style.display='none';
-  document.getElementById('homeContent').style.display='block';
 }
 
 window.addEventListener('popstate', function(e){
-  let s=e.state;
-  if(s && s.type==='cat'){
-    showCatFromState(s.name);
-  }else{
-    hideToHome();
-    if(!s || s.type==='base'){
-       history.pushState(base, '', location.href);
-    }
+  if(currentPage === "cat"){
+    homeContent.style.display='block';
+    catPage.style.display='none';
+    currentPage = "home";
+    history.pushState({page:"home"}, "", "");
   }
 });
+
+history.replaceState({page:"home"}, "", "");
+history.pushState({page:"home"}, "", "");
 </script>
 <script src="nav.js"></script>
 </body>

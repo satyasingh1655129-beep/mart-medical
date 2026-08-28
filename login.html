@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Roll Select</title>
+<html><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Login - Roll</title>
 <style>*{box-sizing:border-box;font-family:Arial}body{background:#eef5ff;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;padding:12px}
 .box{background:#fff;width:100%;max-width:360px;padding:18px;border-radius:20px;box-shadow:0 5px 20px #0002}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
-.role{border:2px solid #ddd;border-radius:14px;padding:14px;text-align:center;cursor:pointer;background:#fafafa}
+.role{border:2px solid #ddd;border-radius:14px;padding:16px;text-align:center;cursor:pointer;background:#fafafa}
 .role.active{border-color:#0d47a1;background:#e3f2fd}
 button{width:100%;padding:12px;background:#0d47a1;color:#fff;border:none;border-radius:10px;font-weight:bold}</style>
 </head><body>
@@ -16,10 +17,11 @@ button{width:100%;padding:12px;background:#0d47a1;color:#fff;border:none;border-
 <div class="role" onclick="sel(this,'doctor')">🩺<br><b>Doctor</b></div>
 <div class="role" onclick="sel(this,'helpteam')">🤝<br><b>Help Team</b></div>
 </div>
-<button onclick="next()">Next</button>
+<button onclick="go()">Next</button>
 </div>
 <script>
-let role="";
-function sel(el,r){document.querySelectorAll('.role').forEach(x=>x.classList.remove('active'));el.classList.add('active');role=r;}
-function next(){if(!role){alert("Roll chuno");return;}localStorage.setItem("role",role);location.href="otp.html";}
-</script></body></html>
+let r="";
+function sel(el,role){document.querySelectorAll('.role').forEach(x=>x.classList.remove('active'));el.classList.add('active');r=role;}
+function go(){if(!r){alert("Roll chuno");return;}localStorage.setItem("role",r);location.href="otp.html";}
+</script>
+</body></html>

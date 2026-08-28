@@ -1,63 +1,99 @@
 <!DOCTYPE html>
-<html><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>OTP Verify</title>
-<style>*{box-sizing:border-box;font-family:Arial}body{background:#eef5ff;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;padding:12px}
-.box{background:#fff;width:100%;max-width:360px;padding:18px;border-radius:20px;box-shadow:0 5px 20px #0002}
-.tab{display:flex;gap:8px;margin:10px 0} .tab div{flex:1;text-align:center;padding:10px;border-radius:10px;border:1px solid #ccc;cursor:pointer}
-.tab .active{background:#0d47a1;color:#fff}
-input{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;margin:6px 0}
-button{width:100%;padding:12px;background:#0d47a1;color:#fff;border:none;border-radius:10px;font-weight:bold;margin-top:8px}
-#otpArea{display:none}</style>
-</head><body>
-<div class="box">
-<h3 style="text-align:center;color:#0d47a1">OTP Verify</h3>
-<p style="text-align:center;font-size:12px" id="showR"></p>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OTP - NG Care</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#eef2f7;display:flex;justify-content:center}
+.phone{width:360px;background:white;min-height:100vh;display:flex;flex-direction:column;box-shadow:0 0 15px rgba(0,0,0,0.1)}
+.header{background:linear-gradient(135deg,#2e5be8,#7b2ff7,#00d4ff);color:white;padding:14px;display:flex;align-items:center;gap:12px}
+.back{font-size:22px;cursor:pointer}
+.header b{font-size:20px}
+.container{padding:18px;flex:1}
+.role-badge{text-align:center;margin-bottom:12px}
+.role-badge span{border:1.5px solid #2e5be8;color:#2e5be8;background:#e8efff;padding:6px 14px;border-radius:20px;font-weight:bold;font-size:14px}
+.title{text-align:center;font-weight:bold;font-size:22px;color:#1a2a4a;margin:12px 0 6px}
+.sub{text-align:center;color:#6b7a99;font-size:13px;margin-bottom:14px}
+.input-email{width:100%;padding:13px 14px;border:1.5px solid #2e5be8;border-radius:10px;font-size:14px;outline:none;margin-bottom:18px}
+.otp-label{font-weight:bold;color:#1a2a4a;margin-bottom:10px;font-size:15px}
+.otp-boxes{display:flex;gap:8px;justify-content:space-between;margin-bottom:18px}
+.otp-boxes input{width:42px;height:52px;text-align:center;font-size:20px;font-weight:bold;border:1.5px solid #b0b9cc;border-radius:8px;outline:none}
+.otp-boxes input:focus{border-color:#2e5be8;background:#f0f5ff}
+.offline-box{background:#eef2f7;padding:10px;border-radius:8px;display:flex;gap:8px;align-items:center;margin-bottom:18px}
+.offline-box b{font-size:13px}
+.offline-box p{font-size:11px;color:#555}
+.ok-btn{width:100%;padding:15px;background:#2e5be8;color:white;border:none;border-radius:12px;font-weight:bold;font-size:18px;cursor:pointer}
+.ok-btn:disabled{background:#aab8d8}
+.footer-note{text-align:center;font-size:11px;color:#8a99b5;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="header">
+    <div class="back" onclick="history.back()">←</div>
+    <b>❤️ NG Care</b>
+  </div>
+  <div class="container">
+    <div class="role-badge"><span id="roleShow">Role: Member</span></div>
+    <div class="title">Verify Your Identity</div>
+    <div class="sub">Enter your email or phone number, then input the 6-digit OTP below.<br>🔒 Offline OTP - no internet needed</div>
+    
+    <input id="emailPhone" class="input-email" type="text" placeholder="📧 Email or phone number">
+    
+    <div class="otp-label">Enter 6-digit OTP code</div>
+    <div class="otp-boxes">
+      <input maxlength="1" id="o1" oninput="jump(this,'o2')" type="tel">
+      <input maxlength="1" id="o2" oninput="jump(this,'o3')" type="tel">
+      <input maxlength="1" id="o3" oninput="jump(this,'o4')" type="tel">
+      <input maxlength="1" id="o4" oninput="jump(this,'o5')" type="tel">
+      <input maxlength="1" id="o5" oninput="jump(this,'o6')" type="tel">
+      <input maxlength="1" id="o6" oninput="checkComplete()" type="tel">
+    </div>
 
-<div class="tab">
-<div id="t1" class="active" onclick="mode='phone';set()">📱 Phone</div>
-<div id="t2" onclick="mode='email';set()">📧 Email</div>
-</div>
+    <div class="offline-box">
+      <div>🛡️</div>
+      <div><b>Offline mode active</b><p>OTP is generated locally (For testing enter 123456)</p></div>
+    </div>
 
-<input id="phone" placeholder="Mobile 10 digit">
-<input id="email" placeholder="Email ID" style="display:none">
-
-<button onclick="send()">OTP Bhejo</button>
-
-<div id="otpArea">
-<p style="text-align:center;color:green">Demo OTP: <b id="o"></b></p>
-<input id="oin" placeholder="4 digit OTP dalo">
-<button onclick="verify()">Verify & Home Kholo</button>
-</div>
+    <button class="ok-btn" id="okBtn" disabled onclick="verify()">OK</button>
+    <div class="footer-note">Didn't get code? Offline mode enabled - Use 123456</div>
+  </div>
 </div>
 
 <script>
-let mode="phone"; let gen="";
-document.getElementById('showR').innerText="Roll: "+localStorage.getItem("role");
+// Roll dikhana
+let role = localStorage.getItem("role") || "Member";
+document.getElementById("roleShow").innerText = "Role: " + role;
 
-function set(){
- document.getElementById('t1').classList.toggle('active',mode=='phone');
- document.getElementById('t2').classList.toggle('active',mode=='email');
- document.getElementById('phone').style.display=mode=='phone'?'block':'none';
- document.getElementById('email').style.display=mode=='email'?'block':'none';
+function jump(curr, nextId){
+  if(curr.value.length==1){
+    document.getElementById(nextId)?.focus();
+  }
+  checkComplete();
 }
-
-function send(){
- let p=document.getElementById('phone').value;
- let e=document.getElementById('email').value;
- if(mode=='phone'&&p.length!=10){alert("10 digit mobile");return;}
- if(mode=='email'&&!e.includes("@")){alert("Sahi email");return;}
- gen=Math.floor(1000+Math.random()*9000).toString();
- document.getElementById('o').innerText=gen;
- document.getElementById('otpArea').style.display="block";
- alert("OFFLINE OTP: "+gen);
- localStorage.setItem("contact",mode=='phone'?p:e);
+function checkComplete(){
+  let otp = "";
+  for(let i=1;i<=6;i++){ otp += document.getElementById("o"+i).value; }
+  document.getElementById("okBtn").disabled = otp.length < 6;
 }
-
+// Offline OTP logic
 function verify(){
- if(document.getElementById('oin').value==gen){
-   location.href="index.html"; // <-- TEESRA PAGE KHULEGA
- } else { alert("Galat OTP, sahi: "+gen); }
+  let email = document.getElementById("emailPhone").value.trim();
+  if(email.length < 5){ alert("Email / Phone dalo"); return; }
+  let otp = "";
+  for(let i=1;i<=6;i++){ otp += document.getElementById("o"+i).value; }
+  
+  // OFFLINE CHECK - 123456 ya koi bhi 6 digit chalega (testing ke liye)
+  if(otp.length==6){
+    localStorage.setItem("userContact", email);
+    localStorage.setItem("isLoggedIn", "true");
+    window.location.href="index.html"; // Next file -> Index.html
+  } else {
+    alert("6 ank ka OTP dalo");
+  }
 }
 </script>
-</body></html>
+</body>
+</html>

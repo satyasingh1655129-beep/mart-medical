@@ -1,117 +1,121 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hospital Final</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hospital - NG Care</title>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{background:#f5f5f5;padding-bottom:80px;padding-top:50px}
-.top-row{display:flex;gap:8px;padding:10px;background:white;align-items:center;position:sticky;top:0;z-index:9998;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
-.top-row input{flex:1;padding:12px;border-radius:25px;border:2px solid #c62828;outline:none}
-.top-row button{padding:12px 14px;border-radius:25px;border:none;background:#c62828;color:white;font-weight:bold;cursor:pointer;white-space:nowrap}
-#reader{width:100%;display:none}
-.shop-row{display:flex;gap:8px;padding:8px;background:white;overflow-x:auto}
-.shop-row button{padding:8px 14px;border-radius:20px;border:1px solid #c62828;background:white;color:#c62828;font-weight:bold;flex-shrink:0}
-.product-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px}
-.product{background:white;padding:10px;border-radius:10px;text-align:center;border:1px solid #eee}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:12px 0;border-top:2px solid #0d47a1}
-.bottom-nav a{text-decoration:none;color:#0d47a1;font-weight:bold}
-.bottom-nav a.active{color:#ff0080}
+body{background:#f5f5f5;padding-bottom:85px;font-size:14px}
+.header{background:#b71c1c;color:white;padding:14px;text-align:center;font-weight:bold;font-size:15px}
+.back-btn{position:fixed;top:8px;left:8px;z-index:99999;padding:6px 14px;border-radius:20px;border:none;background:#b71c1c;color:white;font-weight:bold;font-size:12px}
+.search-wrap{margin:45px 10px 6px 10px;background:white;padding:7px 10px;border-radius:8px;display:flex;align-items:center;gap:6px;border:1px solid #ddd;height:38px}
+.search-wrap label{font-size:13px;font-weight:bold;color:#b71c1c}
+.search-wrap input{flex:1;border:none;outline:none;font-size:13px}
+.action-row{margin:0 10px;display:flex;gap:6px}
+.action-row button{flex:1;padding:7px;border:none;border-radius:6px;font-size:13px;font-weight:bold;background:white;border:1px solid #b71c1c;color:#b71c1c}
+#reader{width:92%;margin:8px auto;display:none;border-radius:8px;overflow:hidden;border:1px solid #b71c1c}
+#locStatus{text-align:center;font-size:11px;color:#b71c1c;height:14px;margin-top:4px}
+.list{padding:8px;display:flex;flex-direction:column;gap:8px}
+.card{background:white;padding:10px;border-radius:8px;border:1px solid #eee;font-size:13px}
+.km{color:#0a9e00;font-weight:bold;font-size:11px}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:12px 0;border-top:2px solid #b71c1c;z-index:9999}
+.bottom-nav button{background:none;border:none;font-weight:bold;color:#b71c1c;font-size:14px}
+.bottom-nav button.active{color:#ff0080}
 </style>
 </head>
 <body>
 
-<div class="top-row">
-  <input id="searchBox" type="text" placeholder="hospital / ID / Name search..." oninput="handleSearch()">
-  <button onclick="startScan()">📷 Scan</button>
-  <button onclick="nearShop()">📍 Near</button>
+<button class="back-btn" onclick="goBack()">← Back</button>
+<div class="header">Hospital Near You</div>
+
+<div class="search-wrap">
+  <label>🔍</label>
+  <input id="searchAll" placeholder="Name / ID / Near Hospital...">
 </div>
 
-<p id="locationMsg" style="text-align:center;font-size:12px;color:green;padding:5px"></p>
-<div class="shop-row" id="shopList"></div>
+<div class="action-row">
+  <button onclick="startScanner()">📷 Scanner</button>
+  <button onclick="getNearLocation()">📍 Near Hospital</button>
+</div>
+
 <div id="reader"></div>
-<div id="productArea" class="product-grid"></div>
+<div id="locStatus"></div>
+<div id="hospitalList" class="list"></div>
 
 <div class="bottom-nav">
-  <a href="index.html">🏠 HOME</a>
-  <a href="pharmacy.html">💊 PHARMACY</a>
-  <a href="hospital.html" class="active">🏥 HOSPITAL</a>
-  <a href="cart.html">🛒 CART</a>
+  <button onclick="location.href='index.html'">🏠 HOME</button>
+  <button onclick="location.href='pharmacy.html'">💊 PHARMACY</button>
+  <button class="active">🏥 HOSPITAL</button>
+  <button onclick="location.href='cart.html'">🛒 CART</button>
 </div>
 
 <script>
-let html5QrCode;
-let isPopping=false;
+let hospitals = JSON.parse(localStorage.getItem('hospitals'))||[];
+let html5QrCode = null;
+let scannerOn = false;
 
-function loadShops(){
-  let all=JSON.parse(localStorage.getItem('ng_products')||'[]');
-  let shops=[...new Set(all.map(p=>p.shop).filter(Boolean))];
-  let extraShops=JSON.parse(localStorage.getItem('ng_shops')||'[]');
-  let allShops=[...new Set([...shops,...extraShops])];
-  let div=document.getElementById('shopList');
-  div.innerHTML='';
-  if(allShops.length==0){
-    div.innerHTML='<small style="color:#888;padding:8px">Abhi koi hospital add nahi hai</small>';
+function render(list){
+  list.sort((a,b)=>a.km-b.km);
+  document.getElementById('hospitalList').innerHTML = list.length==0 ? "<p style='text-align:center;color:#888;margin-top:15px;font-size:13px'>No Hospital Found</p>" : list.map(m=>`<div class="card" onclick="location.href='hospital-detail.html?id=${m.id}'"><b>${m.name} [${m.id}]</b><br><span class="km">📍 ${m.km} KM</span> - ${m.address}</div>`).join('');
+}
+
+function startScanner(){
+  let r = document.getElementById('reader');
+  r.style.display='block';
+  scannerOn = true;
+  history.pushState({scanner:true}, "", "");
+  html5QrCode = new Html5Qrcode("reader");
+  html5QrCode.start({facingMode:"environment"}, {fps:10, qrbox:200},
+    (decoded)=>{
+      document.getElementById('searchAll').value=decoded;
+      closeScanner();
+      render(hospitals.filter(m=>m.id.toLowerCase()==decoded.toLowerCase()||m.name.toLowerCase().includes(decoded.toLowerCase())));
+    },()=>{});
+}
+
+function closeScanner(){
+  if(html5QrCode){ try{ html5QrCode.stop(); }catch(e){} }
+  document.getElementById('reader').style.display='none';
+  scannerOn = false;
+  document.getElementById('locStatus').innerText="";
+}
+
+function goBack(){
+  if(scannerOn){
+    closeScanner();
     return;
   }
-  allShops.forEach(name=>{
-    let b=document.createElement('button');
-    b.innerText=name;
-    b.onclick=()=>{ document.getElementById('searchBox').value=name; doSearch(); if(!isPopping) history.pushState({type:'search',q:name},'',location.href); };
-    div.appendChild(b);
-  });
-}
-function handleSearch(){ let q=document.getElementById('searchBox').value.trim(); doSearch(); if(!isPopping && q!==""){ history.pushState({type:'search',q:q},'',location.href);} }
-function doSearch(){
-  let q=document.getElementById('searchBox').value.toLowerCase().trim();
-  let all=JSON.parse(localStorage.getItem('ng_products')||'[]');
-  let filtered=all.filter(p=>{ if(q==="") return true; return (p.name||'').toLowerCase().includes(q) || (p.id||'').toString().toLowerCase().includes(q) || (p.shop||'').toLowerCase().includes(q); });
-  show(filtered);
-}
-function show(list){
-  let div=document.getElementById('productArea'); div.innerHTML='';
-  if(list.length==0){div.innerHTML='<p style="padding:20px;text-align:center;grid-column:1/3">Hospital me product nahi mila</p>';return;}
-  list.forEach(p=>{
-    let profit=(p.mrp-p.kharida); let chhut=Math.round(profit*(p.discount||0)/100); let rate=Math.round(p.mrp-chhut);
-    div.innerHTML+=`<div class="product"><small>ID: ${p.id||'--'}</small><br><b>${p.name}</b><br><small style="color:#c62828;font-weight:bold">${p.shop||''}</small><br><small style="text-decoration:line-through">₹${p.mrp}</small> <b style="color:green">₹${rate}</b></div>`;
-  });
-}
-function startScan(){
-  document.getElementById('reader').style.display='block';
-  if(!isPopping) history.pushState({type:'scan'},'',location.href);
-  html5QrCode=new Html5Qrcode("reader");
-  html5QrCode.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:250}},(decodedText)=>{document.getElementById('searchBox').value=decodedText; doSearch(); stopScan(true);},()=>{}).catch(()=>{alert('Camera Allow karo'); document.getElementById('reader').style.display='none';});
-}
-function stopScan(fromScan=false){
-  if(html5QrCode){ html5QrCode.stop().then(()=>{document.getElementById('reader').style.display='none'; if(fromScan){history.pushState({type:'search',q:document.getElementById('searchBox').value},'',location.href);} }).catch(()=>{document.getElementById('reader').style.display='none';}); }
-  else{ document.getElementById('reader').style.display='none'; }
-}
-function nearShop(){
-  let msg=document.getElementById('locationMsg'); msg.innerText='📍 Location le raha hai...';
-  if(navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(()=>{ let all=JSON.parse(localStorage.getItem('ng_products')||'[]'); let shops=[...new Set(all.map(p=>p.shop).filter(Boolean))]; let nearest=shops[Math.floor(Math.random()*shops.length)]||shops[0]; if(nearest){ msg.innerText='✅ Sabse paas '+nearest+' hospital hai'; document.getElementById('searchBox').value=nearest; doSearch(); if(!isPopping) history.pushState({type:'near',q:nearest,msg:msg.innerText},'',location.href);}else{msg.innerText='Abhi koi hospital add nahi hai';} },()=>{msg.innerText='❌ Location Allow karo';});
+  if(document.getElementById('searchAll').value!=""){
+    document.getElementById('searchAll').value="";
+    render(hospitals);
+    return;
   }
 }
-loadShops(); doSearch();
 
-// ===== STEP BY STEP BACK - ISI BUTTON ME RAHEGA =====
-let baseState={type:'base'};
-history.replaceState(baseState,'',location.href);
-history.pushState(baseState,'',location.href);
-
-window.addEventListener('popstate',function(e){
-  isPopping=true;
-  let s=e.state;
-  let reader=document.getElementById('reader');
-  let sBox=document.getElementById('searchBox');
-  let msg=document.getElementById('locationMsg');
-  if(s && s.type==='scan'){ reader.style.display='block'; }
-  else if(s && s.type==='search'){ reader.style.display='none'; if(html5QrCode){try{html5QrCode.stop();}catch(err){}} sBox.value=s.q; msg.innerText=''; doSearch(); }
-  else if(s && s.type==='near'){ reader.style.display='none'; sBox.value=s.q; msg.innerText=s.msg; doSearch(); }
-  else{ reader.style.display='none'; if(html5QrCode){try{html5QrCode.stop();}catch(err){}} sBox.value=''; msg.innerText=''; doSearch(); history.pushState(baseState,'',location.href); }
-  setTimeout(()=>{isPopping=false;},100);
+window.addEventListener('popstate', ()=>{
+  if(scannerOn){ closeScanner(); }
 });
+
+document.getElementById('searchAll').addEventListener('input', function(){
+  let v=this.value.toLowerCase();
+  render(hospitals.filter(m=>m.name.toLowerCase().includes(v)||m.id.toLowerCase().includes(v)||m.address.toLowerCase().includes(v)));
+});
+
+function getNearLocation(){
+  document.getElementById('locStatus').innerText="📍 Location le raha hu...";
+  navigator.geolocation.getCurrentPosition(p=>{
+    let lat1=p.coords.latitude, lon1=p.coords.longitude;
+    hospitals.forEach(m=>{ if(m.lat&&m.lon){ let d=6371*Math.acos(Math.cos(lat1*Math.PI/180)*Math.cos(m.lat*Math.PI/180)*Math.cos((m.lon-lon1)*Math.PI/180)+Math.sin(lat1*Math.PI/180)*Math.sin(m.lat*Math.PI/180)); m.km=d.toFixed(1); } });
+    document.getElementById('locStatus').innerText="✅ Near sort done";
+    render(hospitals);
+  },()=>{ document.getElementById('locStatus').innerText="❌ Allow location"; });
+}
+
+render(hospitals);
+history.replaceState({page:"list"}, "", "");
+history.pushState({page:"list"}, "", "");
 </script>
 </body>
 </html>

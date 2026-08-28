@@ -1,114 +1,80 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pharmacy Final</title>
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pharmacy Near Me</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{background:#f5f5f5;padding-bottom:80px;padding-top:50px}
-.top-row{display:flex;gap:8px;padding:10px;background:white;align-items:center;position:sticky;top:0;z-index:9998;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
-.top-row input{flex:1;padding:12px;border-radius:25px;border:2px solid #0d47a1;outline:none}
-.top-row button{padding:12px 14px;border-radius:25px;border:none;background:#0d47a1;color:white;font-weight:bold;cursor:pointer;white-space:nowrap}
-#reader{width:100%;display:none}
-.shop-row{display:flex;gap:8px;padding:8px;background:white;overflow-x:auto}
-.shop-row button{padding:8px 14px;border-radius:20px;border:1px solid #0d47a1;background:white;color:#0d47a1;font-weight:bold;flex-shrink:0}
-.product-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px}
-.product{background:white;padding:10px;border-radius:10px;text-align:center;border:1px solid #eee}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:12px 0;border-top:2px solid #0d47a1}
-.bottom-nav a{text-decoration:none;color:#0d47a1;font-weight:bold}
-.bottom-nav a.active{color:#ff0080}
+body{font-family:Arial;margin:0;padding:12px;background:#f5f5f5;padding-bottom:80px}
+.box{width:100%;padding:12px;margin:6px 0;border:1px solid #ccc;border-radius:8px;font-size:16px;box-sizing:border-box}
+.list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.card{background:#fff;padding:12px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.1);cursor:pointer}
+.card h3{margin:0;font-size:16px}
+.card p{margin:4px 0;font-size:13px;color:#555}
+.km{color:#0a9e00;font-weight:bold;font-size:13px}
+
+/* Home wala same colour bottom nav */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;width:100%;
+  background:#ffffff;display:flex;justify-content:space-around;
+  padding:12px 0;border-top:1px solid #ddd;z-index:999;
+}
+.bottom-nav a{
+  text-decoration:none;color:#0a7e00;
+  font-weight:bold;font-size:14px;
+}
+.bottom-nav a.active{color:#000;border-bottom:2px solid #0a7e00;}
 </style>
 </head>
 <body>
 
-<div class="top-row">
-  <input id="searchBox" type="text" placeholder="pharmacy / ID / Name search..." oninput="handleSearch()">
-  <button onclick="startScan()">📷 Scan</button>
-  <button onclick="nearShop()">📍 Near</button>
-</div>
+<h2>Pharmacy Near You</h2>
 
-<p id="locationMsg" style="text-align:center;font-size:12px;color:green;padding:5px"></p>
-<div class="shop-row" id="shopList"></div>
-<div id="reader"></div>
-<div id="productArea" class="product-grid"></div>
+<input type="text" id="searchName" class="box" placeholder="🔍 Search Medical Name...">
+<input type="text" id="searchId" class="box" placeholder="🔍 Search by ID e.g. MED001">
+
+<div id="medicalList" class="list"></div>
 
 <div class="bottom-nav">
-  <a href="index.html">🏠 HOME</a>
-  <a href="pharmacy.html" class="active">💊 PHARMACY</a>
-  <a href="hospital.html">🏥 HOSPITAL</a>
-  <a href="cart.html">🛒 CART</a>
+  <a href="index.html">Home</a>
+  <a href="pharmacy.html" class="active">Pharmacy</a>
+  <a href="lab.html">Lab</a>
+  <a href="profile.html">Profile</a>
 </div>
 
 <script>
-let html5QrCode;
-let isPopping=false;
+let medicals = JSON.parse(localStorage.getItem('medicals')) || [
+  {id:"MED001", name:"NG Medical Store", km:0.3, address:"Main Road, Ghazipur"},
+  {id:"MED002", name:"Sharma Medical", km:1.2, address:"Lanka Road, Ghazipur"},
+  {id:"MED003", name:"City Care Medical", km:0.8, address:"Station Road, Ghazipur"}
+];
 
-function loadShops(){
-  let all=JSON.parse(localStorage.getItem('ng_products')||'[]');
-  let shops=[...new Set(all.map(p=>p.shop).filter(Boolean))];
-  let extraShops=JSON.parse(localStorage.getItem('ng_shops')||'[]');
-  let allShops=[...new Set([...shops,...extraShops])];
-  let div=document.getElementById('shopList');
-  div.innerHTML='';
-  if(allShops.length==0){div.innerHTML='<small style="color:#888;padding:8px">Abhi koi shop add nahi hai</small>';return;}
-  allShops.forEach(name=>{
-    let b=document.createElement('button');
-    b.innerText=name;
-    b.onclick=()=>{ document.getElementById('searchBox').value=name; doSearch(); if(!isPopping) history.pushState({type:'search',q:name},'',location.href); };
-    div.appendChild(b);
+function render(list){
+  list.sort((a,b)=>a.km-b.km);
+  let html="";
+  list.forEach(m=>{
+    html+=`<div class="card" onclick="openMedical('${m.id}')">
+      <h3>${m.name} <span style="font-size:12px;color:#888;">[${m.id}]</span></h3>
+      <p><span class="km">📍 ${m.km} KM away</span> - ${m.address}</p>
+    </div>`;
   });
+  document.getElementById('medicalList').innerHTML=html || "<p>No Medical Found</p>";
 }
-function handleSearch(){ let q=document.getElementById('searchBox').value.trim(); doSearch(); if(!isPopping && q!==""){ history.pushState({type:'search',q:q},'',location.href);} }
-function doSearch(){
-  let q=document.getElementById('searchBox').value.toLowerCase().trim();
-  let all=JSON.parse(localStorage.getItem('ng_products')||'[]');
-  let filtered=all.filter(p=>{ if(q==="") return true; return (p.name||'').toLowerCase().includes(q) || (p.id||'').toString().toLowerCase().includes(q) || (p.shop||'').toLowerCase().includes(q); });
-  show(filtered);
-}
-function show(list){
-  let div=document.getElementById('productArea'); div.innerHTML='';
-  if(list.length==0){div.innerHTML='<p style="padding:20px;text-align:center;grid-column:1/3">Product nahi mila</p>';return;}
-  list.forEach(p=>{
-    let profit=(p.mrp-p.kharida); let chhut=Math.round(profit*(p.discount||0)/100); let rate=Math.round(p.mrp-chhut);
-    div.innerHTML+=`<div class="product"><small>ID: ${p.id||'--'}</small><br><b>${p.name}</b><br><small style="color:#0d47a1;font-weight:bold">${p.shop||''}</small><br><small style="text-decoration:line-through">₹${p.mrp}</small> <b style="color:green">₹${rate}</b></div>`;
-  });
-}
-function startScan(){
-  document.getElementById('reader').style.display='block';
-  if(!isPopping) history.pushState({type:'scan'},'',location.href);
-  html5QrCode=new Html5Qrcode("reader");
-  html5QrCode.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:250}},(decodedText)=>{document.getElementById('searchBox').value=decodedText; doSearch(); stopScan(true);},()=>{}).catch(()=>{alert('Camera Allow karo'); document.getElementById('reader').style.display='none';});
-}
-function stopScan(fromScan=false){
-  if(html5QrCode){ html5QrCode.stop().then(()=>{document.getElementById('reader').style.display='none'; if(fromScan){history.pushState({type:'search',q:document.getElementById('searchBox').value},'',location.href);} }).catch(()=>{document.getElementById('reader').style.display='none';}); }
-  else{ document.getElementById('reader').style.display='none'; }
-}
-function nearShop(){
-  let msg=document.getElementById('locationMsg'); msg.innerText='📍 Location le raha hai...';
-  if(navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(()=>{ let all=JSON.parse(localStorage.getItem('ng_products')||'[]'); let shops=[...new Set(all.map(p=>p.shop).filter(Boolean))]; let nearest=shops[Math.floor(Math.random()*shops.length)]||shops[0]; if(nearest){ msg.innerText='✅ Sabse paas '+nearest+' hai'; document.getElementById('searchBox').value=nearest; doSearch(); if(!isPopping) history.pushState({type:'near',q:nearest,msg:msg.innerText},'',location.href);}else{msg.innerText='Koi shop add nahi hai';} },()=>{msg.innerText='❌ Location Allow karo';});
-  }
-}
-loadShops(); doSearch();
 
-// ===== STEP BY STEP BACK - ISI BUTTON ME RAHEGA =====
-let baseState={type:'base'};
-history.replaceState(baseState,'',location.href);
-history.pushState(baseState,'',location.href);
+function filterData(){
+  let nameVal = document.getElementById('searchName').value.toLowerCase();
+  let idVal = document.getElementById('searchId').value.toLowerCase();
+  let filtered = medicals.filter(m=> m.name.toLowerCase().includes(nameVal) && m.id.toLowerCase().includes(idVal));
+  render(filtered);
+}
 
-window.addEventListener('popstate',function(e){
-  isPopping=true;
-  let s=e.state;
-  let reader=document.getElementById('reader');
-  let sBox=document.getElementById('searchBox');
-  let msg=document.getElementById('locationMsg');
-  if(s && s.type==='scan'){ reader.style.display='block'; }
-  else if(s && s.type==='search'){ reader.style.display='none'; if(html5QrCode){try{html5QrCode.stop();}catch(err){}} sBox.value=s.q; msg.innerText=''; doSearch(); }
-  else if(s && s.type==='near'){ reader.style.display='none'; sBox.value=s.q; msg.innerText=s.msg; doSearch(); }
-  else{ reader.style.display='none'; if(html5QrCode){try{html5QrCode.stop();}catch(err){}} sBox.value=''; msg.innerText=''; doSearch(); history.pushState(baseState,'',location.href); }
-  setTimeout(()=>{isPopping=false;},100);
-});
+function openMedical(id){
+  window.location.href = `medical-detail.html?id=${id}`;
+}
+
+document.getElementById('searchName').addEventListener('input', filterData);
+document.getElementById('searchId').addEventListener('input', filterData);
+render(medicals);
 </script>
 </body>
 </html>

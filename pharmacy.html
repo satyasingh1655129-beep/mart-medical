@@ -3,37 +3,89 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pharmacy</title>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
 body{background:#f5f5f5;padding-bottom:85px}
-.header{background:#0d47a1;color:white;padding:14px;text-align:center;font-weight:bold}
-.back-btn{position:fixed;top:10px;left:10px;z-index:99999;padding:8px 18px;border-radius:20px;border:none;background:#0d47a1;color:white;font-weight:bold}
-.search-wrap{margin:50px 12px 0 12px;background:white;padding:8px 12px;border-radius:10px;display:flex;gap:8px;border:1px solid #ddd}
-.search-wrap input{flex:1;border:none;outline:none;font-size:13px;height:28px}
-.search-wrap label{font-size:13px;font-weight:bold;color:#0d47a1}
-.list{padding:10px;display:flex;flex-direction:column;gap:10px}
-.card{background:white;padding:12px;border-radius:10px;border:1px solid #eee}
-.km{color:#0a9e00;font-weight:bold;font-size:12px}
+.header{background:#0d47a1;color:white;padding:14px;text-align:center;font-weight:bold;font-size:15px}
+.back-btn{position:fixed;top:8px;left:8px;z-index:99999;padding:6px 14px;border-radius:20px;border:none;background:#0d47a1;color:white;font-weight:bold;font-size:12px}
+
+/* Search box chhota */
+.search-wrap{margin:45px 10px 6px 10px;background:white;padding:7px 10px;border-radius:8px;display:flex;align-items:center;gap:6px;border:1px solid #ddd;height:38px}
+.search-wrap label{font-size:12px;font-weight:bold;color:#0d47a1}
+.search-wrap input{flex:1;border:none;outline:none;font-size:12px}
+
+/* Scanner + Near Location - Search ke niche, chhote */
+.action-row{margin:0 10px;display:flex;gap:6px}
+.action-row button{flex:1;padding:7px;border:none;border-radius:6px;font-size:12px;font-weight:bold;background:white;border:1px solid #0d47a1;color:#0d47a1}
+#reader{width:92%;margin:8px auto;display:none;border-radius:8px;overflow:hidden}
+#locStatus{text-align:center;font-size:11px;color:#0d47a1;height:14px}
+.list{padding:8px;display:flex;flex-direction:column;gap:8px}
+.card{background:white;padding:10px;border-radius:8px;border:1px solid #eee;font-size:13px}
+.km{color:#0a9e00;font-weight:bold;font-size:11px}
+
+/* INDEX WALA FIX BOTTOM */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:12px 0;border-top:2px solid #0d47a1;z-index:9999}
 .bottom-nav button{background:none;border:none;font-weight:bold;color:#0d47a1;font-size:14px}
 .bottom-nav button.active{color:#ff0080}
 </style>
 </head>
 <body>
+
 <button class="back-btn" onclick="location.href='index.html'">← Back</button>
 <div class="header">Pharmacy Near You</div>
-<div class="search-wrap"><label>🔍 Scan:</label><input id="searchAll" placeholder="Name / ID / Near Shop..."></div>
+
+<!-- 1. Search Box -->
+<div class="search-wrap">
+  <label>🔍</label>
+  <input id="searchAll" placeholder="Name / ID / Near Shop...">
+</div>
+
+<!-- 2. Scanner + Near Location - Search ke niche -->
+<div class="action-row">
+  <button onclick="startScanner()">📷 Scanner</button>
+  <button onclick="getNearLocation()">📍 Near Location</button>
+</div>
+
+<div id="reader"></div>
+<div id="locStatus"></div>
 <div id="medicalList" class="list"></div>
+
 <div class="bottom-nav">
   <button onclick="location.href='index.html'">🏠 HOME</button>
   <button onclick="location.href='pharmacy.html'" class="active">💊 PHARMACY</button>
   <button onclick="location.href='hospital.html'">🏥 HOSPITAL</button>
   <button onclick="location.href='cart.html'">🛒 CART</button>
 </div>
+
 <script>
 let medicals=JSON.parse(localStorage.getItem('medicals'))||[];
-function render(list){list.sort((a,b)=>a.km-b.km);document.getElementById('medicalList').innerHTML=list.length==0?"<p style='text-align:center;color:#888;margin-top:20px;font-size:13px'>No Medical Found<br>Admin ke baad ayega</p>":list.map(m=>`<div class="card" onclick="location.href='medical-detail.html?id=${m.id}'"><b>${m.name} [${m.id}]</b><br><span class="km">📍 ${m.km} KM Near</span> - ${m.address}</div>`).join('')}
-document.getElementById('searchAll').addEventListener('input',function(){let v=this.value.toLowerCase();render(medicals.filter(m=>m.name.toLowerCase().includes(v)||m.id.toLowerCase().includes(v)))});render(medicals);
+let html5QrCode;
+function render(list){
+  list.sort((a,b)=>a.km-b.km);
+  document.getElementById('medicalList').innerHTML=list.length==0?"<p style='text-align:center;color:#888;margin-top:15px;font-size:12px'>No Medical Found</p>":list.map(m=>`<div class="card" onclick="location.href='medical-detail.html?id=${m.id}'"><b>${m.name} [${m.id}]</b><br><span class="km">📍 ${m.km} KM</span> - ${m.address}</div>`).join('');
+}
+document.getElementById('searchAll').addEventListener('input',function(){
+  let v=this.value.toLowerCase();
+  render(medicals.filter(m=>m.name.toLowerCase().includes(v)||m.id.toLowerCase().includes(v)||m.address.toLowerCase().includes(v)));
+});
+function startScanner(){
+  let r=document.getElementById('reader');r.style.display='block';
+  html5QrCode=new Html5Qrcode("reader");
+  html5QrCode.start({facingMode:"environment"},{fps:10,qrbox:200},(d)=>{
+    document.getElementById('searchAll').value=d;html5QrCode.stop();r.style.display='none';
+    render(medicals.filter(m=>m.id.toLowerCase()==d.toLowerCase()));
+  },()=>{});
+}
+function getNearLocation(){
+  document.getElementById('locStatus').innerText="📍 Location...";
+  navigator.geolocation.getCurrentPosition(p=>{
+    let lat1=p.coords.latitude,lon1=p.coords.longitude;
+    medicals.forEach(m=>{if(m.lat&&m.lon){let d=6371*Math.acos(Math.cos(lat1*Math.PI/180)*Math.cos(m.lat*Math.PI/180)*Math.cos((m.lon-lon1)*Math.PI/180)+Math.sin(lat1*Math.PI/180)*Math.sin(m.lat*Math.PI/180));m.km=d.toFixed(1);}});
+    document.getElementById('locStatus').innerText="✅ Near sort done";render(medicals);
+  },()=>{document.getElementById('locStatus').innerText="❌ Allow location"});
+}
+render(medicals);
 </script>
 </body>
 </html>

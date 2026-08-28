@@ -4,13 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NG Care</title>
+
+<!-- ★ 1. YAHAN GUARD CODE DALA HAI - LINE 7 SE 13 TAK -->
+<script>
+// Agar bina login ke direct khola to wapas login pe bhej do
+if(!localStorage.getItem("role")){
+  window.location.href="login.html";
+}
+</script>
+
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
 body{background:#f5f5f5;padding-bottom:85px}
 .header{background:#0d47a1;color:white;padding:14px;text-align:center;font-weight:bold}
 #banner{width:100%;height:160px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:18px}
 #banner img{width:100%;height:100%;object-fit:cover}
-
 .cat-wrap{
   display:grid;
   grid-template-columns:auto auto auto;
@@ -30,18 +38,14 @@ body{background:#f5f5f5;padding-bottom:85px}
 }
 html, body { height:auto !important; overflow-y:auto !important; }
 .main, #homeContent { padding-bottom: 110px !important; }
-
 .box{margin:12px 0;background:white;padding:12px}
 .box h3{color:#0d47a1;margin-bottom:8px}
-
-/* HORIZONTAL SCROLL */
 .h-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px}
 .h-scroll::-webkit-scrollbar{display:none}
 .product-card{min-width:140px;max-width:140px;border:1px solid #eee;border-radius:10px;padding:8px;text-align:center;background:white;flex-shrink:0}
 .product-card img{width:100%;height:60px;object-fit:contain}
 .product-card b{font-size:13px}
 .new-scroll .product-card{min-width:160px;max-width:160px}
-
 .bottom{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:8px 0;border-top:1px solid #ddd;z-index:999}
 .bottom button{border:none;background:none;display:flex;flex-direction:column;align-items:center;font-size:11px;font-weight:bold}
 .bottom button .icon{font-size:22px}
@@ -57,7 +61,12 @@ html, body { height:auto !important; overflow-y:auto !important; }
 </head>
 <body>
 
-<div class="header">NG Care</div>
+<!-- ★ 2. HEADER ME ROLE DIKHEGA - YAHAN BADLA HAI -->
+<div class="header">
+  NG Care 
+  <div style="font-size:11px;font-weight:normal;margin-top:2px" id="userInfo"></div>
+</div>
+
 <div id="banner">Banner (Admin se lagega)</div>
 
 <div class="cat-wrap">
@@ -75,7 +84,6 @@ html, body { height:auto !important; overflow-y:auto !important; }
   <button onclick="openCat('other')">📦 Other</button>
 </div>
 
-<!-- HOME CONTENT -->
 <div id="homeContent">
   <div class="box">
     <h3>📦 New Product</h3>
@@ -83,12 +91,15 @@ html, body { height:auto !important; overflow-y:auto !important; }
       <div class="product-card"><p>Admin se add karo</p></div>
     </div>
   </div>
-
   <div class="box">
     <h3>🔥 Trending Product</h3>
     <div id="trendList" class="h-scroll">
       <div class="product-card"><p>Khali</p></div>
     </div>
+  </div>
+  <!-- ★ 3. LOGOUT BUTTON ADDED -->
+  <div style="text-align:center;margin:15px">
+    <button onclick="logout()" style="padding:8px 20px;background:#c62828;color:#fff;border:none;border-radius:20px">Logout</button>
   </div>
 </div>
 
@@ -106,6 +117,14 @@ html, body { height:auto !important; overflow-y:auto !important; }
 </div>
   
 <script>
+// ★ ROLE AUR CONTACT SHOW KARO
+document.getElementById("userInfo").innerText = (localStorage.getItem("role")||"") + " | " + (localStorage.getItem("contact")||"");
+
+function logout(){
+  localStorage.clear();
+  location.href="login.html";
+}
+
 let products = JSON.parse(localStorage.getItem('ng_products')||'[]');
 let bannerImg = localStorage.getItem('ng_banner')||'';
 if(bannerImg) document.getElementById('banner').innerHTML=`<img src="${bannerImg}">`;
@@ -127,7 +146,6 @@ function loadProducts(){
 }
 loadProducts();
 
-// ===== FINAL STEP BY STEP BACK - FIX BUTTON ME HI RAHEGA =====
 let base = {type:'base'};
 history.replaceState(base, '', location.href);
 history.pushState(base, '', location.href);
@@ -145,7 +163,6 @@ function openCat(cat){
 }
 
 function goHome(){
-  // button se click karne par history sahi karne ke liye
   let catPage=document.getElementById('catPage');
   if(catPage.style.display!=='none'){
     history.back();

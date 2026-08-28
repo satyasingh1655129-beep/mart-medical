@@ -1,25 +1,63 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Roll Select</title>
+<html><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OTP Verify</title>
 <style>*{box-sizing:border-box;font-family:Arial}body{background:#eef5ff;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;padding:12px}
 .box{background:#fff;width:100%;max-width:360px;padding:18px;border-radius:20px;box-shadow:0 5px 20px #0002}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
-.role{border:2px solid #ddd;border-radius:14px;padding:14px;text-align:center;cursor:pointer;background:#fafafa}
-.role.active{border-color:#0d47a1;background:#e3f2fd}
-button{width:100%;padding:12px;background:#0d47a1;color:#fff;border:none;border-radius:10px;font-weight:bold}</style>
+.tab{display:flex;gap:8px;margin:10px 0} .tab div{flex:1;text-align:center;padding:10px;border-radius:10px;border:1px solid #ccc;cursor:pointer}
+.tab .active{background:#0d47a1;color:#fff}
+input{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;margin:6px 0}
+button{width:100%;padding:12px;background:#0d47a1;color:#fff;border:none;border-radius:10px;font-weight:bold;margin-top:8px}
+#otpArea{display:none}</style>
 </head><body>
 <div class="box">
-<h3 style="text-align:center;color:#0d47a1">MART MEDICAL - Roll Chuno</h3>
-<div class="grid">
-<div class="role" onclick="sel(this,'member')">👤<br><b>Member</b></div>
-<div class="role" onclick="sel(this,'pharmacist')">💊<br><b>Pharmacist</b></div>
-<div class="role" onclick="sel(this,'doctor')">🩺<br><b>Doctor</b></div>
-<div class="role" onclick="sel(this,'helpteam')">🤝<br><b>Help Team</b></div>
+<h3 style="text-align:center;color:#0d47a1">OTP Verify</h3>
+<p style="text-align:center;font-size:12px" id="showR"></p>
+
+<div class="tab">
+<div id="t1" class="active" onclick="mode='phone';set()">📱 Phone</div>
+<div id="t2" onclick="mode='email';set()">📧 Email</div>
 </div>
-<button onclick="next()">Next</button>
+
+<input id="phone" placeholder="Mobile 10 digit">
+<input id="email" placeholder="Email ID" style="display:none">
+
+<button onclick="send()">OTP Bhejo</button>
+
+<div id="otpArea">
+<p style="text-align:center;color:green">Demo OTP: <b id="o"></b></p>
+<input id="oin" placeholder="4 digit OTP dalo">
+<button onclick="verify()">Verify & Home Kholo</button>
 </div>
+</div>
+
 <script>
-let role="";
-function sel(el,r){document.querySelectorAll('.role').forEach(x=>x.classList.remove('active'));el.classList.add('active');role=r;}
-function next(){if(!role){alert("Roll chuno");return;}localStorage.setItem("role",role);location.href="otp.html";}
-</script></body></html>
+let mode="phone"; let gen="";
+document.getElementById('showR').innerText="Roll: "+localStorage.getItem("role");
+
+function set(){
+ document.getElementById('t1').classList.toggle('active',mode=='phone');
+ document.getElementById('t2').classList.toggle('active',mode=='email');
+ document.getElementById('phone').style.display=mode=='phone'?'block':'none';
+ document.getElementById('email').style.display=mode=='email'?'block':'none';
+}
+
+function send(){
+ let p=document.getElementById('phone').value;
+ let e=document.getElementById('email').value;
+ if(mode=='phone'&&p.length!=10){alert("10 digit mobile");return;}
+ if(mode=='email'&&!e.includes("@")){alert("Sahi email");return;}
+ gen=Math.floor(1000+Math.random()*9000).toString();
+ document.getElementById('o').innerText=gen;
+ document.getElementById('otpArea').style.display="block";
+ alert("OFFLINE OTP: "+gen);
+ localStorage.setItem("contact",mode=='phone'?p:e);
+}
+
+function verify(){
+ if(document.getElementById('oin').value==gen){
+   location.href="index.html"; // <-- TEESRA PAGE KHULEGA
+ } else { alert("Galat OTP, sahi: "+gen); }
+}
+</script>
+</body></html>

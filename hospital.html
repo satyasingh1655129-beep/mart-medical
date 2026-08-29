@@ -1,135 +1,164 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hospital</title>
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{background:#f5f5f5;padding-bottom:85px;font-size:14px}
-.header{background:#0d47a1;color:white;padding:14px;text-align:center;font-weight:bold;font-size:15px;position:relative}
-.back-btn{position:fixed;top:8px;left:8px;z-index:99999;padding:6px 14px;border-radius:20px;border:none;background:#0d47a1;color:white;font-weight:bold;font-size:12px}
-.search-wrap{margin:45px 10px 6px 10px;background:white;padding:7px 10px;border-radius:8px;display:flex;align-items:center;gap:6px;border:1px solid #ddd;height:38px}
-.search-wrap input{flex:1;border:none;outline:none;font-size:13px}
-.action-row{margin:0 10px;display:flex;gap:6px}
-.action-row button{flex:1;padding:7px;border:1px solid #0d47a1;background:white;color:#0d47a1;border-radius:6px;font-weight:bold}
-#reader{width:92%;margin:8px auto;display:none;border-radius:8px;border:1px solid #0d47a1;overflow:hidden}
-#scanResult{margin:8px 10px;display:none;background:white;padding:10px;border-radius:8px;border:1px solid #2e7d32;align-items:center;justify-content:space-between}
-.list{padding:8px;display:flex;flex-direction:column;gap:8px}
-.card{background:white;padding:10px;border-radius:8px;border:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:5px 0;border-top:2px solid #0d47a1}
-.bottom-nav button{background:none;border:none;color:#0d47a1;font-weight:bold;font-size:9px;flex:1;padding:6px 2px;border-radius:25px}
-.bottom-nav button span{font-size:18px;display:block}
-.bottom-nav button.active{background:#0d47a1;color:white}
+body{font-family:sans-serif;margin:0;padding:0}
+.header{display:flex;justify-content:space-between;align-items:center;padding:10px;border:1px solid #000;margin:5px;border-radius:8px}
+button{border:1px solid #000;padding:6px 12px;border-radius:5px;background:white;cursor:pointer}
+.view{display:none;padding:10px}
+.view.active{display:block}
+.list-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid #ddd}
+.box{border:1px solid #000;padding:15px;border-radius:10px;margin-top:10px}
+.token-box{margin-top:15px;padding:15px;background:#e3f2fd;border-radius:10px;text-align:center;border:1px solid #90caf9}
 </style>
 </head>
 <body>
-<button class="back-btn" onclick="handleBack()">← Back</button>
-<div class="header">Hospital</div>
-<div class="search-wrap">🔍 <input id="searchAll" placeholder="Search..."></div>
-<div class="action-row"><button onclick="startScanner()">📷 Scanner</button></div>
-<div id="reader"></div>
 
-<div id="scanResult">
-  <div><b id="scanName"></b><br><small id="scanId"></small></div>
-  <button onclick="saveScanned()" style="background:#2e7d32;color:white;border:none;padding:8px 14px;border-radius:15px;font-weight:bold">💾 SAVE</button>
+<div class="header">
+  <b>🏥 Hospital</b>
+  <div>
+    <button onclick="handleListClick()">List</button>
+    <button onclick="startScanner()">📷</button>
+  </div>
 </div>
 
-<div id="hospitalList" class="list"></div>
+<!-- 1st Click pe bahar list -->
+<div id="outsideList" style="display:none;border:1px solid #000;margin:5px 5px;border-radius:8px;max-height:200px;overflow:auto"></div>
 
-<div class="bottom-nav">
-<button onclick="location.replace('index.html')"><span>🏠</span>HOME</button>
-<button onclick="location.replace('pharmacy.html')"><span>💊</span>PHARMACY</button>
-<button class="active"><span>🏥</span>HOSPITAL</button>
-<button onclick="location.replace('cart.html')"><span>🛒</span>CART</button>
+<!-- Main View -->
+<div id="mainView" class="view active">
+  <p style="text-align:center;color:#666">Scanner se Hospital Add karo</p>
+</div>
+
+<!-- Saved Full List View -->
+<div id="savedList" class="view">
+  <h3>Hospital List (Save Hai)</h3>
+  <div id="savedHospitals"></div>
+  <button onclick="showView('mainView')" style="margin-top:10px">← Back</button>
+</div>
+
+<!-- Detail View + OPD Token -->
+<div id="detailView" class="view">
+  <div class="box">
+    <h3 id="dName">Hospital Name</h3>
+    <div id="dImageBox" style="border:1px solid #000;height:100px;display:flex;align-items:center;justify-content:center;margin:10px 0;background:#fafafa">Hospital Image (Doctor Dashboard se ayegi)</div>
+    <div id="doctorList" style="font-size:13px;color:#555">All Doctor List - Doctor Dashboard se ayegi</div>
+    
+    <div class="token-box">
+      <b>OPD TOKEN - Sab logo ke liye</b><br>
+      <small>Total: <span id="totalToken">50</span> | Bache: <span id="leftToken">50</span></small>
+      <div id="myTokenNo" style="font-size:22px;font-weight:bold;margin:10px 0">Token No: -</div>
+      <button id="tokenBtn" onclick="takeToken()" style="background:#2e7d32;color:white;padding:10px 30px;font-weight:bold;border:none">OPD Token Lo</button>
+    </div>
+  </div>
+  <button onclick="showView('savedList')" style="margin-top:10px">← Back to List</button>
 </div>
 
 <script>
-let hospitals=JSON.parse(localStorage.getItem('hospitals'))||[];
-let html5QrCode=null,scannerOn=false;
-let tempScan=null;
+let saved = JSON.parse(localStorage.getItem('hospitals')||"[]");
+let currentHospitalId = "";
+let listClickCount = 0;
 
-function handleBack(){
- if(scannerOn){closeScanner();return}
- if(document.getElementById('scanResult').style.display=='flex'){document.getElementById('scanResult').style.display='none';return}
- if(document.getElementById('searchAll').value!=""){document.getElementById('searchAll').value="";render(hospitals);return}
- location.replace('index.html');
+// View Switch
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
 
-function render(list){
-  let div=document.getElementById('hospitalList');
-  if(list.length==0){div.innerHTML="<p style='text-align:center;color:#888;margin-top:15px'>No Data</p>";return}
-  div.innerHTML=list.map((m,i)=>`
-    <div class="card">
-      <div onclick="searchThisHospital('${m.id}')" style="flex:1">
-        <b>${m.name} [${m.id}]</b><br>${m.address||''}<br>
-        <small style="color:#0d47a1">👉 Click karke search karo</small>
-      </div>
-      <button onclick="deleteHospital(${hospitals.indexOf(m)})" style="background:#c62828;color:white;border:none;padding:5px 10px;border-radius:6px;font-size:11px">🗑 DELETE</button>
-    </div>
-  `).join('');
-}
-
-function searchThisHospital(idOrName){
-  // Click karte hi usi naam ka hospital search ho jaye
-  document.getElementById('searchAll').value = idOrName;
-  let v = idOrName.toLowerCase();
-  let filtered = hospitals.filter(m=> m.id.toLowerCase()==v || m.name.toLowerCase().includes(v));
-  // Agar filter me nahi to pura list me se search
-  if(filtered.length==0) filtered = hospitals.filter(m=> m.id.toLowerCase().includes(v) || m.name.toLowerCase().includes(v));
-  document.getElementById('hospitalList').innerHTML = filtered.map((m,i)=>`
-    <div class="card" style="border:2px solid #0d47a1;background:#e3f2fd">
-      <div style="flex:1"><b>🏥 ${m.name} [${m.id}]</b><br>${m.address||''}<br><small>Ye hospital search hua hai</small></div>
-      <button onclick="render(hospitals)" style="background:#0d47a1;color:white;border:none;padding:5px 10px;border-radius:6px;font-size:11px">Back List</button>
-    </div>
-  `).join('') + '<div style="margin-top:8px">'+filtered.length+' result mile</div>';
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-function deleteHospital(idx){
-  if(!confirm('Delete karna hai?')) return;
-  hospitals.splice(idx,1);
-  localStorage.setItem('hospitals',JSON.stringify(hospitals));
-  render(hospitals);
-}
-
+// Scanner - Demo ke liye prompt se (aapka scanner code yahan lagega)
 function startScanner(){
-  document.getElementById('reader').style.display='block';
-  document.getElementById('scanResult').style.display='none';
-  scannerOn=true; 
-  html5QrCode=new Html5Qrcode("reader"); 
-  html5QrCode.start({facingMode:"environment"},{fps:10,qrbox:200},d=>{
-    closeScanner();
-    tempScan = {id:d, name:"Medical - "+d, address:"Hospital"};
-    document.getElementById('scanName').innerText = tempScan.name;
-    document.getElementById('scanId').innerText = tempScan.id;
-    document.getElementById('scanResult').style.display='flex';
-  },()=>{})
+  let name = prompt("Hospital ka Naam likho (Scanner Demo):");
+  if(!name) return;
+  let obj = {id:Date.now().toString(), name:name, maxToken:50, doctors:[]};
+  saved.push(obj);
+  localStorage.setItem('hospitals', JSON.stringify(saved));
+  alert(name+" Add ho gaya!");
+  renderSaved(saved);
 }
 
-function closeScanner(){
-  if(html5QrCode){try{html5QrCode.stop()}catch(e){} html5QrCode=null} 
-  document.getElementById('reader').style.display='none'; 
-  scannerOn=false
+// List Click Logic
+function handleListClick(){
+  listClickCount++;
+  if(listClickCount==1){
+    let box=document.getElementById('outsideList');
+    box.style.display='block';
+    if(saved.length==0){ box.innerHTML="<p style='padding:10px'>Koi hospital add nahi hai</p>"; return;}
+    box.innerHTML=saved.map((h,i)=>`<div onclick="openDetail('${h.id}')" style="padding:10px;border-bottom:1px solid #ddd;background:#f9f9f9;cursor:pointer">${i+1}- ${h.name}</div>`).join('');
+  }else{
+    document.getElementById('outsideList').style.display='none';
+    renderSaved(saved);
+    showView('savedList');
+    listClickCount=0;
+  }
 }
 
-function saveScanned(){
-  if(!tempScan) return;
-  hospitals.push(tempScan);
-  localStorage.setItem('hospitals', JSON.stringify(hospitals));
-  document.getElementById('scanResult').style.display='none';
-  tempScan=null;
-  render(hospitals);
+// Render Full List with Delete
+function renderSaved(list){
+  document.getElementById('savedHospitals').innerHTML = list.map((h,i)=>`
+    <div class="list-item">
+      <span onclick="openDetail('${h.id}')" style="flex:1;cursor:pointer">${i+1}- ${h.name}</span>
+      <button onclick="deleteHospital('${h.id}')" style="background:red;color:white;padding:4px 10px;font-size:12px">✕ Delete</button>
+    </div>
+  `).join('') || "<p>No Hospital</p>";
 }
 
-document.getElementById('searchAll').addEventListener('input',function(){
-  let v=this.value.toLowerCase(); 
-  if(!v){render(hospitals);return}
-  render(hospitals.filter(m=>m.name.toLowerCase().includes(v)||m.id.toLowerCase().includes(v)))
-});
+function deleteHospital(id){
+  if(!confirm("Delete karna hai?")) return;
+  saved = saved.filter(x=>x.id!=id);
+  localStorage.setItem('hospitals', JSON.stringify(saved));
+  localStorage.removeItem('tokens_'+id);
+  localStorage.removeItem('myToken_'+id);
+  renderSaved(saved);
+  document.getElementById('outsideList').style.display='none';
+  listClickCount=0;
+}
 
-render(hospitals);
+// Detail + OPD Token
+function openDetail(id){
+  currentHospitalId=id;
+  let h=saved.find(x=>x.id==id);
+  document.getElementById('dName').innerText=h.name;
+  document.getElementById('outsideList').style.display='none';
+  
+  let tokens=JSON.parse(localStorage.getItem('tokens_'+id)||"[]");
+  let myToken=localStorage.getItem('myToken_'+id);
+  document.getElementById('totalToken').innerText=h.maxToken||50;
+  document.getElementById('leftToken').innerText=(h.maxToken||50)-tokens.length;
+
+  if(myToken){
+    document.getElementById('myTokenNo').innerText="Aapka Token No: "+myToken;
+    document.getElementById('tokenBtn').innerText="Token Mil Gaya ✓";
+    document.getElementById('tokenBtn').disabled=true;
+    document.getElementById('tokenBtn').style.background="#999";
+  }else{
+    document.getElementById('myTokenNo').innerText="Token No: -";
+    document.getElementById('tokenBtn').innerText="OPD Token Lo";
+    document.getElementById('tokenBtn').disabled=false;
+    document.getElementById('tokenBtn').style.background="#2e7d32";
+  }
+  showView('detailView');
+}
+
+function takeToken(){
+  let id=currentHospitalId;
+  let h=saved.find(x=>x.id==id);
+  let max=h.maxToken||50;
+  let tokens=JSON.parse(localStorage.getItem('tokens_'+id)||"[]");
+  if(tokens.length>=max){ alert("Token Khatam!"); return;}
+  let newNo=tokens.length+1;
+  tokens.push({no:newNo,time:new Date().toLocaleTimeString()});
+  localStorage.setItem('tokens_'+id,JSON.stringify(tokens));
+  localStorage.setItem('myToken_'+id,newNo);
+  document.getElementById('myTokenNo').innerText="Aapka Token No: "+newNo;
+  document.getElementById('leftToken').innerText=max-tokens.length;
+  document.getElementById('tokenBtn').innerText="Token Mil Gaya ✓";
+  document.getElementById('tokenBtn').disabled=true;
+  alert("OPD Token No "+newNo+" Mil Gaya!");
+}
+
+// Start me render
+renderSaved(saved);
 </script>
 </body>
 </html>

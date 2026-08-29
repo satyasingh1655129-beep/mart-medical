@@ -1,13 +1,130 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NG Care</title>
+<script>
+if(localStorage.getItem("isLoggedIn") !== "true"){
+  window.location.href="login.html";
+}
+</script>
 <style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#f5f5f5;padding-bottom:85px;font-size:14px}
+.header{background:#0d47a1;color:white;padding:14px;text-align:center;font-weight:bold;font-size:15px}
+#banner{width:100%;height:160px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:18px}
+#banner img{width:100%;height:100%;object-fit:cover}
+.cat-wrap{display:grid;grid-template-columns:auto auto auto;justify-content:start;gap:5px;padding:5px}
+.cat-wrap button{background:#0d47a1;color:white;border:none;padding:10px;border-radius:10px;font-weight:bold;font-size:15px;width:fit-content}
+.box{margin:12px 0;background:white;padding:12px}
+.box h3{color:#0d47a1;margin-bottom:8px;font-size:14px}
+.h-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px}
+.h-scroll::-webkit-scrollbar{display:none}
+.product-card{min-width:140px;max-width:140px;border:1px solid #eee;border-radius:10px;padding:8px;text-align:center;background:white;flex-shrink:0}
+.product-card img{width:100%;height:60px;object-fit:contain}
+.product-card b{font-size:13px}
+.new-scroll .product-card{min-width:160px;max-width:160px}
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:5px 0;border-top:2px solid #0d47a1;z-index:9999}
 .bottom-nav button{background:none;border:none;font-weight:bold;color:#0d47a1;font-size:9px;line-height:10px;flex:1;padding:6px 2px;border-radius:25px;white-space:nowrap}
 .bottom-nav button span{font-size:18px;display:block;margin-bottom:2px}
 .bottom-nav button.active{background:#0d47a1;color:white}
 </style>
+</head>
+<body>
 
+<div class="header">NG Care <div style="font-size:11px;font-weight:normal;margin-top:2px" id="userInfo"></div></div>
+<div id="banner">Banner (Admin se lagega)</div>
+
+<div class="cat-wrap">
+  <button onclick="openCat('tablet')">💊 Tablet</button>
+  <button onclick="openCat('syrup')">🍶 Syrup</button>
+  <button onclick="openCat('capsule')">💊 Capsule</button>
+  <button onclick="openCat('ointment')">🧴 Ointment</button>
+  <button onclick="openCat('tube')"> Tube</button>
+  <button onclick="openCat('lotion')"> Lotion</button>
+  <button onclick="openCat('eyedrop')">👁️ Eye/Ear Drop</button>
+  <button onclick="openCat('family')">👨‍👩‍👧 Family</button>
+  <button onclick="openCat('surgical')">🩺 Surgical</button>
+  <button onclick="openCat('injection')">💉 Injection</button>
+  <button onclick="openCat('drip')">💧 Drip Set</button>
+  <button onclick="openCat('other')">📦 Other</button>
+</div>
+
+<div id="homeContent">
+  <div class="box"><h3>📦 New Product</h3><div id="newList" class="h-scroll new-scroll"><div class="product-card"><p>Admin se add karo</p></div></div></div>
+  <div class="box"><h3>🔥 Trending Product</h3><div id="trendList" class="h-scroll"><div class="product-card"><p>Khali</p></div></div></div>
+</div>
+
+<div id="catPage" class="box" style="display:none;padding-top:50px">
+ <button onclick="goHome()" style="position:fixed;top:10px;left:10px;z-index:99999;padding:8px 18px;border-radius:20px;border:none;background:#0d47a1;color:white;font-weight:bold">← Back</button>
+ <h3 id="catTitle" style="margin-top:10px"></h3>
+ <div id="catList" class="h-scroll" style="margin-top:10px;flex-wrap:wrap"></div>
+</div>
+  
 <div class="bottom-nav">
   <button class="active"><span>🏠</span>HOME</button>
-  <button onclick="goNav('pharmacy.html')"><span>💊</span>PHARMACY</button>
-  <button onclick="goNav('hospital.html')"><span>🏥</span>HOSPITAL</button>
-  <button onclick="goNav('cart.html')"><span>🛒</span>CART</button>
+  <button onclick="location.replace('pharmacy.html')"><span>💊</span>PHARMACY</button>
+  <button onclick="location.replace('hospital.html')"><span>🏥</span>HOSPITAL</button>
+  <button onclick="location.replace('cart.html')"><span>🛒</span>CART</button>
 </div>
+  
+<script>
+document.getElementById("userInfo").innerText = (localStorage.getItem("role")||"") + " | " + (localStorage.getItem("userContact")||"");
+let products = JSON.parse(localStorage.getItem('ng_products')||'[]');
+let bannerImg = localStorage.getItem('ng_banner')||'';
+if(bannerImg) document.getElementById('banner').innerHTML=`<img src="${bannerImg}">`;
+function loadProducts(){
+  let n=document.getElementById('newList'), t=document.getElementById('trendList');
+  if(products.length==0) return;
+  n.innerHTML=''; t.innerHTML='';
+  products.forEach(p=>{
+    let html=`<div class="product-card"><img src="${p.img||''}"><p style="font-weight:bold;font-size:13px">${p.name}</p><small>${p.cat}</small><br><b>₹${p.price}</b><br><button style="margin-top:4px;padding:4px 10px;border-radius:15px;border:none;background:#0d47a1;color:white;font-size:11px">Add</button></div>`;
+    if(p.trending) t.innerHTML+=html; else n.innerHTML+=html;
+  });
+}
+loadProducts();
+let homeContent = document.getElementById('homeContent');
+let catPage = document.getElementById('catPage');
+let catTitle = document.getElementById('catTitle');
+let catList = document.getElementById('catList');
+let currentPage = "home";
+let lastBack = 0;
+function openCat(cat){
+  currentPage = "cat";
+  homeContent.style.display = 'none';
+  catPage.style.display = 'block';
+  catTitle.innerText = cat.toUpperCase();
+  let f = products.filter(p=>p.cat===cat);
+  catList.innerHTML = f.length==0 ? `<p>${cat} khali hai</p>` : f.map(p=>`<div class="product-card">${p.name}<br>₹${p.price}</div>`).join('');
+  history.pushState({page:"cat", cat:cat}, "", "");
+}
+function goHome(){
+  if(currentPage === "cat"){
+    homeContent.style.display='block';
+    catPage.style.display='none';
+    currentPage = "home";
+    history.pushState({page:"home"}, "", "");
+  }
+}
+window.addEventListener('popstate', function(e){
+  if(currentPage === "cat"){
+    homeContent.style.display='block';
+    catPage.style.display='none';
+    currentPage = "home";
+  } else {
+    let now = Date.now();
+    if(now - lastBack < 2000){
+       history.go(-history.length);
+       setTimeout(()=>window.close(),100);
+    } else {
+       lastBack = now;
+       history.pushState({page:"home"}, "", "");
+    }
+  }
+});
+history.replaceState({page:"home"}, "", "");
+history.pushState({page:"home"}, "", "");
+</script>
+</body>
+</html>

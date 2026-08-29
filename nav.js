@@ -1,22 +1,33 @@
-// nav.js - FINAL FIXED
+// nav.js - FINAL FIXED - PHARMACY JAISA
 let nav = document.createElement('div');
-nav.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:12px 0 15px 0;border-top:1px solid #ddd;z-index:9999;box-shadow:0 -2px 10px rgba(0,0,0,0.1);padding-bottom:calc(12px + env(safe-area-inset-bottom))";
+nav.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:5px 0;border-top:2px solid #0d47a1;z-index:9999";
+
+let path = window.location.pathname;
+let isHome = path.includes('index.html') || path.endsWith('/') || path.endsWith('/mart-medical');
+let isPharmacy = path.includes('pharmacy.html');
+let isHospital = path.includes('hospital.html');
+let isCart = path.includes('cart.html');
+
+function activeStyle(isActive){
+  return isActive ? "background:#0d47a1;color:white;border-radius:25px;" : "background:none;color:#0d47a1;";
+}
+
 nav.innerHTML = `
-  <button onclick="location.href='index.html'" style="border:none;background:none;font-weight:bold;font-size:14px">🏠 HOME</button>
-  <button onclick="location.href='pharmacy.html'" style="border:none;background:none;font-weight:bold;font-size:14px">💊 PHARMACY</button>
-  <button onclick="location.href='hospital.html'" style="border:none;background:none;font-weight:bold;font-size:14px">🏥 HOSPITAL</button>
-  <button onclick="location.href='cart.html'" style="border:none;background:none;font-weight:bold;font-size:14px">🛒 CART</button>
+  <button onclick="location.replace('index.html')" style="border:none;font-weight:bold;font-size:9px;line-height:10px;flex:1;padding:6px 2px;white-space:nowrap;${activeStyle(isHome)}"><span style="font-size:18px;display:block;margin-bottom:2px">🏠</span>HOME</button>
+  <button onclick="location.replace('pharmacy.html')" style="border:none;font-weight:bold;font-size:9px;line-height:10px;flex:1;padding:6px 2px;white-space:nowrap;${activeStyle(isPharmacy)}"><span style="font-size:18px;display:block;margin-bottom:2px">💊</span>PHARMACY</button>
+  <button onclick="location.replace('hospital.html')" style="border:none;font-weight:bold;font-size:9px;line-height:10px;flex:1;padding:6px 2px;white-space:nowrap;${activeStyle(isHospital)}"><span style="font-size:18px;display:block;margin-bottom:2px">🏥</span>HOSPITAL</button>
+  <button onclick="location.replace('cart.html')" style="border:none;font-weight:bold;font-size:9px;line-height:10px;flex:1;padding:6px 2px;white-space:nowrap;${activeStyle(isCart)}"><span style="font-size:18px;display:block;margin-bottom:2px">🛒</span>CART</button>
 `;
 document.body.appendChild(nav);
 
+// Back Button Lock
 let backBtn = document.createElement('div');
 backBtn.id = "fixBackBtn";
-backBtn.style.cssText = "position:fixed;top:12px;left:12px;z-index:99999;background:#0d47a1;color:white;padding:7px 16px;border-radius:20px;font-weight:bold;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.3);cursor:pointer;display:none;align-items:center";
+backBtn.style.cssText = "position:fixed;top:12px;left:12px;z-index:99999;background:#0d47a1;color:white;padding:7px 16px;border-radius:20px;font-weight:bold;font-size:13px;cursor:pointer;display:none;align-items:center";
 backBtn.innerHTML = "← BACK";
 
 function checkBack(){
   let cat = document.getElementById('catPage');
-  let isHome = window.location.pathname.includes('index.html') || window.location.pathname.endsWith('/') || window.location.pathname.endsWith('/mart-medical');
   if(isHome){
     if(cat && cat.style.display === 'block'){ backBtn.style.display='flex'; } 
     else { backBtn.style.display='none'; }
@@ -33,9 +44,17 @@ backBtn.onclick = function(){
     catPage.style.display='none';
     if(homeContent) homeContent.style.display='block';
     backBtn.style.display='none';
+    history.replaceState({page:"home"}, "", "");
+    history.pushState({page:"home"}, "", "");
   } else {
-    window.history.back();
+    // Home pe hai to back lock - band nahi hoga dusre button pe
+    if(isHome){
+       // kuch mat karo, yahin raho
+       return;
+    } else {
+       location.replace('index.html');
+    }
   }
 };
 document.body.appendChild(backBtn);
-document.body.style.paddingBottom="70px";
+document.body.style.paddingBottom="85px";

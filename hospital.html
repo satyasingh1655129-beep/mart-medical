@@ -16,18 +16,18 @@ body{background:#f5f5f5;padding-bottom:85px;font-size:14px}
 .action-row{margin:0 10px;display:flex;gap:6px}
 .action-row button{flex:1;padding:7px;border:none;border-radius:6px;font-size:13px;font-weight:bold;background:white;border:1px solid #b71c1c;color:#b71c1c}
 #reader{width:92%;margin:8px auto;display:none;border-radius:8px;overflow:hidden;border:1px solid #b71c1c}
-#locStatus{text-align:center;font-size:11px;color:#b71c1c;height:14px;margin-top:4px}
 .list{padding:8px;display:flex;flex-direction:column;gap:8px}
 .card{background:white;padding:10px;border-radius:8px;border:1px solid #eee;font-size:13px}
 .km{color:#0a9e00;font-weight:bold;font-size:11px}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:12px 0;border-top:2px solid #b71c1c;z-index:9999}
-.bottom-nav button{background:none;border:none;font-weight:bold;color:#b71c1c;font-size:14px}
-.bottom-nav button.active{color:#ff0080}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:5px 0;border-top:2px solid #b71c1c;z-index:9999}
+.bottom-nav button{background:none;border:none;font-weight:bold;color:#b71c1c;font-size:9px;line-height:10px;flex:1;padding:6px 2px;border-radius:25px;transition:all 0.2s;white-space:nowrap}
+.bottom-nav button span{font-size:18px;display:block;margin-bottom:2px}
+.bottom-nav button:active,.bottom-nav button.active{background:#b71c1c;color:white;border-radius:25px}
 </style>
 </head>
 <body>
 
-<button class="back-btn" onclick="goBack()">← Back</button>
+<button class="back-btn" onclick="handleBack()">← Back</button>
 <div class="header">Hospital Near You</div>
 
 <div class="search-wrap">
@@ -37,18 +37,16 @@ body{background:#f5f5f5;padding-bottom:85px;font-size:14px}
 
 <div class="action-row">
   <button onclick="startScanner()">📷 Scanner</button>
-  <button onclick="getNearLocation()">📍 Near Hospital</button>
 </div>
 
 <div id="reader"></div>
-<div id="locStatus"></div>
 <div id="hospitalList" class="list"></div>
 
 <div class="bottom-nav">
-  <button onclick="location.href='index.html'">🏠 HOME</button>
-  <button onclick="location.href='pharmacy.html'">💊 PHARMACY</button>
-  <button class="active">🏥 HOSPITAL</button>
-  <button onclick="location.href='cart.html'">🛒 CART</button>
+  <button onclick="goNav('index.html')"><span>🏠</span>HOME</button>
+  <button onclick="goNav('pharmacy.html')"><span>💊</span>PHARMACY</button>
+  <button class="active"><span>🏥</span>HOSPITAL</button>
+  <button onclick="goNav('cart.html')"><span>🛒</span>CART</button>
 </div>
 
 <script>
@@ -56,11 +54,36 @@ let hospitals = JSON.parse(localStorage.getItem('hospitals'))||[];
 let html5QrCode = null;
 let scannerOn = false;
 
-function render(list){
-  list.sort((a,b)=>a.km-b.km);
-  document.getElementById('hospitalList').innerHTML = list.length==0 ? "<p style='text-align:center;color:#888;margin-top:15px;font-size:13px'>No Hospital Found</p>" : list.map(m=>`<div class="card" onclick="location.href='hospital-detail.html?id=${m.id}'"><b>${m.name} [${m.id}]</b><br><span class="km">📍 ${m.km} KM</span> - ${m.address}</div>`).join('');
+let STACK_KEY = 'myStack';
+let CURRENT_PAGE = 'hospital.html';
+let SKIP_PAGE = 'cart.html';
+let stack = JSON.parse(sessionStorage.getItem(STACK_KEY) || '[]');
+if(stack.length === 0){ stack = ['index.html']; }
+if(stack[stack.length-1] !== CURRENT_PAGE){
+  stack.push(CURRENT_PAGE);
+  sessionStorage.setItem(STACK_KEY, JSON.stringify(stack));
 }
-
+function goNav(page){ location.href = page; }
+function handleBack(){
+  if(scannerOn){ closeScanner(); return; }
+  if(document.getElementById('searchAll').value!=""){
+    document.getElementById('searchAll').value="";
+    render(hospitals);
+    return;
+  }
+  stack.pop();
+  let prev = stack[stack.length-1];
+  while(prev === SKIP_PAGE && stack.length > 0){
+    stack.pop();
+    prev = stack[stack.length-1];
+  }
+  sessionStorage.setItem(STACK_KEY, JSON.stringify(stack));
+  if(!prev){ sessionStorage.clear(); history.back(); return; }
+  location.href = prev;
+}
+function render(list){
+  document.getElementById('hospitalList').innerHTML = list.length==0 ? "<p style='text-align:center;color:#888;margin-top:15px;font-size:13px'>No Hospital Found</p>" : list.map(m=>`<div class="card" onclick="location.href='hospital-detail.html?id=${m.id}'"><b>${m.name} [${m.id}]</b><br> ${m.address}</div>`).join('');
+}
 function startScanner(){
   let r = document.getElementById('reader');
   r.style.display='block';
@@ -74,45 +97,16 @@ function startScanner(){
       render(hospitals.filter(m=>m.id.toLowerCase()==decoded.toLowerCase()||m.name.toLowerCase().includes(decoded.toLowerCase())));
     },()=>{});
 }
-
 function closeScanner(){
-  if(html5QrCode){ try{ html5QrCode.stop(); }catch(e){} }
+  if(html5QrCode){ try{ html5QrCode.stop(); }catch(e){} html5QrCode=null; }
   document.getElementById('reader').style.display='none';
   scannerOn = false;
-  document.getElementById('locStatus').innerText="";
 }
-
-function goBack(){
-  if(scannerOn){
-    closeScanner();
-    return;
-  }
-  if(document.getElementById('searchAll').value!=""){
-    document.getElementById('searchAll').value="";
-    render(hospitals);
-    return;
-  }
-}
-
-window.addEventListener('popstate', ()=>{
-  if(scannerOn){ closeScanner(); }
-});
-
+window.addEventListener('popstate', ()=>{ if(scannerOn){ closeScanner(); return; } handleBack(); });
 document.getElementById('searchAll').addEventListener('input', function(){
   let v=this.value.toLowerCase();
   render(hospitals.filter(m=>m.name.toLowerCase().includes(v)||m.id.toLowerCase().includes(v)||m.address.toLowerCase().includes(v)));
 });
-
-function getNearLocation(){
-  document.getElementById('locStatus').innerText="📍 Location le raha hu...";
-  navigator.geolocation.getCurrentPosition(p=>{
-    let lat1=p.coords.latitude, lon1=p.coords.longitude;
-    hospitals.forEach(m=>{ if(m.lat&&m.lon){ let d=6371*Math.acos(Math.cos(lat1*Math.PI/180)*Math.cos(m.lat*Math.PI/180)*Math.cos((m.lon-lon1)*Math.PI/180)+Math.sin(lat1*Math.PI/180)*Math.sin(m.lat*Math.PI/180)); m.km=d.toFixed(1); } });
-    document.getElementById('locStatus').innerText="✅ Near sort done";
-    render(hospitals);
-  },()=>{ document.getElementById('locStatus').innerText="❌ Allow location"; });
-}
-
 render(hospitals);
 history.replaceState({page:"list"}, "", "");
 history.pushState({page:"list"}, "", "");

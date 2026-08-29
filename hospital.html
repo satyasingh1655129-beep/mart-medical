@@ -1,88 +1,129 @@
 <!DOCTYPE html>
-<html>
+<html lang="hi">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hospital</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hospital - NG Care</title>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
-body{font-family:Arial;margin:0;background:white;padding-bottom:70px}
-.header{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border:1px solid #000;margin:6px;border-radius:6px;background:white}
-.header b{font-size:14px}
-.header button{border:1px solid #000;padding:5px 10px;border-radius:4px;background:white;font-size:12px}
-.view{display:none;padding:8px}
-.view.active{display:block}
-#outsideList{margin:0 6px;border:1px solid #000;border-radius:6px;display:none;max-height:200px;overflow:auto;background:white}
-.list-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid #ddd;font-size:14px}
-.box{border:1px solid #000;padding:12px;border-radius:6px;background:white}
-.token-box{margin-top:12px;padding:12px;background:#e8f4ff;border-radius:6px;text-align:center;border:1px solid #000}
-#reader{width:100%;border:1px solid #000;border-radius:6px}
-.fix-bottom{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #000;padding:6px 8px;display:flex;gap:6px;z-index:999}
-.fix-bottom input{flex:1;border:1px solid #000;border-radius:4px;padding:8px;font-size:13px}
-.fix-bottom button{border:1px solid #000;border-radius:4px;padding:8px 12px;background:white;font-size:12px}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#f5f5f5;padding-bottom:85px;font-size:14px}
+.header{background:#0d47a1;color:white;padding:14px;text-align:center;font-weight:bold;font-size:15px}
+.back-btn{position:fixed;top:8px;left:8px;z-index:99999;padding:6px 14px;border-radius:20px;border:none;background:#0d47a1;color:white;font-weight:bold;font-size:12px}
+.search-wrap{margin:45px 10px 6px 10px;background:white;padding:7px 10px;border-radius:8px;display:flex;align-items:center;gap:6px;border:1px solid #ddd;height:38px}
+.search-wrap label{font-size:13px;font-weight:bold;color:#0d47a1}
+.search-wrap input{flex:1;border:none;outline:none;font-size:13px}
+.action-row{margin:0 10px;display:flex;gap:6px}
+.action-row button{flex:1;padding:7px;border:none;border-radius:6px;font-size:13px;font-weight:bold;background:white;border:1px solid #0d47a1;color:#0d47a1}
+#reader{width:92%;margin:8px auto;display:none;border-radius:8px;overflow:hidden;border:1px solid #0d47a1}
+#locStatus{text-align:center;font-size:11px;color:#0d47a1;height:14px;margin-top:4px}
+.list{padding:8px;display:flex;flex-direction:column;gap:8px}
+.card{background:white;padding:10px;border-radius:8px;border:1px solid #eee;font-size:13px;display:flex;justify-content:space-between;align-items:center}
+.km{color:#0a9e00;font-weight:bold;font-size:11px}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:5px 0;border-top:2px solid #0d47a1;z-index:9999}
+.bottom-nav button{background:none;border:none;font-weight:bold;color:#0d47a1;font-size:9px;line-height:10px;flex:1;padding:6px 2px;border-radius:25px;transition:all 0.2s;white-space:nowrap}
+.bottom-nav button span{font-size:18px;display:block;margin-bottom:2px}
+.bottom-nav button:active,.bottom-nav button.active{background:#0d47a1;color:white;border-radius:25px}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <span>🛡️ Hospital</span>
-  <div>
-    <button onclick="handleListClick()">List</button>
-    <button onclick="startScanner()">📷</button>
-  </div>
+<button class="back-btn" onclick="handleBack()">← Back</button>
+<div class="header">Hospital Near You</div>
+
+<div class="search-wrap">
+  <label>🔍</label>
+  <input id="searchAll" placeholder="ID ya Hospital Search">
 </div>
 
-<div id="outsideList"></div>
-
-<div id="scannerView" class="view">
-  <div id="reader"></div>
-  <button onclick="stopScanner()" style="width:100%;margin-top:8px;background:#ff4444;color:white">Close</button>
+<div class="action-row">
+  <button onclick="toggleList()">📋 List</button>
+  <button onclick="startScanner()">📷 Scanner</button>
+  <button onclick="getNearLocation()">📍 Near Location</button>
 </div>
 
-<div id="mainView" class="view active">
-  <p style="text-align:center;margin-top:60px;color:#666;font-size:14px">Scanner se Hospital Add karo</p>
-</div>
+<div id="reader"></div>
+<div id="locStatus"></div>
 
-<div id="savedList" class="view">
-  <div id="savedHospitals"></div>
-  <button onclick="showView('mainView')" style="margin-top:10px">← Back</button>
-</div>
+<!-- YE BAHAR WALI LIST - LIST BUTTON SE KHULEGI -->
+<div id="outsideList" style="display:none;margin:8px 10px;background:white;border-radius:8px;border:1px solid #000;max-height:200px;overflow:auto"></div>
 
-<div id="detailView" class="view">
-  <div class="box">
-    <div style="font-weight:bold" id="dName">Hospital Name</div>
-    <div id="dImageBox" style="border:1px solid #000;height:70px;margin:8px 0;display:flex;align-items:center;justify-content:center;font-size:12px">Hospital Image</div>
-    <div id="doctorList" style="font-size:12px;color:#555">All Doctor</div>
-    <div class="token-box">
-      <div style="font-size:13px;font-weight:bold">OPD TOKEN - Sab logo ke liye</div>
-      <div style="font-size:11px;margin:4px 0">Total: <span id="totalToken">50</span> | Bache: <span id="leftToken">50</span></div>
-      <div id="myTokenNo" style="font-size:18px;font-weight:bold;margin:8px 0">Token No: -</div>
-      <button id="tokenBtn" onclick="takeToken()" style="background:#2e7d32;color:white;width:100%;padding:8px">OPD Token Lo</button>
-    </div>
-  </div>
-  <button onclick="showView('savedList')" style="margin-top:10px">← Back</button>
-</div>
+<div id="hospitalList" class="list"></div>
 
-<!-- FIX BOTTOM SEARCH BAR - ID / Hospital Search -->
-<div class="fix-bottom">
-  <input id="searchInput" onkeyup="searchHospital()" placeholder="ID ya Hospital Search...">
-  <button onclick="searchHospital()">Search</button>
+<div class="bottom-nav">
+  <button onclick="goNav('index.html')"><span>🏠</span>HOME</button>
+  <button onclick="goNav('pharmacy.html')"><span>💊</span>PHARMACY</button>
+  <button class="active"><span>🏥</span>HOSPITAL</button>
+  <button onclick="goNav('cart.html')"><span>🛒</span>CART</button>
 </div>
 
 <script>
-let saved=JSON.parse(localStorage.getItem('hospitals')||"[]");
-let currentHospitalId="";
-let listClickCount=0;
-let html5Qrcode;
-function showView(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');document.getElementById('outsideList').style.display='none';}
-function startScanner(){showView('scannerView');html5Qrcode=new Html5Qrcode("reader");html5Qrcode.start({facingMode:"environment"},{fps:10,qrbox:200},(t)=>{stopScanner();if(saved.find(x=>x.name==t)){alert("Pehle se add hai");return;}saved.push({id:Date.now().toString(),name:t,maxToken:50});localStorage.setItem('hospitals',JSON.stringify(saved));renderSaved(saved);alert(t+" Add ho gaya!");showView('mainView');},()=>{});}
-function stopScanner(){if(html5Qrcode)html5Qrcode.stop();showView('mainView');}
-function handleListClick(){listClickCount++;if(listClickCount==1){let b=document.getElementById('outsideList');b.style.display='block';b.innerHTML=saved.length?saved.map((h,i)=>`<div onclick="openDetail('${h.id}')" style="padding:8px;border-bottom:1px solid #ddd">${i+1}- ${h.name}</div>`).join(''):"<p style='padding:8px;font-size:12px'>Koi hospital nahi</p>";}else{renderSaved(saved);showView('savedList');listClickCount=0;}}
-function renderSaved(list){document.getElementById('savedHospitals').innerHTML=list.map((h,i)=>`<div class="list-item"><span onclick="openDetail('${h.id}')" style="flex:1">${i+1}- ${h.name}</span><button onclick="deleteHospital('${h.id}')" style="background:red;color:white;padding:3px 8px;font-size:11px">✕</button></div>`).join('')||"<p style='font-size:12px'>No Hospital</p>";}
-function deleteHospital(id){if(!confirm("Delete?"))return;saved=saved.filter(x=>x.id!=id);localStorage.setItem('hospitals',JSON.stringify(saved));renderSaved(saved);document.getElementById('outsideList').style.display='none';listClickCount=0;}
-function openDetail(id){currentHospitalId=id;let h=saved.find(x=>x.id==id);document.getElementById('dName').innerText=h.name;let tokens=JSON.parse(localStorage.getItem('tokens_'+id)||"[]");let my=localStorage.getItem('myToken_'+id);document.getElementById('totalToken').innerText=50;document.getElementById('leftToken').innerText=50-tokens.length;if(my){document.getElementById('myTokenNo').innerText="Aapka Token No: "+my;document.getElementById('tokenBtn').innerText="Token Mil Gaya ✓";document.getElementById('tokenBtn').disabled=true;}else{document.getElementById('myTokenNo').innerText="Token No: -";document.getElementById('tokenBtn').innerText="OPD Token Lo";document.getElementById('tokenBtn').disabled=false;}showView('detailView');}
-function takeToken(){let id=currentHospitalId;let tokens=JSON.parse(localStorage.getItem('tokens_'+id)||"[]");if(tokens.length>=50){alert("Token Khatam");return;}let n=tokens.length+1;tokens.push({no:n});localStorage.setItem('tokens_'+id,JSON.stringify(tokens));localStorage.setItem('myToken_'+id,n);openDetail(id);}
-function searchHospital(){let q=document.getElementById('searchInput').value.toLowerCase();let b=document.getElementById('outsideList');if(!q){b.style.display='none';renderSaved(saved);return;}let f=saved.filter(h=>h.name.toLowerCase().includes(q)||h.id.includes(q));b.style.display='block';b.innerHTML=f.length?f.map(h=>`<div onclick="openDetail('${h.id}')" style="padding:8px;border-bottom:1px solid #ddd;background:#fff9c4">${h.name}</div>`).join(''):"<p style='padding:8px'>Nahi mila</p>";renderSaved(f);}
-renderSaved(saved);
+let hospitals = JSON.parse(localStorage.getItem('hospitals'))||[
+  {id:"H101",name:"Shauma Hospital",address:"Lucknow",km:1.2,lat:26.84,lon:80.94},
+  {id:"H102",name:"Cinkay Hospital",address:"Gomti Nagar",km:2.5,lat:26.85,lon:80.95}
+];
+let html5QrCode=null,scannerOn=false,listClick=0;
+
+function goNav(p){location.href=p}
+
+function render(list){
+  list.sort((a,b)=>(a.km||999)-(b.km||999));
+  document.getElementById('hospitalList').innerHTML = list.length==0 ? "<p style='text-align:center;color:#888;margin-top:15px;font-size:13px'>No Hospital Found</p>" : list.map((m,i)=>`<div class="card"><div><b>${i+1}- ${m.name} [${m.id}]</b><br><span class="km">📍 ${m.km||0} KM</span> - ${m.address}</div><button onclick="delH('${m.id}')" style="background:red;color:white;border:1px solid #000;border-radius:4px;padding:2px 6px;font-size:10px">✕</button></div>`).join('');
+}
+
+function toggleList(){
+  listClick++;
+  let out=document.getElementById('outsideList');
+  let main=document.getElementById('hospitalList');
+  if(listClick==1){
+    out.style.display='block';
+    main.style.display='none';
+    out.innerHTML=hospitals.map((h,i)=>`<div style="padding:10px;border-bottom:1px solid #ddd;display:flex;justify-content:space-between">${i+1}- ${h.name} <button onclick="delH('${h.id}')" style="background:red;color:white;border:1px solid #000;border-radius:4px;padding:2px 6px;font-size:10px">✕</button></div>`).join('');
+  }else{
+    out.style.display='none';
+    main.style.display='flex';
+    listClick=0;
+  }
+}
+
+function delH(id){hospitals=hospitals.filter(x=>x.id!=id);localStorage.setItem('hospitals',JSON.stringify(hospitals));render(hospitals);document.getElementById('outsideList').style.display='none';listClick=0;}
+
+// Search - aapka wala same
+document.getElementById('searchAll').addEventListener('input',function(){
+  let v=this.value.toLowerCase();
+  let out=document.getElementById('outsideList');
+  if(v){
+    out.style.display='block';
+    document.getElementById('hospitalList').style.display='none';
+    let f=hospitals.filter(m=>m.name.toLowerCase().includes(v)||m.id.toLowerCase().includes(v));
+    out.innerHTML=f.map(m=>`<div style="padding:10px;border-bottom:1px solid #ddd;background:#fff9c4">${m.name} [${m.id}]</div>`).join('');
+  }else{
+    out.style.display='none';
+    document.getElementById('hospitalList').style.display='flex';
+    render(hospitals);
+  }
+});
+
+// Scanner + Location - aapke pharmacy wala same
+function startScanner(){
+  let r=document.getElementById('reader'); r.style.display='block'; scannerOn=true;
+  html5QrCode=new Html5Qrcode("reader");
+  html5QrCode.start({facingMode:"environment"},{fps:10,qrbox:200},(decoded)=>{
+    document.getElementById('searchAll').value=decoded; closeScanner();
+    render(hospitals.filter(m=>m.id.toLowerCase()==decoded.toLowerCase()));
+  },()=>{});
+}
+function closeScanner(){if(html5QrCode){try{html5QrCode.stop();}catch(e){} html5QrCode=null;} document.getElementById('reader').style.display='none'; scannerOn=false;}
+function getNearLocation(){
+  document.getElementById('locStatus').innerText="📍 Location le raha hu...";
+  navigator.geolocation.getCurrentPosition(p=>{
+    let lat1=p.coords.latitude,lon1=p.coords.longitude;
+    hospitals.forEach(m=>{ if(m.lat&&m.lon){ let d=6371*Math.acos(Math.cos(lat1*Math.PI/180)*Math.cos(m.lat*Math.PI/180)*Math.cos((m.lon-lon1)*Math.PI/180)+Math.sin(lat1*Math.PI/180)*Math.sin(m.lat*Math.PI/180)); m.km=d.toFixed(1);} });
+    document.getElementById('locStatus').innerText="✅ Near sort done"; render(hospitals);
+  },()=>{document.getElementById('locStatus').innerText="❌ Allow location";});
+}
+function handleBack(){ if(scannerOn){closeScanner();return;} if(document.getElementById('searchAll').value!=""){document.getElementById('searchAll').value="";render(hospitals);return;} history.back();}
+render(hospitals);
 </script>
 </body>
 </html>

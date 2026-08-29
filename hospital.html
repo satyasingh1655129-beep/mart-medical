@@ -8,31 +8,45 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
 body{background:#f5f5f5;padding-bottom:85px;font-size:14px}
-.header{background:#b71c1c;color:white;padding:14px;text-align:center;font-weight:bold;font-size:15px}
-.back-btn{position:fixed;top:8px;left:8px;z-index:99999;padding:6px 14px;border-radius:20px;border:none;background:#b71c1c;color:white;font-weight:bold;font-size:12px}
+.header{background:#0d47a1;color:white;padding:14px;text-align:center;font-weight:bold;font-size:15px;position:relative}
+.save-top{position:absolute;right:10px;top:10px;background:white;color:#0d47a1;border:none;padding:5px 10px;border-radius:15px;font-weight:bold;font-size:11px}
+.back-btn{position:fixed;top:8px;left:8px;z-index:99999;padding:6px 14px;border-radius:20px;border:none;background:#0d47a1;color:white;font-weight:bold;font-size:12px}
 .search-wrap{margin:45px 10px 6px 10px;background:white;padding:7px 10px;border-radius:8px;display:flex;align-items:center;gap:6px;border:1px solid #ddd;height:38px}
-.search-wrap label{font-size:13px;font-weight:bold;color:#b71c1c}
 .search-wrap input{flex:1;border:none;outline:none;font-size:13px}
 .action-row{margin:0 10px;display:flex;gap:6px}
-.action-row button{flex:1;padding:7px;border:none;border-radius:6px;font-size:13px;font-weight:bold;background:white;border:1px solid #b71c1c;color:#b71c1c}
-#reader{width:92%;margin:8px auto;display:none;border-radius:8px;overflow:hidden;border:1px solid #b71c1c}
+.action-row button{flex:1;padding:7px;border:none;border-radius:6px;font-size:13px;font-weight:bold;background:white;border:1px solid #0d47a1;color:#0d47a1}
+#reader{width:92%;margin:8px auto;display:none;border-radius:8px;overflow:hidden;border:1px solid #0d47a1}
 .list{padding:8px;display:flex;flex-direction:column;gap:8px}
 .card{background:white;padding:10px;border-radius:8px;border:1px solid #eee;font-size:13px}
-.km{color:#0a9e00;font-weight:bold;font-size:11px}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:5px 0;border-top:2px solid #b71c1c;z-index:9999}
-.bottom-nav button{background:none;border:none;font-weight:bold;color:#b71c1c;font-size:9px;line-height:10px;flex:1;padding:6px 2px;border-radius:25px;transition:all 0.2s;white-space:nowrap}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:5px 0;border-top:2px solid #0d47a1;z-index:9999}
+.bottom-nav button{background:none;border:none;font-weight:bold;color:#0d47a1;font-size:9px;line-height:10px;flex:1;padding:6px 2px;border-radius:25px;transition:all 0.2s;white-space:nowrap}
 .bottom-nav button span{font-size:18px;display:block;margin-bottom:2px}
-.bottom-nav button:active,.bottom-nav button.active{background:#b71c1c;color:white;border-radius:25px}
+.bottom-nav button:active,.bottom-nav button.active{background:#0d47a1;color:white}
+.save-box{display:none;position:fixed;top:50px;right:10px;left:10px;background:white;padding:12px;border-radius:10px;border:2px solid #0d47a1;z-index:10000;box-shadow:0 4px 10px rgba(0,0,0,0.2)}
+.save-box input{width:100%;padding:7px;margin:4px 0;border:1px solid #ccc;border-radius:5px;font-size:13px}
+.save-box button{width:100%;padding:8px;background:#0d47a1;color:white;border:none;border-radius:5px;margin-top:6px;font-weight:bold}
 </style>
 </head>
 <body>
 
 <button class="back-btn" onclick="handleBack()">← Back</button>
-<div class="header">Hospital Near You</div>
+<div class="header">
+  Hospital Near You
+  <button class="save-top" onclick="openSave()">+ SAVE</button>
+</div>
+
+<div class="save-box" id="saveBox">
+  <b style="font-size:13px">Naya Hospital Save Karo</b>
+  <input id="s_id" placeholder="Hospital ID">
+  <input id="s_name" placeholder="Hospital Name">
+  <input id="s_addr" placeholder="Address">
+  <button onclick="saveHospital()">Save Karo</button>
+  <button onclick="closeSave()" style="background:#888">Band Karo</button>
+</div>
 
 <div class="search-wrap">
   <label>🔍</label>
-  <input id="searchAll" placeholder="Name / ID / Near Hospital...">
+  <input id="searchAll" placeholder="Name / ID Search...">
 </div>
 
 <div class="action-row">
@@ -53,63 +67,41 @@ body{background:#f5f5f5;padding-bottom:85px;font-size:14px}
 let hospitals = JSON.parse(localStorage.getItem('hospitals'))||[];
 let html5QrCode = null;
 let scannerOn = false;
-
-let STACK_KEY = 'myStack';
+let MAIN_PAGES = ['index.html','pharmacy.html','hospital.html','cart.html'];
 let CURRENT_PAGE = 'hospital.html';
-let SKIP_PAGE = 'cart.html';
-let stack = JSON.parse(sessionStorage.getItem(STACK_KEY) || '[]');
-if(stack.length === 0){ stack = ['index.html']; }
-if(stack[stack.length-1] !== CURRENT_PAGE){
-  stack.push(CURRENT_PAGE);
-  sessionStorage.setItem(STACK_KEY, JSON.stringify(stack));
-}
-function goNav(page){ location.href = page; }
+function goNav(p){ location.href=p; }
 function handleBack(){
+  if(document.getElementById('saveBox').style.display=='block'){ closeSave(); return; }
   if(scannerOn){ closeScanner(); return; }
-  if(document.getElementById('searchAll').value!=""){
-    document.getElementById('searchAll').value="";
-    render(hospitals);
-    return;
-  }
-  stack.pop();
-  let prev = stack[stack.length-1];
-  while(prev === SKIP_PAGE && stack.length > 0){
-    stack.pop();
-    prev = stack[stack.length-1];
-  }
-  sessionStorage.setItem(STACK_KEY, JSON.stringify(stack));
-  if(!prev){ sessionStorage.clear(); history.back(); return; }
-  location.href = prev;
+  if(document.getElementById('searchAll').value!=""){ document.getElementById('searchAll').value=""; render(hospitals); return; }
+  if(MAIN_PAGES.includes(CURRENT_PAGE)){ sessionStorage.clear(); history.go(-history.length); setTimeout(()=>window.close(),150); return; }
+}
+function openSave(){ document.getElementById('saveBox').style.display='block'; history.pushState({save:true},"",""); }
+function closeSave(){ document.getElementById('saveBox').style.display='none'; }
+function saveHospital(){
+  let id=document.getElementById('s_id').value.trim();
+  let name=document.getElementById('s_name').value.trim();
+  let addr=document.getElementById('s_addr').value.trim();
+  if(!id||!name){ alert('ID aur Name likho'); return; }
+  hospitals.push({id:id,name:name,address:addr});
+  localStorage.setItem('hospitals', JSON.stringify(hospitals));
+  document.getElementById('s_id').value=""; document.getElementById('s_name').value=""; document.getElementById('s_addr').value="";
+  closeSave(); render(hospitals);
+  alert('Save ho gaya!');
 }
 function render(list){
-  document.getElementById('hospitalList').innerHTML = list.length==0 ? "<p style='text-align:center;color:#888;margin-top:15px;font-size:13px'>No Hospital Found</p>" : list.map(m=>`<div class="card" onclick="location.href='hospital-detail.html?id=${m.id}'"><b>${m.name} [${m.id}]</b><br> ${m.address}</div>`).join('');
+  document.getElementById('hospitalList').innerHTML = list.length==0 ? "<p style='text-align:center;color:#888;margin-top:15px'>No Hospital</p>" : list.map(m=>`<div class="card" onclick="location.href='hospital-detail.html?id=${m.id}'"><b>${m.name} [${m.id}]</b><br>${m.address}<br><button onclick="event.stopPropagation();delHos('${m.id}')" style="color:red;border:none;background:none;font-size:11px;margin-top:4px">❌ Delete</button></div>`).join('');
 }
+function delHos(id){ if(confirm('Delete karna hai?')){ hospitals=hospitals.filter(h=>h.id!=id); localStorage.setItem('hospitals',JSON.stringify(hospitals)); render(hospitals); } }
 function startScanner(){
-  let r = document.getElementById('reader');
-  r.style.display='block';
-  scannerOn = true;
-  history.pushState({scanner:true}, "", "");
+  document.getElementById('reader').style.display='block'; scannerOn=true; history.pushState({scanner:true},"","");
   html5QrCode = new Html5Qrcode("reader");
-  html5QrCode.start({facingMode:"environment"}, {fps:10, qrbox:200},
-    (decoded)=>{
-      document.getElementById('searchAll').value=decoded;
-      closeScanner();
-      render(hospitals.filter(m=>m.id.toLowerCase()==decoded.toLowerCase()||m.name.toLowerCase().includes(decoded.toLowerCase())));
-    },()=>{});
+  html5QrCode.start({facingMode:"environment"}, {fps:10, qrbox:200}, (d)=>{ document.getElementById('searchAll').value=d; closeScanner(); render(hospitals.filter(m=>m.id.toLowerCase()==d.toLowerCase()||m.name.toLowerCase().includes(d.toLowerCase()))); },()=>{});
 }
-function closeScanner(){
-  if(html5QrCode){ try{ html5QrCode.stop(); }catch(e){} html5QrCode=null; }
-  document.getElementById('reader').style.display='none';
-  scannerOn = false;
-}
-window.addEventListener('popstate', ()=>{ if(scannerOn){ closeScanner(); return; } handleBack(); });
-document.getElementById('searchAll').addEventListener('input', function(){
-  let v=this.value.toLowerCase();
-  render(hospitals.filter(m=>m.name.toLowerCase().includes(v)||m.id.toLowerCase().includes(v)||m.address.toLowerCase().includes(v)));
-});
+function closeScanner(){ if(html5QrCode){ try{html5QrCode.stop()}catch(e){} html5QrCode=null; } document.getElementById('reader').style.display='none'; scannerOn=false; }
+window.addEventListener('popstate', ()=>{ if(scannerOn){ closeScanner(); return; } if(document.getElementById('saveBox').style.display=='block'){ closeSave(); return; } });
+document.getElementById('searchAll').addEventListener('input', function(){ let v=this.value.toLowerCase(); render(hospitals.filter(m=>m.name.toLowerCase().includes(v)||m.id.toLowerCase().includes(v)||m.address.toLowerCase().includes(v))); });
 render(hospitals);
-history.replaceState({page:"list"}, "", "");
-history.pushState({page:"list"}, "", "");
 </script>
 </body>
 </html>

@@ -1,63 +1,152 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hospital</title>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
 body{background:#f5f5f5;padding-bottom:85px;font-size:14px}
-.header{background:#0d47a1;color:white;padding:14px;text-align:center;font-weight:bold;font-size:15px;position:relative}
-.save-top{position:absolute;right:10px;top:10px;background:white;color:#0d47a1;border:none;padding:5px 12px;border-radius:15px;font-weight:bold;font-size:11px}
+.header{background:#0d47a1;color:white;padding:14px;text-align:center;font-weight:bold;font-size:15px}
 .back-btn{position:fixed;top:8px;left:8px;z-index:99999;padding:6px 14px;border-radius:20px;border:none;background:#0d47a1;color:white;font-weight:bold;font-size:12px}
 .search-wrap{margin:45px 10px 6px 10px;background:white;padding:7px 10px;border-radius:8px;display:flex;align-items:center;gap:6px;border:1px solid #ddd;height:38px}
 .search-wrap input{flex:1;border:none;outline:none;font-size:13px}
 .action-row{margin:0 10px;display:flex;gap:6px}
 .action-row button{flex:1;padding:7px;border:1px solid #0d47a1;background:white;color:#0d47a1;border-radius:6px;font-weight:bold}
 #reader{width:92%;margin:8px auto;display:none;border-radius:8px;border:1px solid #0d47a1;overflow:hidden}
+#scanResult{margin:8px 10px;display:none;background:white;padding:10px;border-radius:8px;border:1px solid #2e7d32;align-items:center;justify-content:space-between}
 .list{padding:8px;display:flex;flex-direction:column;gap:8px}
-.card{background:white;padding:10px;border-radius:8px;border:1px solid #eee}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:5px 0;border-top:2px solid #0d47a1}
-.bottom-nav button{background:none;border:none;color:#0d47a1;font-weight:bold;font-size:9px;flex:1;padding:6px 2px;border-radius:25px}
-.bottom-nav button span{font-size:18px;display:block}
+.card{background:white;padding:10px;border-radius:8px;border:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:5px 0;border-top:2px solid #0d47a1;z-index:9999}
+.bottom-nav button{background:none;border:none;color:#0d47a1;font-weight:bold;font-size:9px;line-height:10px;flex:1;padding:6px 2px;border-radius:25px}
+.bottom-nav button span{font-size:18px;display:block;margin-bottom:2px}
 .bottom-nav button.active{background:#0d47a1;color:white}
-.save-box{display:none;position:fixed;top:50px;left:10px;right:10px;background:white;padding:12px;border-radius:10px;border:2px solid #0d47a1;z-index:10000}
-.save-box input{width:100%;padding:7px;margin:4px 0;border:1px solid #ccc;border-radius:5px}
-.save-box button{width:100%;padding:8px;background:#0d47a1;color:white;border:none;border-radius:5px;margin-top:6px;font-weight:bold}
+#bioPanel{position:fixed;top:0;left:0;right:0;height:85vh;background:white;z-index:10001;border-radius:0 0 20px 20px;transform:translateY(-100%);transition:0.35s;overflow-y:auto;padding:20px}
+#bioPanel.open{transform:translateY(0)}
+#bioOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:10000}
+#bioOverlay.show{display:block}
 </style>
 </head>
 <body>
 <button class="back-btn" onclick="handleBack()">← Back</button>
-<div class="header">Hospital <button class="save-top" onclick="openSave()">+ SAVE</button></div>
-<div class="save-box" id="saveBox"><b>Hospital Save Karo</b><input id="s_id" placeholder="ID"><input id="s_name" placeholder="Name"><input id="s_addr" placeholder="Address"><button onclick="saveHospital()">Save</button><button onclick="closeSave()" style="background:#888">Band</button></div>
+<div class="header">Hospital</div>
 <div class="search-wrap">🔍 <input id="searchAll" placeholder="Search..."></div>
 <div class="action-row"><button onclick="startScanner()">📷 Scanner</button></div>
 <div id="reader"></div>
-<div id="hospitalList" class="list"></div>
-<div class="bottom-nav">
-<button onclick="goNav('index.html')"><span>🏠</span>HOME</button>
-<button onclick="goNav('pharmacy.html')"><span>💊</span>PHARMACY</button>
-<button class="active"><span>🏥</span>HOSPITAL</button>
-<button onclick="goNav('cart.html')"><span>🛒</span>CART</button>
+
+<!-- SCAN KE BAAD YAHI AYEGA - Naam + Save button right me -->
+<div id="scanResult">
+  <div><b id="scanName"></b><br><small id="scanId"></small></div>
+  <button onclick="saveScanned()" style="background:#2e7d32;color:white;border:none;padding:8px 14px;border-radius:15px;font-weight:bold">💾 SAVE</button>
 </div>
+
+<div id="hospitalList" class="list"></div>
+
+<div id="bioOverlay" onclick="closeBio()"></div>
+<div id="bioPanel">
+  <div style="display:flex;justify-content:space-between;border-bottom:2px solid #0d47a1;padding-bottom:10px"><h3 id="bioTitle">Hospital Detail</h3><button onclick="closeBio()" style="background:#c62828;color:white;border:none;padding:6px 12px;border-radius:15px">✕</button></div>
+  <div id="bioContent" style="margin-top:10px"></div>
+</div>
+
+<div class="bottom-nav">
+<button onclick="location.replace('index.html')"><span>🏠</span>HOME</button>
+<button onclick="location.replace('pharmacy.html')"><span>💊</span>PHARMACY</button>
+<button class="active"><span>🏥</span>HOSPITAL</button>
+<button onclick="location.replace('cart.html')"><span>🛒</span>CART</button>
+</div>
+
 <script>
 let hospitals=JSON.parse(localStorage.getItem('hospitals'))||[];
-let html5QrCode=null,scannerOn=false,lastBack=0;
-function goNav(p){ location.replace(p); }
+let html5QrCode=null,scannerOn=false;
+let tempScan = null;
+
 function handleBack(){
- if(document.getElementById('saveBox').style.display=='block'){closeSave();return}
+ if(document.getElementById('bioPanel').classList.contains('open')){closeBio();return}
  if(scannerOn){closeScanner();return}
+ if(document.getElementById('scanResult').style.display=='flex'){document.getElementById('scanResult').style.display='none';return}
  if(document.getElementById('searchAll').value!=""){document.getElementById('searchAll').value="";render(hospitals);return}
- let now=Date.now(); if(now-lastBack<2000){history.go(-history.length); setTimeout(()=>window.close(),100)} else{lastBack=now}
+ location.replace('index.html');
 }
-function openSave(){document.getElementById('saveBox').style.display='block'}
-function closeSave(){document.getElementById('saveBox').style.display='none'}
-function saveHospital(){let id=s_id.value.trim(),name=s_name.value.trim(),addr=s_addr.value.trim(); if(!id||!name){alert('ID Name likho');return} hospitals.push({id,name,address:addr}); localStorage.setItem('hospitals',JSON.stringify(hospitals)); s_id.value="";s_name.value="";s_addr.value=""; closeSave(); render(hospitals)}
-function render(list){hospitalList.innerHTML=list.length==0?"<p style='text-align:center;color:#888;margin-top:15px'>No Data</p>":list.map(m=>`<div class="card"><b>${m.name} [${m.id}]</b><br>${m.address}</div>`).join('')}
-function startScanner(){reader.style.display='block';scannerOn=true; html5QrCode=new Html5Qrcode("reader"); html5QrCode.start({facingMode:"environment"},{fps:10,qrbox:200},d=>{searchAll.value=d; closeScanner(); render(hospitals.filter(m=>m.id==d||m.name.toLowerCase().includes(d.toLowerCase())))},()=>{})}
-function closeScanner(){if(html5QrCode){try{html5QrCode.stop()}catch(e){} html5QrCode=null} reader.style.display='none'; scannerOn=false}
-searchAll.addEventListener('input',function(){let v=this.value.toLowerCase(); render(hospitals.filter(m=>m.name.toLowerCase().includes(v)||m.id.toLowerCase().includes(v)))});
+
+function render(list){
+  let div=document.getElementById('hospitalList');
+  if(list.length==0){div.innerHTML="<p style='text-align:center;color:#888;margin-top:15px'>No Saved List</p>";return}
+  div.innerHTML=list.map((m,idx)=>`
+    <div class="card">
+      <div onclick="openHospitalBio(${idx})" style="flex:1;cursor:pointer">
+        <b>${m.name}</b> [${m.id}]<br><small>${m.address||'Hospital'}</small>
+      </div>
+      <button onclick="deleteHospital(${idx})" style="background:#c62828;color:white;border:none;padding:5px 10px;border-radius:6px;font-size:11px">🗑 DELETE</button>
+    </div>
+  `).join('')
+}
+
+function openHospitalBio(idx){
+  let m = hospitals[idx];
+  document.getElementById('bioTitle').innerText = m.name;
+  document.getElementById('bioContent').innerHTML = `
+    <div style="padding:10px;background:#f9f9f9;border-radius:8px;margin-bottom:8px"><b>ID:</b> ${m.id}</div>
+    <div style="padding:10px;background:#f9f9f9;border-radius:8px;margin-bottom:8px"><b>Name:</b> ${m.name}</div>
+    <div style="padding:10px;background:#f9f9f9;border-radius:8px;margin-bottom:8px"><b>Address:</b> ${m.address||''}</div>
+    <div style="padding:15px;background:#e3f2fd;border-radius:10px;text-align:center">
+      <h3>🏥 ${m.name}</h3>
+      <p>Hospital Frame</p>
+      <p style="font-size:12px;color:#555">Yahi hospital ka pura detail hai</p>
+    </div>
+  `;
+  document.getElementById('bioPanel').classList.add('open');
+  document.getElementById('bioOverlay').classList.add('show');
+}
+
+function closeBio(){
+  document.getElementById('bioPanel').classList.remove('open');
+  document.getElementById('bioOverlay').classList.remove('show');
+}
+
+function deleteHospital(idx){
+  if(!confirm('Delete karna hai?')) return;
+  hospitals.splice(idx,1);
+  localStorage.setItem('hospitals', JSON.stringify(hospitals));
+  render(hospitals);
+  closeBio();
+}
+
+function startScanner(){
+  document.getElementById('reader').style.display='block';
+  document.getElementById('scanResult').style.display='none';
+  scannerOn=true; 
+  html5QrCode=new Html5Qrcode("reader"); 
+  html5QrCode.start({facingMode:"environment"},{fps:10,qrbox:200},d=>{
+    closeScanner();
+    // Scan data
+    tempScan = {id:d, name:"Medical - "+d, address:"Hospital Address"};
+    document.getElementById('scanName').innerText = tempScan.name;
+    document.getElementById('scanId').innerText = tempScan.id;
+    document.getElementById('scanResult').style.display='flex';
+  },()=>{})
+}
+
+function closeScanner(){
+  if(html5QrCode){try{html5QrCode.stop()}catch(e){} html5QrCode=null} 
+  document.getElementById('reader').style.display='none'; 
+  scannerOn=false
+}
+
+function saveScanned(){
+  if(!tempScan) return;
+  hospitals.push(tempScan);
+  localStorage.setItem('hospitals', JSON.stringify(hospitals));
+  document.getElementById('scanResult').style.display='none';
+  tempScan=null;
+  render(hospitals);
+  alert('List me save ho gaya!');
+}
+
+document.getElementById('searchAll').addEventListener('input',function(){
+  let v=this.value.toLowerCase(); 
+  render(hospitals.filter(m=>m.name.toLowerCase().includes(v)||m.id.toLowerCase().includes(v)))
+});
+
 render(hospitals);
 </script>
 </body>

@@ -1,102 +1,57 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pharmacy</title>
-<link rel="stylesheet" href="style.css">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pharmacy - Mart Medical</title>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-<style>
-#reader{width:94% !important;display:none;min-height:350px;background:#000;border-radius:12px;margin:10px auto;overflow:hidden;position:relative}
-#reader video{width:100% !important;height:350px !important;object-fit:cover !important;display:block !important}
-#reader__scan_region, #reader__dashboard, #reader div{width:100% !important;display:block !important;}
-</style>
+<style>body{font-family:sans-serif;background:#e3f2fd;margin:0;padding:15px}input,button{padding:12px;border-radius:8px;border:1px solid #ccc;width:100%;box-sizing:border-box;margin-top:10px}button{background:#0d47a1;color:#fff;font-weight:bold;border:none}#reader{margin-top:15px;background:#000;border-radius:10px;overflow:hidden}</style>
 </head>
 <body>
+<h2>💊 Pharmacy Scanner</h2>
+<input type="text" id="searchAll" placeholder="QR scan karo ya naam likho...">
+<button onclick="startScanner()">📷 Scanner Kholo</button>
+<button onclick="stopScanner()" style="background:#c62828">Scanner Band Karo</button>
+<div id="reader" style="display:none;width:100%;"></div>
+<div id="result" style="margin-top:15px;background:#fff;padding:10px;border-radius:10px"></div>
 
-<div class="header">Pharmacy</div>
-<button class="back-btn" onclick="history.back()">← Back</button>
-
-<div class="search-wrap">
-<input id="searchAll" placeholder="Name / ID / Shop..." onkeyup="searchAllData()">
-</div>
-
-<div class="action-row">
-<button onclick="toggleList()">📋 List (<span id="listCount">0</span>)</button>
-<button onclick="startScanner()">📷 Scanner</button>
-</div>
-
-<div id="reader"></div>
-<div id="medicalList"></div>
-<div id="outsideList"></div>
-
-<div id="listPopup" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:99999;padding:12px;overflow:auto;">
-<h3>Saved List <button onclick="toggleList()" style="float:right">X</button></h3>
-<div id="savedListView"></div>
-</div>
-
-<div class="bottom-nav">
-<button onclick="location.href='index.html'"><span>🏠</span>HOME</button>
-<button class="active"><span>💊</span>PHARMACY</button>
-<button onclick="location.href='hospital.html'"><span>🏥</span>HOSPITAL</button>
-<button onclick="location.href='cart.html'"><span>🛒</span>CART</button>
-</div>
-
-<script src="cannect.js"></script>
 <script>
-let selectedList = JSON.parse(localStorage.getItem("pharmaList")||"[]");
-let html5QrCode = null;
-let isScanning = false;
-document.getElementById("listCount").innerText = selectedList.length;
-let allShops = ["Board-1 A01","Board-2 A02","Board-3 A03","NG Medical Store"];
-renderBoards();
-
-function renderBoards(){
- document.getElementById("medicalList").innerHTML="<p style='text-align:center;color:#888;margin-top:20px'>Search ya Scan karo</p>";
- updateOutsideList();
-}
-function updateOutsideList(){
- let out=document.getElementById("outsideList");
- if(selectedList.length==0){out.innerHTML="<p style='text-align:center;color:#888;margin-top:20px'>Koi shop add nahi</p>"}
- else{out.innerHTML="<h4 style='margin:12px 12px 0'>Added Shops</h4>"+selectedList.map(id=>`<div class="board"><span>${id}</span><button onclick="deleteItem('${id}')">Delete</button></div>`).join("")}
-}
-function addToList(id){ if(!selectedList.includes(id)){selectedList.push(id);localStorage.setItem("pharmaList",JSON.stringify(selectedList));document.getElementById("listCount").innerText=selectedList.length;updateOutsideList();}}
-function deleteItem(id){selectedList=selectedList.filter(x=>x!==id);localStorage.setItem("pharmaList",JSON.stringify(selectedList));document.getElementById("listCount").innerText=selectedList.length;updateOutsideList();}
-function toggleList(){let p=document.getElementById("listPopup");p.style.display=p.style.display=="block"?"none":"block";if(p.style.display=="block")document.getElementById("savedListView").innerHTML=selectedList.map(id=>`<div class="board"><span>${id}</span><button onclick="deleteItem('${id}')">Delete</button></div>`).join("")||"Empty";}
-function searchAllData(){let q=document.getElementById("searchAll").value.toLowerCase().trim();let c=document.getElementById("medicalList");if(q==""){c.innerHTML="<p style='text-align:center;color:#888;margin-top:20px'>Search ya Scan karo</p>";return}let f=allShops.filter(x=>x.toLowerCase().includes(q));c.innerHTML=f.map(x=>`<div class="board"><span>${x}</span><button onclick="addToList('${x}')">Add</button></div>`).join("");}
-
+let html5QrCode;
 async function startScanner(){
  let r=document.getElementById("reader");
  r.style.display="block";
- r.innerHTML="";
- if(isScanning && html5QrCode){ try{await html5QrCode.stop();}catch(e){} }
- html5QrCode = new Html5Qrcode("reader");
- isScanning=true;
  try{
-  await html5QrCode.start(
-   {facingMode:"environment"},
-   {fps:10, qrbox:{width:250,height:250}, aspectRatio:1.0},
+  html5QrCode = new Html5Qrcode("reader");
+  await html5QrCode.start({facingMode:"environment"}, {fps:10, qrbox:250},
    (decodedText)=>{
-     document.getElementById("searchAll").value=decodedText;
-     searchAllData();
-     stopScanner();
-     alert("Scanned: "+decodedText);
-   },
-   (err)=>{}
+    document.getElementById("searchAll").value=decodedText;
+    document.getElementById("result").innerHTML="✅ Scan Ho Gaya: "+decodedText;
+    stopScanner();
+    if(typeof searchAllData==="function") searchAllData();
+   }, (err)=>{}
   );
  }catch(e){
-  alert("Camera Error: "+e+" - https pe kholo aur Allow karo");
-  r.style.display="none";
-  isScanning=false;
+  // Agar Permission Fail hua to Photo wala option
+  r.innerHTML=`<input type="file" id="qr-file" accept="image/*" capture="environment" style="display:none"><button onclick="document.getElementById('qr-file').click()" style="padding:20px;background:#0d47a1;color:white;border:none;width:100%">📷 Photo Lo QR Ki</button>`;
+  document.getElementById("qr-file").addEventListener("change", ev=>{
+   if(!ev.target.files.length) return;
+   const file=ev.target.files[0];
+   if(!html5QrCode) html5QrCode=new Html5Qrcode("reader");
+   html5QrCode.scanFile(file,true).then(t=>{
+    document.getElementById("searchAll").value=t;
+    document.getElementById("result").innerHTML="✅ Scan Ho Gaya: "+t;
+    stopScanner();
+   }).catch(()=>alert("QR saaf nahi aaya, dubara lo"));
+  });
  }
 }
 async function stopScanner(){
- if(html5QrCode && isScanning){
-  try{await html5QrCode.stop();}catch(e){}
-  isScanning=false;
- }
+ try{ if(html5QrCode){ await html5QrCode.stop(); html5QrCode.clear(); } }catch(e){}
  document.getElementById("reader").style.display="none";
  document.getElementById("reader").innerHTML="";
+}
+function searchAllData(){
+ let v=document.getElementById("searchAll").value;
+ document.getElementById("result").innerHTML="Searching: "+v;
 }
 </script>
 </body>

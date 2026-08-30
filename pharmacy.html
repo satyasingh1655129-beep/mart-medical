@@ -3,77 +3,139 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mart Medical - Pharmacy</title>
+<title>Pharmacy - NG Care</title>
+<link rel="stylesheet" href="style.css?v=10">
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-<style>
-*{box-sizing:border-box} body{margin:0;font-family:Arial;background:#eef2f7}
-.header{background:#0d47a1;color:#fff;padding:15px;text-align:center;font-size:20px;font-weight:bold}
-.container{padding:15px;max-width:600px;margin:auto}
-.card{background:#fff;padding:15px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);margin-top:15px}
-input{width:100%;padding:14px;border-radius:8px;border:1px solid #ccc;font-size:16px}
-.btn{width:100%;padding:14px;border:none;border-radius:8px;font-size:16px;font-weight:bold;margin-top:10px;cursor:pointer}
-.btn-blue{background:#0d47a1;color:#fff} .btn-red{background:#c62828;color:#fff}
-#reader{width:100%;margin-top:15px;border-radius:12px;overflow:hidden;display:none;background:#000}
-</style>
 </head>
 <body>
-<div class="header">💊 MART MEDICAL - Pharmacy</div>
-<div class="container">
-<div class="card">
-<input type="text" id="searchAll" placeholder="Dawa ka naam ya QR Scan...">
-<button class="btn btn-blue" onclick="startScanner()">📷 LIVE CAMERA SCANNER</button>
-<button class="btn btn-red" onclick="stopScanner()">❌ Scanner Band</button>
-<div id="reader"></div>
-<div id="result" style="margin-top:10px;font-weight:bold;color:#0d47a1"></div>
-</div>
-<div class="card" id="billArea">
-<h3>Bill / Stock</h3>
-<p>Yaha aapki dawa ka data ayega...</p>
-</div>
+
+<button class="back-btn" onclick="handleBack()" style="background-color:white !important; color:black !important; border:1px solid black !important;">← Back</button>
+
+<div class="search-wrap">
+  <label>🔍</label>
+  <input id="searchAll" placeholder="Name / ID / Shop..." onkeyup="searchAllData()">
 </div>
 
+<div class="action-row">
+  <button onclick="toggleList()">📋 List (<span id="listCount">0</span>)</button>
+  <button onclick="startScanner()">📷 Scanner</button>
+</div>
+
+<div id="reader" style="display:none; width:100%; margin-top:10px; min-height:300px; background:#000;"></div>
+
+<!-- Yaha Search result ayega -->
+<div id="medicalList" class="list"></div>
+
+<!-- Yaha sirf Add kiye hue shop ayenge -->
+<div id="outsideList"></div>
+
+<div id="listPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#fff; z-index:9999; padding:12px; overflow:auto;">
+  <h3>Saved List <button onclick="toggleList()" style="float:right;">X</button></h3>
+  <div id="savedListView"></div>
+  <button onclick="saveAllMedical()" style="width:100%; margin-top:15px; background:#0d47a1; color:#fff; height:40px; border:none;">Save All Medical - Open Shop</button>
+  <button onclick="toggleList()" style="width:100%; margin-top:8px;">Back</button>
+</div>
+
+<div class="bottom-nav">
+  <button onclick="goNav('index.html')"><span>🏠</span>HOME</button>
+  <button class="active"><span>💊</span>PHARMACY</button>
+  <button onclick="goNav('hospital.html')"><span>🏥</span>HOSPITAL</button>
+  <button onclick="goNav('cart.html')"><span>🛒</span>CART</button>
+</div>
+
+<script src="cannect.js"></script>
 <script>
-let html5QrCode = null;
-let isScanning = false;
+let selectedList = JSON.parse(localStorage.getItem("pharmaList")||"[]");
+let html5QrcodeScanner = null;
+let scannerRunning = false;
+let allShops = ["Board-1 A01","Board-2 A02","Board-3 A03"]; // ye aapka real data hai, search me ayega
 
-function startScanner(){
- if(isScanning) return;
- const readerDiv = document.getElementById("reader");
- readerDiv.style.display = "block";
- readerDiv.innerHTML = "";
- 
- html5QrCode = new Html5Qrcode("reader");
- isScanning = true;
+document.getElementById("listCount").innerText = selectedList.length;
 
- html5QrCode.start(
-  { facingMode: "environment" },
-  { fps: 15, qrbox: { width: 280, height: 280 } },
-  (decodedText) => {
-   document.getElementById("searchAll").value = decodedText;
-   document.getElementById("result").innerHTML = "✅ Scanned: " + decodedText;
-   // Aapka purana search function yaha call hoga
-   if(typeof searchMedicine === 'function') searchMedicine(decodedText);
-   stopScanner();
-  },
-  (error) => {}
- ).catch(err => {
-  alert("Camera ka Error: " + err + "\n\nChrome Settings > Site Settings > All sites > Clear & Reset karo");
-  isScanning = false;
- });
+function renderBoards(){
+  // Ab neeche pehle se koi list nahi dikhegi
+  document.getElementById("medicalList").innerHTML = "<p style='text-align:center;color:#888;margin-top:20px'>Search karo ya Scan karo</p>";
+  updateOutsideList();
 }
 
-function stopScanner(){
- if(html5QrCode && isScanning){
-  html5QrCode.stop().then(()=>{
-   html5QrCode.clear();
-   isScanning = false;
-   document.getElementById("reader").style.display = "none";
-  }).catch(()=>{ isScanning=false; });
- }else{
-  document.getElementById("reader").style.display="none";
-  isScanning=false;
+function updateOutsideList(){
+  let out = document.getElementById("outsideList");
+  if(selectedList.length===0){
+    out.innerHTML = "<p style='text-align:center;color:#888;margin-top:20px'>Abhi koi shop add nahi hai</p>";
+  } else {
+    out.innerHTML = "<h4 style='margin-top:15px'>Added Shops</h4>" + selectedList.map(id=>`<div style="border:1px solid #ccc; padding:8px; margin-top:8px; display:flex; justify-content:space-between;"><span>${id}</span><button onclick="deleteItem('${id}')">Delete</button></div>`).join("");
+  }
+}
+
+function addToList(id){
+ if(!selectedList.includes(id)){
+  selectedList.push(id);
+  localStorage.setItem("pharmaList", JSON.stringify(selectedList));
+  document.getElementById("listCount").innerText = selectedList.length;
+  updateOutsideList();
+  alert(id+" List me add ho gaya");
+ } else { alert("Already hai"); }
+}
+
+function toggleList(){
+ let p=document.getElementById("listPopup");
+ if(p.style.display==="block"){p.style.display="none";}
+ else{
+  p.style.display="block";
+  let v=document.getElementById("savedListView");
+  v.innerHTML = selectedList.length===0 ? "Empty" : selectedList.map(id=>`<div style="border:1px solid #ccc; padding:8px; margin-top:8px; display:flex; justify-content:space-between;"><span>${id}</span><button onclick="deleteItem('${id}')">Delete</button></div>`).join("");
  }
 }
+
+function deleteItem(id){
+ selectedList = selectedList.filter(x=>x!==id);
+ localStorage.setItem("pharmaList", JSON.stringify(selectedList));
+ document.getElementById("listCount").innerText = selectedList.length;
+ updateOutsideList();
+ toggleList(); toggleList();
+ // popup band hai to bhi list refresh
+ if(document.getElementById("listPopup").style.display!=="block") updateOutsideList();
+}
+
+function saveAllMedical(){
+ if(selectedList.length===0){alert("List khali hai"); return;}
+ window.location.href="medical-form.html?items="+selectedList.join(",");
+}
+
+function searchAllData(){
+ let q=document.getElementById("searchAll").value.toLowerCase().trim();
+ let c=document.getElementById("medicalList");
+ if(q===""){ c.innerHTML="<p style='text-align:center;color:#888;margin-top:20px'>Search karo ya Scan karo</p>"; return; }
+ let filtered = allShops.filter(x=>x.toLowerCase().includes(q));
+ if(filtered.length===0){ c.innerHTML="<p style='text-align:center'>Koi result nahi</p>"; }
+ else { c.innerHTML = filtered.map(x=>`<div class="board" style="border:1px solid #ccc; padding:8px; margin-top:8px; display:flex; justify-content:space-between;"><span>${x}</span><button onclick="addToList('${x}')">Add</button></div>`).join(""); }
+}
+
+// --- SCANNER FIXED ---
+async function startScanner(){
+ let r=document.getElementById("reader");
+ if(scannerRunning) return;
+ r.style.display="block"; r.innerHTML="";
+ try{
+  if(html5QrcodeScanner){ try{await html5QrcodeScanner.clear();}catch(e){} }
+  html5QrcodeScanner = new Html5Qrcode("reader");
+  scannerRunning=true;
+  await html5QrcodeScanner.start({facingMode:"environment"}, {fps:10, qrbox:{width:250,height:250}},
+    (txt)=>{ document.getElementById("searchAll").value=txt; searchAllData(); stopScanner(); alert("Scanned: "+txt); },
+    ()=>{}
+  );
+ }catch(e){ alert("Camera Error: "+e.message); scannerRunning=false; r.style.display="none"; }
+}
+async function stopScanner(){
+ try{ if(html5QrcodeScanner && scannerRunning){ await html5QrcodeScanner.stop(); await html5QrcodeScanner.clear(); } }catch(e){}
+ scannerRunning=false;
+ let r=document.getElementById("reader"); r.style.display="none"; r.innerHTML="";
+}
+
+function handleBack(){history.back();}
+function goNav(p){location.href=p;}
+
+renderBoards();
 </script>
 </body>
 </html>

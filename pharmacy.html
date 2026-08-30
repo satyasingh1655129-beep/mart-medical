@@ -4,25 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pharmacy - NG Care</title>
-  <link rel="stylesheet" href="style.css?v=10">
-<script src="cannect.js"></script>
+<link rel="stylesheet" href="style.css?v=10">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
 
 <button class="back-btn" onclick="handleBack()" style="background-color:white !important; color:black !important; border:1px solid black !important;">← Back</button>
+
 <div class="search-wrap">
   <label>🔍</label>
-  <input id="searchAll" placeholder="Name / ID / Shop...">
+  <input id="searchAll" placeholder="Name / ID / Shop..." onkeyup="searchAllData()">
 </div>
 
 <div class="action-row">
-  <button onclick="toggleList()">📋 List</button>
+  <button onclick="toggleList()">📋 List (<span id="listCount">0</span>)</button>
   <button onclick="startScanner()">📷 Scanner</button>
 </div>
 
-<div id="reader"></div>
+<div id="reader" style="display:none; width:100%; margin-top:10px;"></div>
 <div id="outsideList"></div>
 <div id="medicalList" class="list"></div>
+
+<!-- LIST POPUP WITH DELETE -->
+<div id="listPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#fff; z-index:999; padding:12px; overflow:auto;">
+  <h3>Saved List <button onclick="toggleList()" style="float:right;">X</button></h3>
+  <div id="savedListView"></div>
+  <button onclick="saveAllMedical()" style="width:100%; margin-top:15px; background:#0d47a1; color:#fff; height:40px; border:none;">Save All Medical - Open Shop</button>
+  <button onclick="toggleList()" style="width:100%; margin-top:8px;">Back</button>
+</div>
 
 <div class="bottom-nav">
   <button onclick="goNav('index.html')"><span>🏠</span>HOME</button>
@@ -30,6 +39,73 @@
   <button onclick="goNav('hospital.html')"><span>🏥</span>HOSPITAL</button>
   <button onclick="goNav('cart.html')"><span>🛒</span>CART</button>
 </div>
+
+<script src="cannect.js"></script>
+<script>
+let selectedList = JSON.parse(localStorage.getItem("pharmaList")||"[]");
+let html5QrcodeScanner = null;
+document.getElementById("listCount").innerText = selectedList.length;
+
+function renderBoards(){
+ let c=document.getElementById("medicalList");
+ if(c.innerHTML.trim()!=="") return;
+ let b=["Board-1 A01","Board-2 A02","Board-3 A03"];
+ c.innerHTML=b.map(x=>`<div class="board" data-id="${x}" style="border:1px solid #ccc; padding:8px; margin-top:8px; display:flex; justify-content:space-between;"><span>${x}</span><button onclick="addToList('${x}')">Add</button></div>`).join("");
+}
+renderBoards();
+
+function addToList(id){
+ if(!selectedList.includes(id)){
+  selectedList.push(id);
+  localStorage.setItem("pharmaList", JSON.stringify(selectedList));
+  document.getElementById("listCount").innerText = selectedList.length;
+  alert(id+" List me add ho gaya");
+ } else { alert("Already hai"); }
+}
+
+function toggleList(){
+ let p=document.getElementById("listPopup");
+ if(p.style.display==="block"){p.style.display="none";}
+ else{
+  p.style.display="block";
+  let v=document.getElementById("savedListView");
+  v.innerHTML = selectedList.length===0 ? "Empty" : selectedList.map(id=>`<div style="border:1px solid #ccc; padding:8px; margin-top:8px; display:flex; justify-content:space-between;"><span>${id}</span><button onclick="deleteItem('${id}')">Delete</button></div>`).join("");
+ }
+}
+
+function deleteItem(id){
+ selectedList = selectedList.filter(x=>x!==id);
+ localStorage.setItem("pharmaList", JSON.stringify(selectedList));
+ document.getElementById("listCount").innerText = selectedList.length;
+ toggleList(); toggleList();
+}
+
+function saveAllMedical(){
+ if(selectedList.length===0){alert("List khali hai"); return;}
+ window.location.href="medical-form.html?items="+selectedList.join(",");
+}
+
+function searchAllData(){
+ let q=document.getElementById("searchAll").value.toLowerCase();
+ document.querySelectorAll("#medicalList .board").forEach(el=>{
+  el.style.display = el.innerText.toLowerCase().includes(q) ? "flex" : "none";
+ });
+}
+
+function startScanner(){
+ document.getElementById("reader").style.display="block";
+ html5QrcodeScanner = new Html5Qrcode("reader");
+ html5QrcodeScanner.start({facingMode:"environment"}, {fps:10, qrbox:250},
+  (txt)=>{document.getElementById("searchAll").value=txt; searchAllData(); stopScanner();},
+  ()=>{}
+ );
+}
+function stopScanner(){
+ if(html5QrcodeScanner){html5QrcodeScanner.stop().then(()=>{document.getElementById("reader").style.display="none"; document.getElementById("reader").innerHTML="";});}
+}
+function handleBack(){history.back();}
+function goNav(p){location.href=p;}
+</script>
 
 </body>
 </html>

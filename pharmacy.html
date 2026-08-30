@@ -1,21 +1,79 @@
-<div id="reader" style="width:100%;display:none;"></div>
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mart Medical - Pharmacy</title>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box} body{margin:0;font-family:Arial;background:#eef2f7}
+.header{background:#0d47a1;color:#fff;padding:15px;text-align:center;font-size:20px;font-weight:bold}
+.container{padding:15px;max-width:600px;margin:auto}
+.card{background:#fff;padding:15px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);margin-top:15px}
+input{width:100%;padding:14px;border-radius:8px;border:1px solid #ccc;font-size:16px}
+.btn{width:100%;padding:14px;border:none;border-radius:8px;font-size:16px;font-weight:bold;margin-top:10px;cursor:pointer}
+.btn-blue{background:#0d47a1;color:#fff} .btn-red{background:#c62828;color:#fff}
+#reader{width:100%;margin-top:15px;border-radius:12px;overflow:hidden;display:none;background:#000}
+</style>
+</head>
+<body>
+<div class="header">💊 MART MEDICAL - Pharmacy</div>
+<div class="container">
+<div class="card">
+<input type="text" id="searchAll" placeholder="Dawa ka naam ya QR Scan...">
+<button class="btn btn-blue" onclick="startScanner()">📷 LIVE CAMERA SCANNER</button>
+<button class="btn btn-red" onclick="stopScanner()">❌ Scanner Band</button>
+<div id="reader"></div>
+<div id="result" style="margin-top:10px;font-weight:bold;color:#0d47a1"></div>
+</div>
+<div class="card" id="billArea">
+<h3>Bill / Stock</h3>
+<p>Yaha aapki dawa ka data ayega...</p>
+</div>
+</div>
+
 <script>
-let qr;
+let html5QrCode = null;
+let isScanning = false;
+
 function startScanner(){
- document.getElementById("reader").style.display="block";
- qr = new Html5Qrcode("reader");
- qr.start({facingMode:"environment"}, {fps:10, qrbox:{width:250,height:250}},
-  (text)=>{
-   document.getElementById("searchAll").value=text;
-   document.getElementById("result").innerText="Scan: "+text;
+ if(isScanning) return;
+ const readerDiv = document.getElementById("reader");
+ readerDiv.style.display = "block";
+ readerDiv.innerHTML = "";
+ 
+ html5QrCode = new Html5Qrcode("reader");
+ isScanning = true;
+
+ html5QrCode.start(
+  { facingMode: "environment" },
+  { fps: 15, qrbox: { width: 280, height: 280 } },
+  (decodedText) => {
+   document.getElementById("searchAll").value = decodedText;
+   document.getElementById("result").innerHTML = "✅ Scanned: " + decodedText;
+   // Aapka purana search function yaha call hoga
+   if(typeof searchMedicine === 'function') searchMedicine(decodedText);
    stopScanner();
   },
-  (err)=>{}
- ).catch(e=>{ alert("Camera Allow karo: "+e); });
+  (error) => {}
+ ).catch(err => {
+  alert("Camera ka Error: " + err + "\n\nChrome Settings > Site Settings > All sites > Clear & Reset karo");
+  isScanning = false;
+ });
 }
+
 function stopScanner(){
- if(qr){ qr.stop().then(()=>qr.clear()); }
- document.getElementById("reader").style.display="none";
+ if(html5QrCode && isScanning){
+  html5QrCode.stop().then(()=>{
+   html5QrCode.clear();
+   isScanning = false;
+   document.getElementById("reader").style.display = "none";
+  }).catch(()=>{ isScanning=false; });
+ }else{
+  document.getElementById("reader").style.display="none";
+  isScanning=false;
+ }
 }
 </script>
+</body>
+</html>

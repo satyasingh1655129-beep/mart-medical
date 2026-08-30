@@ -24,7 +24,7 @@ body { background:#f0f4f8; padding-bottom:85px; }
 
 .back-btn { margin:10px; padding:8px 14px; border-radius:8px; border:1px solid #ccc; background:white; }
 
-/* ===== FINAL FIX FOR PHARMACY & HOSPITAL ===== */
+/* ===== SEARCH BADA ===== */
 #searchAll, #hospSearch, input[id*="Search"], input[placeholder*="Search"]{
   width:92% !important;
   display:block !important;
@@ -33,15 +33,29 @@ body { background:#f0f4f8; padding-bottom:85px; }
   font-size:16px !important;
   border:2px solid #0d47a1 !important;
   border-radius:15px !important;
-  box-sizing: border-box !important;
-}
-.search-wrap{
-  text-align:center !important;
-  padding:10px !important;
 }
 
-/* --- List Badi Karne Ke Liye --- */
-#pharmacyList div, #hospitalList div, .card, .item {
+/* ===== LIST / SCANNER BADE - FINAL FIX ===== */
+#pharmacyList, #hospitalList, #cartList {
+  padding: 10px !important;
+}
+button {
+  cursor: pointer;
+}
+/* Jo List Scanner button hai unko target */
+body > button, div > button:not(.bottom-nav button):not(.cat-wrap button) {
+  padding: 12px 22px !important;
+  font-size: 17px !important;
+  font-weight: bold !important;
+  border-radius: 12px !important;
+  margin: 10px 6px !important;
+  border: 2px solid #0d47a1 !important;
+  background: #e3f2fd !important;
+  color: #0d47a1 !important;
+}
+
+/* List ke andar ke cards bade */
+#pharmacyList div, #hospitalList div, #cartList div, .card, .item, .cart-item {
   padding: 18px !important;
   font-size: 18px !important;
   border-radius: 16px !important;
@@ -49,19 +63,4 @@ body { background:#f0f4f8; padding-bottom:85px; }
   width: 92% !important;
   background: white !important;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
-}
-/* --- Cart List Badi --- */
-#cartList div, .cart-item, .cart-card {
-  padding: 18px !important;
-  font-size: 18px !important;
-  border-radius: 16px !important;
-  margin: 12px auto !important;
-  width: 92% !important;
-  background: white !important;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
-}
-#cartList button {
-  padding: 10px 16px !important;
-  font-size: 15px !important;
-  border-radius: 10px !important;
 }

@@ -23,3 +23,18 @@ body { background:#f0f4f8; padding-bottom:85px; }
 .bottom-nav button.active { background:#0d47a1; color:white; padding:6px 18px; border-radius:25px; }
 
 .back-btn { margin-bottom:10px; }
+/* ===== FINAL FIX FOR PHARMACY & HOSPITAL ===== */
+input[id*="Search"], input[placeholder*="Search"]{
+  width:92% !important;
+  display:block !important;
+  margin: 10px auto !important;
+  padding:14px !important;
+  font-size:16px !important;
+  border:2px solid #1e4db7 !important;
+  border-radius:15px !important;
+  box-sizing: border-box !important;
+}
+.search-wrap{
+  text-align:center !important;
+  padding:10px !important;
+}

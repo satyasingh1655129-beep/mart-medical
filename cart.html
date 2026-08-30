@@ -1,75 +1,43 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cart Final</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{background:#f5f5f5;padding-bottom:85px;padding-top:105px;font-size:14px}
-.top-bar{padding:10px 15px;background:white;position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
-.hori-fix{position:fixed;left:0;right:0;top:50px;z-index:9998;background:white;display:flex;gap:8px;padding:10px;overflow-x:auto;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
-.hori-fix button{padding:8px 16px;border:none;border-radius:20px;font-weight:bold;color:white;flex-shrink:0}
-.btn-bag{background:#ef6c00} .btn-med{background:#2e7d32} .btn-pres{background:#6a1b9a} .btn-all{background:#444}
-.cart-grid{padding:12px}
-.item{background:white;padding:12px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between}
-#bioPanel{position:fixed;top:0;left:0;right:0;height:85vh;background:white;z-index:10001;border-radius:0 0 20px 20px;transform:translateY(-100%);transition:0.35s;overflow-y:auto;padding:20px}
-#bioPanel.open{transform:translateY(0)} .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:10000} .overlay.show{display:block}
-.bio-row{margin:10px 0;padding:10px;background:#f9f9f9;border-radius:8px}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:5px 0;border-top:2px solid #0d47a1;z-index:9999}
-.bottom-nav button{background:none;border:none;font-weight:bold;color:#0d47a1;font-size:9px;line-height:10px;flex:1;padding:6px 2px;border-radius:25px;white-space:nowrap}
-.bottom-nav button span{font-size:18px;display:block;margin-bottom:2px}
-.bottom-nav button.active{background:#0d47a1;color:white}
-</style>
+<script src="cannect.js"></script>
 </head>
 <body>
-<div class="top-bar"><h3 style="color:#0d47a1">My Cart</h3><a href="profile.html" style="width:38px;height:38px;background:#0d47a1;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:20px">👤</a></div>
+
+<div class="top-bar">
+  <h3 style="color:#0d47a1">My Cart</h3>
+  <a href="profile.html" class="profile-icon">👤</a>
+</div>
+
 <div class="hori-fix">
   <button class="btn-bag" onclick="filterCart('bag')">👜 Bag</button>
   <button class="btn-med" onclick="filterCart('medical')">💊 Medical</button>
   <button class="btn-pres" onclick="filterCart('prescribed')">📋 Prescribed</button>
   <button class="btn-all" onclick="filterCart('all')">🔄 All</button>
 </div>
+
 <div class="overlay" id="overlay" onclick="closeBio()"></div>
+
 <div id="bioPanel">
-  <div style="display:flex;justify-content:space-between;border-bottom:2px solid #0d47a1;padding-bottom:10px"><h3 id="bioTitle">Bio Data</h3><button onclick="closeBio()" style="background:#c62828;color:white;border:none;padding:6px 12px;border-radius:15px">✕ Close</button></div>
+  <div class="bio-header">
+    <h3 id="bioTitle">Bio Data</h3>
+    <button onclick="closeBio()" class="close-bio-btn">✕ Close</button>
+  </div>
   <div id="bioContent"></div>
 </div>
+
 <div id="cartArea" class="cart-grid"></div>
+
 <div class="bottom-nav">
   <button onclick="location.replace('index.html')"><span>🏠</span>HOME</button>
   <button onclick="location.replace('pharmacy.html')"><span>💊</span>PHARMACY</button>
   <button onclick="location.replace('hospital.html')"><span>🏥</span>HOSPITAL</button>
   <button class="active"><span>🛒</span>CART</button>
 </div>
-<script>
-let isPopping=false;
-function loadCart(type='all'){
-  let all=JSON.parse(localStorage.getItem('ng_cart')||'[]');
-  let filtered = type==='all' ? all : all.filter(p=>{ let c=(p.category||'').toLowerCase(); if(type==='prescribed') return c==='prescribed' || c==='hospital'; return c===type; });
-  let div=document.getElementById('cartArea'); div.innerHTML='';
-  if(filtered.length==0){div.innerHTML=`<p style="text-align:center;padding:20px;color:#888">${type} empty</p>`;return;}
-  filtered.forEach((p,i)=>{div.innerHTML+=`<div class="item" onclick="openBio(${i})"><div><b>${p.name}</b><br><small>${p.category} | ₹${p.rate||p.mrp}</small></div><span>▶</span></div>`;});
-}
-function filterCart(type){ if(!isPopping){ history.pushState({type:'filter',filter:type},'',location.href); } loadCart(type); }
-function openBio(idx){
-  let all=JSON.parse(localStorage.getItem('ng_cart')||'[]'); let p=all[idx]; if(!p) return;
-  document.getElementById('bioTitle').innerText=p.name;
-  document.getElementById('bioContent').innerHTML=`<div class="bio-row"><b>Category:</b> ${p.category}</div><div class="bio-row"><b>Details:</b><br>${p.desc||'Pura bio data'}<br><br>1<br>2<br>3<br>4<br>5<br>6</div><div style="height:80px"></div>`;
-  document.getElementById('bioPanel').classList.add('open'); document.getElementById('overlay').classList.add('show');
-  if(!isPopping){ history.pushState({type:'bio',idx:idx},'',location.href); }
-}
-function closeBio(){ document.getElementById('bioPanel').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
-loadCart('all');
-let baseState={type:'base'};
-history.replaceState(baseState,'',location.href);
-history.pushState(baseState,'',location.href);
-window.addEventListener('popstate',function(e){
-  isPopping=true; let s=e.state;
-  if(s && s.type==='bio'){ openBio(s.idx); }
-  else if(s && s.type==='filter'){ closeBio(); loadCart(s.filter); }
-  else{ closeBio(); loadCart('all'); history.pushState(baseState,'',location.href); }
-  setTimeout(()=>{isPopping=false;},100);
-});
-</script>
+
 </body>
 </html>
